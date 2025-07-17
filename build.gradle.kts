@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("io.freefair.lombok") version "8.14"
 }
 
 fun getGitHash(): String {
@@ -44,6 +45,9 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	// swagger
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+
 }
 
 tasks.withType<Test> {
