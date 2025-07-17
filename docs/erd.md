@@ -15,14 +15,13 @@ erDiagram
         int balance "잔액"
     }
     	
-     USER_BALANCE_HISTORY {
+    USER_BALANCE_HISTORY {
         int id PK "잔액내역 ID"
         int user_id FK "사용자 ID (FK)"
         date used_at "사용일"
         int amount "금액"
-        enum type "CHARGE, USE"
+        enum type "CHARGE, PURCHASE"
     }
-	
 	
     ORDER {
         int id PK "주문 ID"
@@ -57,6 +56,7 @@ erDiagram
         date used_at "사용일"
         int coupon_type_id FK "쿠폰 타입 ID (FK)"
         boolean used "사용여부 (기본값 FALSE)"
+        int discount_rate "할인율"
     }
 
     COUPON_TYPE {
@@ -68,6 +68,7 @@ erDiagram
         int quantity "발행 수량"
         int remaining_quantity "잔여 발행 수량"
     }
+
 
 
 ```
