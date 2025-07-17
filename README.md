@@ -31,4 +31,9 @@
 
 ```bash
 docker-compose up -d
+
 ```
+### Swagger Ui 실행 방법
+1. **서버 구동**: 스프링 부트 애플리케이션을 구동합니다.
+2. **Swagger UI 접근**: http://127.0.0.1:8080/swagger-ui/index.html
+  - 참고: `8080`은 기본 포트입니다.
