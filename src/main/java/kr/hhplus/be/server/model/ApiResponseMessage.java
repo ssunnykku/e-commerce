@@ -14,10 +14,10 @@ public class ApiResponseMessage {
     private String code;
     @Schema(description = "응답 메시지", example = "Balance charged successfully.")
     private String message;
-    @Schema(description = "추가 데이터 (예: couponId)", example = "201", required = false)
+    @Schema(description = "쿠폰 ID", example = "201", required = false)
     private Integer couponId;
-    @Schema(description = "추가 데이터 (예: orderId, totalAmount)", example = "301", required = false)
+    @Schema(description = "주문 ID", example = "301", required = false)
     private Integer orderId;
-    @Schema(description = "추가 데이터 (예: orderId, totalAmount)", example = "795000", required = false)
+    @Schema(description = "총 금액", example = "795000", required = false)
     private Integer totalAmount;
 }
