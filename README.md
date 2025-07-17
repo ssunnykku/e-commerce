@@ -1,4 +1,25 @@
-## 프로젝트
+## E-Commerce 프로젝트
+## 주요 기능
+### 1. 잔액 충전 / 조회
+- 사용자별 남은 금액을 확인
+- 사용자별 잔액을 충전
+- 결제시 잔액을 사용
+### 2. 상품 조회
+- 조회 시점에 판매 가능한 상품 정보를 리스트로 조회
+- 선택한 상품 정보를 조회
+### 3. 선착순 쿠폰 기능
+- 사용자 식별자를 입력받아 사용자가 보유한 쿠폰 내역을 조회
+### 4. 주문 / 결제 
+- 사용자 식별자와 (상품 ID, 수량) 목록을 리스트로 입력받아 주문
+- 주문 내역을 리스트로 입력받아 결제를 진행
+- 주문, 결제시 사용자 잔액과 상품 재고 관리
+### 5. 상위 상품 조회 API
+- 최근 3일간 가장 많이 팔린 상위 5개 상품 정보를 리스트로 제공
+  
+## 설계 문서
+- [기능 명세서](https://github.com/ssunnykku/e-commerce/blob/STEP3/docs/requirements_specification.md)
+- [시퀀스 다이어그램](https://github.com/ssunnykku/e-commerce/tree/STEP3/docs/sequence)
+- [ERD](https://github.com/ssunnykku/e-commerce/blob/STEP3/docs/erd.md)
 
 ## Getting Started
 
@@ -11,3 +32,4 @@
 ```bash
 docker-compose up -d
 ```
+
