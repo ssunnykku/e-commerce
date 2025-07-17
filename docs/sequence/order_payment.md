@@ -43,14 +43,15 @@ else 재고 있음
         activate productRepository
         productRepository-->>orderService: 차감 완료
         deactivate productRepository
-        orderService->>userRepository: 6. 잔액 차감
-        activate userRepository
-        userRepository-->>orderService: 차감 완료
-				deactivate userRepository
-				orderService->>couponRepository: 7. 쿠폰 사용 처리 (used = true, used_at)
+        	orderService->>couponRepository: 6. 쿠폰 사용 처리 (used = true, used_at)
          activate couponRepository
          couponRepository-->>orderService: 처리 완료
           deactivate couponRepository      
+        orderService->>userRepository: 7. 잔액 차감
+        activate userRepository
+        userRepository-->>orderService: 차감 완료
+				deactivate userRepository
+			
          orderService->>orderRepository: 8. 주문서 저장(ORDER, ORDER_PRODUCT)
           activate orderRepository
           orderRepository-->>orderService: 저장 완료
@@ -64,7 +65,6 @@ else 재고 있음
         end
     end
 end
-
 
 
 ```
