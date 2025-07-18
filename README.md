@@ -38,4 +38,4 @@ docker-compose up -d
 1. **서버 구동**: 스프링 부트 애플리케이션을 구동합니다.
 2. **Swagger UI 접근**: http://127.0.0.1:8080/swagger-ui/index.html
     - 참고: `8080`은 기본 포트입니다.
-3. [PDF 파일 경로](https://github.com/ssunnykku/e-commerce/blob/STEP4/docs/MockAPI.pdf)
+3. [PDF 파일 다운로드](https://raw.githubusercontent.com/ssunnykku/e-commerce/STEP4/docs/MockAPI.pdf)
