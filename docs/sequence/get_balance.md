@@ -1,7 +1,7 @@
 ### 잔액 조회
 ```mermaid
 sequenceDiagram
-    participant BalanceController as ECommerceController
+    participant BalanceController
     participant BalanceService
     participant UserRepository
 

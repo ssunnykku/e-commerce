@@ -19,16 +19,18 @@ alt 재고 없음
      deactivate orderService
 else 재고 있음
     orderService->>couponRepository: 3. 쿠폰 조회
+        activate orderService
         activate couponRepository
-        
-    alt 쿠폰이 유효하지 않음
-             couponRepository-->>orderService: 예외 정보
-            
-        orderService-->>orderController: 예외 발생 (쿠폰 만료/이미 사용 등)
-    else 유효한 쿠폰
-        couponRepository-->>orderService: 쿠폰 정보 반환
+    couponRepository -->> orderService : 쿠폰 조회 결과 반환
         deactivate couponRepository
+
+       alt 쿠폰이 유효하지 않음
+    orderService -->> orderController : 예외 발생 (쿠폰 만료/이미 사용 등)
+
+    else 유효한 쿠폰
+        orderService-->>orderController: 쿠폰 정보 반환
         end
+        deactivate orderService
     orderService->>userRepository: 4. 사용자 잔액 조회
        activate userRepository
        userRepository-->>orderService: 잔액 정보 반환
@@ -65,6 +67,5 @@ else 재고 있음
         end
     end
 end
-
 
 ```
