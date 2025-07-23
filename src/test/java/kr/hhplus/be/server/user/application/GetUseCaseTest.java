@@ -31,7 +31,7 @@ class GetUseCaseTest {
     void 사용자_ID로_사용자_정보_조회() {
         // Given
         long userId = 1L;
-        String userName = "TestUser";
+        String userName = "sun";
         long userBalance = 10000L;
 
         User mockUser = User.builder()

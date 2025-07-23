@@ -8,7 +8,7 @@ import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.domain.entity.BalanceType;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.domain.entity.UserBalanceHistory;
-import kr.hhplus.be.server.user.domain.repository.UserBalanceHistoryRepository;
+import kr.hhplus.be.server.user.domain.repository.BalanceHistoryRepository;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,23 +17,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChargeUseCase {
     private final UserRepository userRepository;
-    private final UserBalanceHistoryRepository userBalanceHistoryRepository;
+    private final BalanceHistoryRepository userBalanceHistoryRepository;
 
     @Transactional
     public UserResponse execute(UserRequest request) {
-        User user = userRepository.findBy(request.getUserId())
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(()-> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-
-        // 잔액정보 없으면 생성 (userId, amount=0)
 
         user.increaseBalance(request.getAmount());
 
-        UserBalanceHistory history = UserBalanceHistory.builder()
-                .userId(user.getUserId())
-                .amount(request.getAmount())
-                .type(BalanceType.CHARGE.getCode())
-                .build();
-        userBalanceHistoryRepository.save(history);
+        recordHistory(request);
 
         UserResponse userResponse = UserResponse.builder()
                 .userId(user.getUserId())
@@ -42,6 +35,15 @@ public class ChargeUseCase {
                 .build();
 
         return userResponse;
+    }
+
+    public UserBalanceHistory recordHistory(UserRequest request) {
+        UserBalanceHistory history = UserBalanceHistory.builder()
+                .userId(request.getUserId())
+                .amount(request.getAmount())
+                .type(BalanceType.CHARGE.getCode())
+                .build();
+       return userBalanceHistoryRepository.save(history);
     }
 
 }
