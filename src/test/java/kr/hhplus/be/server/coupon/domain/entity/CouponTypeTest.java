@@ -71,4 +71,6 @@ class CouponTypeTest {
                 .isInstanceOf(OutOfStockException.class)
                 .hasMessageContaining(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
     }
+
+    // TODO 만료된 쿠폰 ExpiredCouponException
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.exception.ExpiredCouponException;
 import kr.hhplus.be.server.exception.OutOfStockException;
 import lombok.*;
 import jakarta.persistence.*;
@@ -48,7 +49,12 @@ public class CouponType {
     }
 
     public LocalDate calculateExpireDate() {
-        return this.createdAt.plusDays(this.validDays);
+        LocalDate expiresAt = this.createdAt.plusDays(this.validDays);
+
+        if(expiresAt.isBefore(LocalDate.now())) {
+            throw new ExpiredCouponException(ErrorCode.EXPIRED_COUPON);
+        }
+        return expiresAt;
     }
 
     public Coupon issueTo(Long userId) {
