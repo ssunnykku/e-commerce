@@ -14,7 +14,7 @@ public class GetUseCase {
     private final UserRepository userRepository;
 
     public UserResponse execute(long userId) {
-        User user = userRepository.findBy(userId).get();
+        User user = userRepository.findById(userId).get();
         UserResponse userResponse = UserResponse.builder()
                 .userId(userId)
                 .name(user.getName())
