@@ -9,6 +9,7 @@ import kr.hhplus.be.server.exception.ExpiredCouponException;
 import kr.hhplus.be.server.exception.OutOfStockException;
 import lombok.*;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
 
@@ -32,6 +33,7 @@ public class CouponType {
     @Column(name = "valid_days")
     private Integer validDays;
 
+    @CreatedDate
     @Column(name = "created_at")
     private LocalDate createdAt;
 

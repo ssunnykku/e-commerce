@@ -17,8 +17,6 @@ public class ProductRepositoryAdapter implements ProductRepository {
 
     @Override
     public Optional<Product> findById(Long id) {
-        return jpaRepository.findById(id).orElseThrow(()->{
-            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
-        });
+        return jpaRepository.findById(id);
     }
 }
