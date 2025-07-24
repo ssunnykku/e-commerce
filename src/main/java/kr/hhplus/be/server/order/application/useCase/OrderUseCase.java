@@ -45,10 +45,11 @@ public class OrderUseCase {
 
         long price = decreaseStockAndCalculatePrice(productList);
 
+        long totalPrice = chargeUser(user, price, coupon, productList);
+
         useCoupon(coupon);
         decreaseCouponCount(coupon);
 
-        long totalPrice = chargeUser(user, price, coupon);
         Order order = saveOrder(request, coupon, user, totalPrice);
 
         publishOrderInfo(order, coupon, user);
@@ -105,22 +106,30 @@ public class OrderUseCase {
         return price;
     }
 
-    // 6. 쿠폰 사용 처리 (used = true, used_at) (coupon)
+    // 6. 잔액 차감 (결제)
+    private long chargeUser(User user, long price, Coupon coupon, List<Product> productList) {
+        long discountAmount = coupon.discountPrice(price);
+        long totalPrice = price + discountAmount;
+        boolean result =  user.use(totalPrice);
+        if (!result) {
+            // 결제 실패시 재고 복구
+            for (Product product : productList) {
+                product.increaseStock(product.getStock());
+            }
+            throw new InvalidRequestException(ErrorCode.INSUFFICIENT_BALANCE);
+        }
+
+        return totalPrice;
+    }
+
+    // 7. 쿠폰 사용 처리 (used = true, used_at) (coupon)
     private void useCoupon(Coupon coupon) {
         coupon.use();
     }
 
-    // 7. 쿠폰 수 차감
+    // 8. 쿠폰 수 차감
     private void decreaseCouponCount(Coupon coupon) {
         couponTypeRepository.findById(coupon.getId()).ifPresent(couponType -> couponType.decreaseCoupon());
-    }
-
-    // 8. 잔액 차감 (user)
-    private long chargeUser(User user, long price, Coupon coupon) {
-        long discountAmount = coupon.discountPrice(price);
-        long totalPrice = price + discountAmount;
-        user.use(totalPrice);
-        return totalPrice;
     }
 
     // 9. 주문서 저장(ORDER, ORDER_PRODUCT)

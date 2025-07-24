@@ -22,14 +22,13 @@ class UserTest {
         assertThat(user.getBalance()).isEqualTo(15000L);
     }
 
+
     @Test
     @DisplayName("잔액보다 큰 금액 사용을 시도할 경우 예외 발생")
     void 잔액_부족() {
         User user = new User(1L, "sun", 10000L);
 
-        assertThatThrownBy(() -> user.use(60000L))
-                .isInstanceOf(InvalidRequestException.class)
-                .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
+        assertThat(user.use(60000L)).isEqualTo(false);
     }
 
     @Test

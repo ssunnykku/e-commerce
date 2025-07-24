@@ -32,6 +32,10 @@ public class Product {
         this.stock -= quantity;
     }
 
+    public void increaseStock(Long quantity) {
+        this.stock += quantity;
+    }
+
     public boolean hasStock() {
         return this.stock > 0;
     }
