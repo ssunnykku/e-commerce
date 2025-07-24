@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.order.application;
+package kr.hhplus.be.server.order.application.useCase;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;

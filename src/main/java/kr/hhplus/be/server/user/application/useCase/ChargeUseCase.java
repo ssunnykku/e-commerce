@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.application;
+package kr.hhplus.be.server.user.application.useCase;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.exception.ErrorCode;

@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.user.presentation;
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.user.application.ChargeUseCase;
-import kr.hhplus.be.server.user.application.GetUseCase;
+import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
+import kr.hhplus.be.server.user.application.useCase.GetUseCase;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import lombok.RequiredArgsConstructor;

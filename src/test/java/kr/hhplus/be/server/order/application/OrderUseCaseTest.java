@@ -8,6 +8,7 @@ import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.OutOfStockListException;
 import kr.hhplus.be.server.exception.UserNotFoundException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
+import kr.hhplus.be.server.order.application.useCase.OrderUseCase;
 import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;

@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.order.presentation;
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.order.application.OrderUseCase;
+import kr.hhplus.be.server.order.application.useCase.OrderUseCase;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import lombok.RequiredArgsConstructor;

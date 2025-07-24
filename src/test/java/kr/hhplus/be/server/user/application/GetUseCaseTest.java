@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.user.application;
 
 import kr.hhplus.be.server.user.application.dto.UserResponse;
+import kr.hhplus.be.server.user.application.useCase.GetUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.Test;

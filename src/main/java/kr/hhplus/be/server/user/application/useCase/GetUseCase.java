@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user.application;
+package kr.hhplus.be.server.user.application.useCase;
 
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import kr.hhplus.be.server.user.application.dto.UserResponse;

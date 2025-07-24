@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.coupon.presentation;
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.coupon.application.CreateCouponUseCase;
+import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import lombok.RequiredArgsConstructor;
