@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.product.domain.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.exception.OutOfStockException;
 import lombok.*;
 
 @Entity
@@ -24,5 +26,12 @@ public class Product {
     @Column(name = "stock", nullable = false)
     @Builder.Default
     private Long stock = 0L;
+
+    public void decreaseStock(Long quantity) {
+        if(this.stock < quantity) {
+            throw new OutOfStockException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+        }
+        this.stock -= quantity;
+    }
 
 }
