@@ -18,15 +18,20 @@ import java.time.LocalDateTime;
 public class UserBalanceHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @Column(nullable = false)
-    private long userId;
+    private Long id;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
-    private long amount;
+    @Column(name = "created_at", nullable = false,  updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "amount", nullable = false)
+    @Builder.Default
+    private Long amount = 0L;
+
     @Column(nullable = false)
     private String type;
-
 
 }

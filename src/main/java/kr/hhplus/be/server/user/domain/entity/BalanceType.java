@@ -7,8 +7,7 @@ import lombok.Getter;
 @Getter
 public enum BalanceType {
     CHARGE("0"),
-    PURCHASE("1"),
-    ;
+    PURCHASE("1");
 
     private final String code; // char 대신 String으로 관리
 

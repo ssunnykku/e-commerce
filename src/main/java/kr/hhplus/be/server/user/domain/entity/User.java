@@ -15,13 +15,15 @@ import lombok.NoArgsConstructor;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userId;
-    @Column(nullable = false)
-    private  String name;
-    @Column(nullable = false)
-    private  long balance;
+    private Long userId;
 
-    public void increaseBalance(long balance) {
+    @Column(name = "name", nullable = false)
+    private  String name;
+
+    @Column(name = "balance", nullable = false)
+    private  Long balance = 0L;
+
+    public void increaseBalance(Long balance) {
         this.balance += balance;
     }
 
