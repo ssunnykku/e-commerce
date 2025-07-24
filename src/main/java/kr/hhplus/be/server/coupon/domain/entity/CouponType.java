@@ -68,4 +68,9 @@ public class CouponType {
                 .discountRate(this.discountRate)
                 .build();
     }
+
+    public void decreaseCoupon() {
+        this.checkStock();
+        this.remainingQuantity -= 1;
+    }
 }

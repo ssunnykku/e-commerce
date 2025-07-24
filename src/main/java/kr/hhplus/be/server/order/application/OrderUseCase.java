@@ -2,6 +2,7 @@ package kr.hhplus.be.server.order.application;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
+import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.exception.*;
 import kr.hhplus.be.server.order.application.dto.OrderInfo;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
@@ -33,6 +34,7 @@ public class OrderUseCase {
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
     private final OrderDataPublisher orderDataPublisher;
+    private final CouponTypeRepository couponTypeRepository;
 
     @Transactional
     public OrderResponse execute(OrderRequest request) {
@@ -79,6 +81,11 @@ public class OrderUseCase {
 
         // 6. 쿠폰 사용 처리 (used = true, used_at) (coupon)
         coupon.use();
+
+        // 쿠폰 수 차감
+        couponTypeRepository.findById(request.getCouponId()).ifPresent(couponType -> {
+            couponType.decreaseCoupon();
+        });
 
         // 7. 잔액 차감 (user)
         long discountAmount = coupon.discountPrice(price);
