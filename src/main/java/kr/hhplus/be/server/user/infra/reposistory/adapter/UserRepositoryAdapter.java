@@ -1,7 +1,8 @@
-package kr.hhplus.be.server.user.infra;
+package kr.hhplus.be.server.user.infra.reposistory.adapter;
 
 import kr.hhplus.be.server.user.domain.entity.User;
-import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.infra.reposistory.UserJpaRepository;
+import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

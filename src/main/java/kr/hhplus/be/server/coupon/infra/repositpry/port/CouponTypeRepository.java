@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.coupon.domain.repository;
+package kr.hhplus.be.server.coupon.infra.repositpry.port;
 
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import java.util.Optional;
