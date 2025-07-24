@@ -8,6 +8,7 @@ import kr.hhplus.be.server.product.infra.repository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -18,5 +19,10 @@ public class ProductRepositoryAdapter implements ProductRepository {
     @Override
     public Optional<Product> findById(Long id) {
         return jpaRepository.findById(id);
+    }
+
+    @Override
+    public List<Product> findAll() {
+        return jpaRepository.findAll();
     }
 }
