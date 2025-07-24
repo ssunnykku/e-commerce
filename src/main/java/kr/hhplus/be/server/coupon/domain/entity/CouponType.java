@@ -19,7 +19,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class CouponType {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
