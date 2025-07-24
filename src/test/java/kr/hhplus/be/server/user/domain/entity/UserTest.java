@@ -29,7 +29,7 @@ class UserTest {
 
         assertThatThrownBy(() -> user.use(60000L))
                 .isInstanceOf(InvalidRequestException.class)
-                .hasMessageContaining(ErrorCode.INSUFFICIENT_POINT.getMessage());
+                .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
     }
 
     @Test

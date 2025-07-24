@@ -2,6 +2,7 @@ package kr.hhplus.be.server.user.presentation;
 
 import jakarta.validation.Valid;
 import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
+import kr.hhplus.be.server.user.application.useCase.ConsumeBalanceUseCase;
 import kr.hhplus.be.server.user.application.useCase.GetUseCase;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final ChargeUseCase chargeUseCase;
     private final GetUseCase getUseCase;
+    private final ConsumeBalanceUseCase consumeBalanceUseCase;
+
 
     @PostMapping("/charge")
-     public ResponseEntity<UserResponse> charge(@RequestBody @Valid UserRequest balanceRequest) {
-        UserResponse result = chargeUseCase.execute(balanceRequest);
+     public ResponseEntity<UserResponse> charge(@RequestBody @Valid UserRequest request) {
+        UserResponse result = chargeUseCase.execute(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -30,6 +33,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-
-
+    @PostMapping("/use")
+    public ResponseEntity<UserResponse> consume(@RequestBody @Valid UserRequest request) {
+        UserResponse result = consumeBalanceUseCase.execute(request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

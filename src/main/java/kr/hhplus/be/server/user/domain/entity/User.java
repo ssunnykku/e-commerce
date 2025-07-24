@@ -28,7 +28,7 @@ public class User {
 
     public void use(long amount) {
         if(this.balance < amount) {
-            throw new InvalidRequestException(ErrorCode.INSUFFICIENT_POINT);
+            throw new InvalidRequestException(ErrorCode.INSUFFICIENT_BALANCE);
         }
         decreaseBalance(amount);
     }
