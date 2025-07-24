@@ -29,15 +29,16 @@ public class CreateUseCase {
 
         // TODO 사용자 존재 여부,
 
-        // 쿠폰 확인 (중복 발급 불가)
+        // 2. 쿠폰 발급 대상 여부 확인 (중복 발급 불가)
         couponRepository.findByUserIdAndCouponTypeId(request.getUserId(), request.getCouponTypeId())
                 .orElseThrow(()-> new InvalidRequestException(ErrorCode.USER_ALREADY_HAS_COUPON));
 
         LocalDate expiresAt = couponType.calculateExpireDate();
 
-        // 쿠폰 재고 조회 및 쿠폰 발급
+        //  3. 쿠폰 재고 확인
         Coupon coupon = couponType.issueTo(request.getUserId());
 
+        // 4. 쿠폰 발급 처리
         Coupon issueResult = couponRepository.save(coupon);
 
         CouponResponse response = CouponResponse.builder()

@@ -13,6 +13,7 @@ public enum ErrorCode {
     USER_ALREADY_HAS_COUPON(HttpStatus.BAD_REQUEST, "이미 발급받은 쿠폰입니다."),
     EXPIRED_COUPON(HttpStatus.UNPROCESSABLE_ENTITY, "쿠폰이 만료되었습니다."),
     ;
+
     private final HttpStatus status;
     private final String message;
 }

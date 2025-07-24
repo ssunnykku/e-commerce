@@ -10,7 +10,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class CouponRepositoryAdapter implements CouponRepository {
-
     private final CouponJpaRepository jpaRepository;
 
     @Override

@@ -9,6 +9,7 @@ import lombok.Data;
 public class CouponRequest {
     @NotNull
     private Long userId;
+
     @NotNull
     private Long couponTypeId;
 }
