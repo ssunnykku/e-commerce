@@ -50,6 +50,7 @@ public class Coupon {
             throw new InvalidCouponStateException (ErrorCode.ALREADY_USED);
         }
         this.used = true;
+        this.usedAt = LocalDate.now();
     }
 
     public boolean isExpired() {

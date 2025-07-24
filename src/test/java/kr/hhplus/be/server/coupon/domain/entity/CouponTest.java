@@ -22,6 +22,7 @@ class CouponTest {
                 .build();
 
         // when & then
+        assertThat(coupon.isExpired()).isEqualTo(true);
         assertThatThrownBy(() -> coupon.use())
                 .isInstanceOf(InvalidCouponStateException.class)
                 .hasMessageContaining(ErrorCode.EXPIRED_COUPON.getMessage());
@@ -48,7 +49,7 @@ class CouponTest {
     }
 
     @Test
-    @DisplayName("쿠폰을 사용하면 used 컬럼이 false -> true로 변경됨")
+    @DisplayName("쿠폰을 사용하면 used 컬럼이 false -> true로, usedAt에 현재 시간 기록")
     void 쿠폰_사용() {
         // given
         Coupon coupon = Coupon.builder()
@@ -63,6 +64,8 @@ class CouponTest {
 
         // then
         assertThat(coupon.isUsed()).isEqualTo(true);
+        assertThat(coupon.getUsed()).isEqualTo(true);
+        assertThat(coupon.getUsedAt()).isEqualTo(LocalDate.now());
 
     }
 
