@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     private final OrderUseCase orderUseCase;
 
-    // 주문/결제
     @PostMapping("/orders")
     public ResponseEntity<OrderResponse> placeProductOrder(@RequestBody OrderRequest orderRequest) {
         OrderResponse response = orderUseCase.execute(orderRequest);

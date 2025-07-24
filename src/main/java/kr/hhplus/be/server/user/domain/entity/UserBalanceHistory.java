@@ -31,7 +31,7 @@ public class UserBalanceHistory {
     @Builder.Default
     private Long amount = 0L;
 
-    @Column(nullable = false)
-    private String type;
+    @Column(name = "status", nullable = false)
+    private String status;
 
 }

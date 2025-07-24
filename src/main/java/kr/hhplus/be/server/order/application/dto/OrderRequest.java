@@ -11,7 +11,7 @@ public class OrderRequest {
     private List<OrderItemRequest> orderItems;
 
     @Data
-    public static class OrderItemRequest {
+    public class OrderItemRequest {
         private Long productId;
         private Long quantity;
     }

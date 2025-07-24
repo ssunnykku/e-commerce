@@ -20,12 +20,10 @@ public class Product {
     private String name;
 
     @Column(name = "price", nullable = false)
-    @Builder.Default
-    private Long price = 0L;
+    private Long price;
 
     @Column(name = "stock", nullable = false)
-    @Builder.Default
-    private Long stock = 0L;
+    private Long stock;
 
     public void decreaseStock(Long quantity) {
         if(this.stock < quantity) {
@@ -37,5 +35,10 @@ public class Product {
     public boolean hasStock() {
         return this.stock > 0;
     }
+
+    public Long totalPrice() {
+        return this.price * this.stock;
+    }
+
 
 }

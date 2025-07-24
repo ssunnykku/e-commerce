@@ -1,22 +1,22 @@
-package kr.hhplus.be.server.user.domain.entity;
+package kr.hhplus.be.server.order.domain.entity;
 
 import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.InvalidTypeException;
 import lombok.Getter;
 
 @Getter
-public enum BalanceType {
-    CHARGE("0"),
-    PURCHASE("1");
+public enum OrderStatus {
+    ORDERED("0"),
+    PAYED("1");
 
     private final String code;
 
-    BalanceType(String code) {
+    OrderStatus(String code) {
         this.code = code;
     }
 
-    public static BalanceType fromCode(String code) {
-        for (BalanceType type : BalanceType.values()) {
+    public static OrderStatus fromCode(String code) {
+        for (OrderStatus type : OrderStatus.values()) {
             if (type.getCode().equals(code)) {
                 return type;
             }

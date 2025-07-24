@@ -6,9 +6,12 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @Entity
 @Table(name = "order_product")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class OrderProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,10 +24,7 @@ public class OrderProduct {
     private Long orderId;
 
     @Column(name = "quantity", nullable = false)
-    private Integer quantity;
-
-    @Column(name = "status", nullable = false)
-    private String status;
+    private Long quantity;
 
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;

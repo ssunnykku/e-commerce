@@ -7,9 +7,12 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class OrderResponse {
+public class OrderInfo {
     private Long orderId;
-    private String status;
+    private Long userId;
+    private Long totalPrice;
+    private Long discountAmount;
     private LocalDateTime orderDate;
+    private Long couponId;
 
 }

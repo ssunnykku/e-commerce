@@ -61,4 +61,8 @@ public class Coupon {
         return this.used == true;
     }
 
+    public long discountPrice(long totalPrice) {
+        return totalPrice *  this.discountRate;
+    }
+
 }

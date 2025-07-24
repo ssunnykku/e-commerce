@@ -20,7 +20,7 @@ public class User {
     private  String name;
 
     @Column(name = "balance", nullable = false)
-    private  Long balance = 0L;
+    private Long balance;
 
     public void increaseBalance(Long balance) {
         this.balance += balance;
@@ -30,6 +30,10 @@ public class User {
         if(this.balance < amount) {
             throw new InvalidRequestException(ErrorCode.INSUFFICIENT_POINT);
         }
+        decreaseBalance(amount);
+    }
+
+    public void decreaseBalance(Long amount) {
         this.balance -= amount;
     }
 

@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.order.infra;
+package kr.hhplus.be.server.order.infra.repository;
 
 import kr.hhplus.be.server.order.domain.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
