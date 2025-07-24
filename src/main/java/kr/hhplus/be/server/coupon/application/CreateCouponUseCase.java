@@ -17,7 +17,7 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class CreateUseCase {
+public class CreateCouponUseCase {
     private final CouponTypeRepository couponTypeRepository;
     private final CouponRepository couponRepository;
 
@@ -31,7 +31,9 @@ public class CreateUseCase {
 
         // 2. 쿠폰 발급 대상 여부 확인 (중복 발급 불가)
         couponRepository.findByUserIdAndCouponTypeId(request.getUserId(), request.getCouponTypeId())
-                .orElseThrow(()-> new InvalidRequestException(ErrorCode.USER_ALREADY_HAS_COUPON));
+                .ifPresent(coupon -> {
+                    throw new InvalidRequestException(ErrorCode.USER_ALREADY_HAS_COUPON);
+                });
 
         LocalDate expiresAt = couponType.calculateExpireDate();
 

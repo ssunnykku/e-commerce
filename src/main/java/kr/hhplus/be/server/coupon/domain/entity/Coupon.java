@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.coupon.domain.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.exception.InvalidCouponStateException;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -30,7 +32,7 @@ public class Coupon {
     @Column(name = "expires_at", nullable = false)
     private LocalDate expiresAt;
 
-    @Column(name = "used_at", nullable = false)
+    @Column(name = "used_at")
     private LocalDate usedAt;
 
     @Column(name = "used", nullable = false)
@@ -39,5 +41,23 @@ public class Coupon {
 
     @Column(name = "discount_rate", nullable = false)
     private Integer discountRate;
+
+    public void use() {
+        if (isExpired()) {
+            throw new InvalidCouponStateException(ErrorCode.EXPIRED_COUPON);
+        }
+        if (isUsed()) {
+            throw new InvalidCouponStateException (ErrorCode.ALREADY_USED);
+        }
+        this.used = true;
+    }
+
+    public boolean isExpired() {
+        return expiresAt.isBefore(LocalDate.now());
+    }
+
+    public boolean isUsed() {
+        return this.used == true;
+    }
 
 }

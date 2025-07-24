@@ -1,5 +1,8 @@
 package kr.hhplus.be.server.order.application;
 
+import kr.hhplus.be.server.coupon.domain.entity.Coupon;
+import kr.hhplus.be.server.coupon.domain.repository.CouponRepository;
+import kr.hhplus.be.server.exception.CouponNotFoundException;
 import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.OutOfStockException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
@@ -21,6 +24,7 @@ public class OrderUseCase {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
     private final ProductRepository productRepository;
+    private final CouponRepository couponRepository;
 
     @Transactional
     public OrderResponse execute(OrderRequest request) {
@@ -32,8 +36,9 @@ public class OrderUseCase {
                     .orElseThrow(()-> new OutOfStockException(ErrorCode.PRODUCT_OUT_OF_STOCK)));
         });
 
-        // 2. 쿠폰 조회 (coupon)
-        // 예외 발생 (쿠폰 만료/이미 사용 등) 422
+        // 2. 선택한 쿠폰 조회 (coupon)
+        Coupon coupon = couponRepository.findByUserIdAndCouponTypeId(request.getUserId(), request.getCouponId())
+                .orElseThrow(()-> new CouponNotFoundException(ErrorCode.COUPON_NOT_FOUND));
 
         // 3. 사용자 잔액 조회 (user)
         // 예외 발생 (잔액 부족) 422
@@ -42,9 +47,10 @@ public class OrderUseCase {
         // 예외 발생 (처리 실패)
 
         // 5. 쿠폰 사용 처리 (used = true, used_at) (coupon)
-        // 예외 발생 (처리 실패)
+        coupon.use();
 
         // 6. 잔액 차감 (user)
+
         // 예외 발생 (처리 실패)
         // => 결제 성공 : 주문 정보를 데이터 플랫폼에 전송
 

@@ -16,6 +16,7 @@ public enum ErrorCode {
     COUPON_OUT_OF_STOCK(HttpStatus.UNPROCESSABLE_ENTITY, "쿠폰 재고가 없습니다."),
     USER_ALREADY_HAS_COUPON(HttpStatus.BAD_REQUEST, "이미 발급받은 쿠폰입니다."),
     EXPIRED_COUPON(HttpStatus.UNPROCESSABLE_ENTITY, "쿠폰이 만료되었습니다."),
+    ALREADY_USED(HttpStatus.UNPROCESSABLE_ENTITY, "이미 사용한 쿠폰입니다."),
 
     PRODUCT_OUT_OF_STOCK(HttpStatus.UNPROCESSABLE_ENTITY, "상품 재고가 없습니다."),;
 
