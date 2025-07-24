@@ -34,4 +34,8 @@ public class Product {
         this.stock -= quantity;
     }
 
+    public boolean hasStock() {
+        return this.stock > 0;
+    }
+
 }
