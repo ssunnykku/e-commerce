@@ -11,6 +11,8 @@ public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     INVALID_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 유형의 코드입니다."),
+    INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "잔액이 부족합니다."),
+
 
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "쿠폰을 찾을 수 없습니다."),
     COUPON_OUT_OF_STOCK(HttpStatus.UNPROCESSABLE_ENTITY, "쿠폰 재고가 없습니다."),

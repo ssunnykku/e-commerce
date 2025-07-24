@@ -1,17 +1,16 @@
 package kr.hhplus.be.server.user.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.exception.InvalidRequestException;
+import lombok.*;
 
 @Entity
-@Table(name = "users")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +24,13 @@ public class User {
 
     public void increaseBalance(Long balance) {
         this.balance += balance;
+    }
+
+    public void use(long amount) {
+        if(this.balance < amount) {
+            throw new InvalidRequestException(ErrorCode.INSUFFICIENT_POINT);
+        }
+        this.balance -= amount;
     }
 
 }
