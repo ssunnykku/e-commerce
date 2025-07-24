@@ -30,17 +30,17 @@ public class CouponType {
     @Column(name = "discount_rate")
     private Integer discountRate;
 
-    @Column(name = "valid_days")
+    @Column(name = "valid_days",  nullable = false)
     private Integer validDays;
 
     @CreatedDate
-    @Column(name = "created_at")
+    @Column(name = "created_at",  nullable = false)
     private LocalDate createdAt;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity",  nullable = false)
     private Long quantity;
 
-    @Column(name = "remaining_quantity")
+    @Column(name = "remaining_quantity",  nullable = false)
     private Long remainingQuantity;
 
     public void checkStock() {

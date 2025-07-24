@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.coupon.domain.entity;
 
 import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.exception.ExpiredCouponException;
 import kr.hhplus.be.server.exception.OutOfStockException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,65 +14,86 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CouponTypeTest {
 
-    @Test
-    @DisplayName("재고 확인")
-    void 재고가_1보다_작으면_OutOfStockException() {
-        CouponType couponType = CouponType.builder()
-                .id(1L)
-                .couponName("10% 할인 이벤트")
-                .discountRate(10)
-                .validDays(30)
-                .createdAt(LocalDate.parse("2025-07-23"))
-                .quantity(100L)
-                .remainingQuantity(0L).build();
+    private CouponType validCouponType;
 
-        assertThatThrownBy(() -> couponType.checkStock())
+    @BeforeEach
+    void setUp() {
+        validCouponType = createCouponType(5L, LocalDate.now(), 10); // 재고 5, 만료 안됨
+    }
+
+    @Test
+    @DisplayName("재고 확인 - 재고 없으면 OutOfStockException")
+    void 재고가_0이면_OutOfStockException() {
+        CouponType noStockCoupon = createCouponType(0L, LocalDate.now(), 10);
+
+        assertThatThrownBy(noStockCoupon::checkStock)
                 .isInstanceOf(OutOfStockException.class)
                 .hasMessageContaining(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
     }
 
     @Test
     @DisplayName("쿠폰 발급 - 재고가 있을 때 정상 발급")
-    void 쿠폰_발급() {
-        CouponType couponType = CouponType.builder()
-                .id(1L)
-                .couponName("10% 할인 이벤트")
-                .discountRate(10)
-                .validDays(30)
-                .createdAt(LocalDate.of(2025, 7, 23))
-                .quantity(100L)
-                .remainingQuantity(10L)
-                .build();
-
+    void 쿠폰_발급_성공() {
         Long userId = 42L;
-        Coupon coupon = couponType.issueTo(userId);
+        Coupon coupon = validCouponType.issueTo(userId);
 
         assertThat(coupon).isNotNull();
-        assertThat(coupon.getCouponTypeId()).isEqualTo(couponType.getId());
+        assertThat(coupon.getCouponTypeId()).isEqualTo(validCouponType.getId());
         assertThat(coupon.getUserId()).isEqualTo(userId);
-        assertThat(coupon.getExpiresAt()).isEqualTo(couponType.calculateExpireDate());
-        assertThat(coupon.getDiscountRate()).isEqualTo(couponType.getDiscountRate());
+        assertThat(coupon.getExpiresAt()).isEqualTo(validCouponType.calculateExpireDate());
+        assertThat(coupon.getDiscountRate()).isEqualTo(validCouponType.getDiscountRate());
     }
 
     @Test
     @DisplayName("쿠폰 발급 - 재고 없으면 예외 발생")
     void 쿠폰_발급_재고없음_예외() {
-        CouponType couponType = CouponType.builder()
-                .id(1L)
-                .couponName("10% 할인 이벤트")
-                .discountRate(10)
-                .validDays(30)
-                .createdAt(LocalDate.of(2025, 7, 23))
-                .quantity(100L)
-                .remainingQuantity(0L)
-                .build();
-
+        CouponType noStockCoupon = createCouponType(0L, LocalDate.now(), 30);
         Long userId = 42L;
 
-        assertThatThrownBy(() -> couponType.issueTo(userId))
+        assertThatThrownBy(() -> noStockCoupon.issueTo(userId))
                 .isInstanceOf(OutOfStockException.class)
                 .hasMessageContaining(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
     }
 
-    // TODO 만료된 쿠폰 ExpiredCouponException
+    @Test
+    @DisplayName("쿠폰 발급 - 유효기간 만료 시 예외 발생")
+    void 쿠폰_만료시_ExpiredCouponException() {
+        CouponType expiredCoupon = createCouponType(10L, LocalDate.now().minusDays(20), 10); // 만료
+
+        assertThatThrownBy(expiredCoupon::calculateExpireDate)
+                .isInstanceOf(ExpiredCouponException.class)
+                .hasMessageContaining(ErrorCode.EXPIRED_COUPON.getMessage());
+    }
+
+    @Test
+    @DisplayName("쿠폰 수 감소 - 재고 없으면 예외")
+    void 쿠폰수_감소시_재고없으면_예외() {
+        CouponType noStockCoupon = createCouponType(0L, LocalDate.now(), 30);
+
+        assertThatThrownBy(noStockCoupon::decreaseCoupon)
+                .isInstanceOf(OutOfStockException.class)
+                .hasMessageContaining(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
+    }
+
+    @Test
+    @DisplayName("쿠폰 수 감소 - 정상 감소")
+    void 쿠폰수_감소시_1감소() {
+        long before = validCouponType.getRemainingQuantity();
+
+        validCouponType.decreaseCoupon();
+
+        assertThat(validCouponType.getRemainingQuantity()).isEqualTo(before - 1);
+    }
+
+    private CouponType createCouponType(Long remainingQuantity, LocalDate createdAt, int validDays) {
+        return CouponType.builder()
+                .id(1L)
+                .couponName("10% 할인 쿠폰")
+                .discountRate(10)
+                .validDays(validDays)
+                .createdAt(createdAt)
+                .quantity(100L)
+                .remainingQuantity(remainingQuantity)
+                .build();
+    }
 }
