@@ -26,12 +26,11 @@ public class User {
         this.balance += balance;
     }
 
-    public boolean use(long amount) {
+    public void use(long amount) {
         if(this.balance < amount) {
-            return false;
+            throw new InvalidRequestException(ErrorCode.INSUFFICIENT_BALANCE);
         }
         decreaseBalance(amount);
-        return true;
     }
 
     public void decreaseBalance(Long amount) {

@@ -2,6 +2,7 @@ package kr.hhplus.be.server.user.domain.entity;
 
 import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.InvalidRequestException;
+import kr.hhplus.be.server.exception.OutOfStockListException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +29,9 @@ class UserTest {
     void 잔액_부족() {
         User user = new User(1L, "sun", 10000L);
 
-        assertThat(user.use(60000L)).isEqualTo(false);
+        assertThatThrownBy(()->user.use(60000L))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
     }
 
     @Test

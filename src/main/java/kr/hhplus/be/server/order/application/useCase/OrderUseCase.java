@@ -109,16 +109,16 @@ public class OrderUseCase {
     // 6. 잔액 차감 (결제)
     private long chargeUser(User user, long price, Coupon coupon, List<Product> productList) {
         long discountAmount = coupon.discountPrice(price);
-        long totalPrice = price + discountAmount;
-        boolean result =  user.use(totalPrice);
-        if (!result) {
+        long totalPrice = price - discountAmount;
+        try {
+            user.use(totalPrice);
+        } catch (InvalidRequestException e) {
             // 결제 실패시 재고 복구
             for (Product product : productList) {
                 product.increaseStock(product.getStock());
             }
-            throw new InvalidRequestException(ErrorCode.INSUFFICIENT_BALANCE);
+            throw e;
         }
-
         return totalPrice;
     }
 
