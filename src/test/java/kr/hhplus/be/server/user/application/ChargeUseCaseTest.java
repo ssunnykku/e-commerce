@@ -5,8 +5,8 @@ import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.domain.entity.BalanceType;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.domain.entity.UserBalanceHistory;
-import kr.hhplus.be.server.user.domain.repository.BalanceHistoryRepository;
-import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.infra.reposistory.port.BalanceHistoryRepository;
+import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -97,7 +97,7 @@ class ChargeUseCaseTest {
         UserBalanceHistory history = UserBalanceHistory.builder()
                 .userId(user.getUserId())
                 .amount(userRequest.getAmount())
-                .type(BalanceType.CHARGE.getCode())
+                .status(BalanceType.CHARGE.getCode())
                 .build();
 
         // when
@@ -108,7 +108,7 @@ class ChargeUseCaseTest {
 
         assertThat(resultHistory.getAmount()).isEqualTo(userRequest.getAmount());
         assertThat(resultHistory.getUserId()).isEqualTo(user.getUserId());
-        assertThat(resultHistory.getType()).isEqualTo(BalanceType.CHARGE.getCode());
+        assertThat(resultHistory.getStatus()).isEqualTo(BalanceType.CHARGE.getCode());
 
     }
 

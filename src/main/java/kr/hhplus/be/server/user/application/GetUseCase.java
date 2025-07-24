@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.user.application;
 
-import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;

@@ -8,8 +8,8 @@ import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.domain.entity.BalanceType;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.domain.entity.UserBalanceHistory;
-import kr.hhplus.be.server.user.domain.repository.BalanceHistoryRepository;
-import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.infra.reposistory.port.BalanceHistoryRepository;
+import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +41,7 @@ public class ChargeUseCase {
         UserBalanceHistory history = UserBalanceHistory.builder()
                 .userId(request.getUserId())
                 .amount(request.getAmount())
-                .type(BalanceType.CHARGE.getCode())
+                .status(BalanceType.CHARGE.getCode())
                 .build();
        return userBalanceHistoryRepository.save(history);
     }
