@@ -11,7 +11,7 @@ Domain
     ├── infra
     │   ├── repository
     │   │   ├── port
-    │   │   ├── impl
+    │   │   ├── adapter
     │   │   └── jpa
     │   └── publish
     └── exception
@@ -22,8 +22,8 @@ Domain
   - application: 비즈니스 흐름을 제어, 도메인 객체를 조작, API와 1대1 대응되는 useCase로 구성
   - domain: 외부 의존성이 없는 객체로 핵심 비즈니스 로직을 관리
   - infra: DB 등 외부 API 연동 관리
-    - repository/port: 저장소 인터페이스 (Domain에서 사용하는 Port)
-    - repository/impl: 실제 구현체 (JPA 등)
+    - repository/port: 저장소 인터페이스 (Domain에서 의존하는 Port)
+    - repository/adapter: 실제 구현체 (JPA 등), port를 구현
     - repository/jpa: Spring Data JPA Repository
     - publish: 외부 데이터 플랫폼 데이터 전송
   - exception: 예외 처리(공통)
