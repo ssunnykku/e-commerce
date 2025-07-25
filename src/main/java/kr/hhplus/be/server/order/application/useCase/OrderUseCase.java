@@ -50,7 +50,7 @@ public class OrderUseCase {
         useCoupon(coupon);
         decreaseCouponCount(coupon);
 
-        Order order = saveOrder(request, coupon, user, totalPrice);
+        Order order = saveOrder(coupon, user, totalPrice);
 
         publishOrderInfo(order, coupon, user);
         saveOrderProducts(request, order);
@@ -136,7 +136,7 @@ public class OrderUseCase {
     }
 
     // 9. 주문서 저장(ORDER, ORDER_PRODUCT)
-    private Order saveOrder(OrderRequest request, Coupon coupon, User user, long totalPrice) {
+    private Order saveOrder(Coupon coupon, User user, long totalPrice) {
         return orderRepository.save(Order.builder()
                 .userId(user.getUserId())
                 .couponId(coupon.getId())
