@@ -43,9 +43,9 @@ public class OrderUseCase {
         Coupon coupon = findCoupon(request);
         User user = findUser(request);
 
-        long price = decreaseStockAndCalculatePrice(productList);
+        long price = decreaseStockAndCalculatePrice(request);
 
-        long totalPrice = chargeUser(user, price, coupon, productList);
+        long totalPrice = chargeUser(user, price, coupon, productList, request);
 
         useCoupon(coupon);
         decreaseCouponCount(coupon);
@@ -97,25 +97,28 @@ public class OrderUseCase {
     }
 
     // 재고 차감, 상품 가격 계산
-    private long decreaseStockAndCalculatePrice(List<Product> productList) {
+    private long decreaseStockAndCalculatePrice(OrderRequest request)  {
         long price = 0;
-        for (Product product : productList) {
-            product.decreaseStock(product.getStock());
-            price += product.totalPrice();
+        for (OrderRequest.OrderItemRequest item : request.getOrderItems()) {
+            Product product = productRepository.findById(item.getProductId()).orElseThrow();
+            product.decreaseStock(item.getQuantity()); // 수량만큼 차감
+            price += product.totalPrice(item.getQuantity());
         }
+
         return price;
     }
 
     // 6. 잔액 차감 (결제)
-    private long chargeUser(User user, long price, Coupon coupon, List<Product> productList) {
+    private long chargeUser(User user, long price, Coupon coupon, List<Product> productList, OrderRequest request) {
         long discountAmount = coupon.discountPrice(price);
         long totalPrice = price - discountAmount;
         try {
             user.use(totalPrice);
         } catch (InvalidRequestException e) {
             // 결제 실패시 재고 복구
-            for (Product product : productList) {
-                product.increaseStock(product.getStock());
+            for (int i = 0; i < productList.size(); i++) {
+                long quantity = request.getOrderItems().get(i).getQuantity();
+                productList.get(i).increaseStock(quantity); // 수량만큼 복구
             }
             throw e;
         }

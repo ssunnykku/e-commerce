@@ -40,8 +40,8 @@ public class Product {
         return this.stock > 0;
     }
 
-    public Long totalPrice() {
-        return this.price * this.stock;
+    public Long totalPrice(Long quantity) {
+        return this.price * quantity;
     }
 
 
