@@ -8,7 +8,7 @@ Domain
     │   ├── useCase
     ├── domain
     │   └── entity
-    ├── infra
+    └── infra
         ├── repository
         │   ├── port
         │   ├── adapter
