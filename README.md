@@ -9,12 +9,11 @@ Domain
     ├── domain
     │   └── entity
     ├── infra
-    │   ├── repository
-    │   │   ├── port
-    │   │   ├── adapter
-    │   │   └── jpa
-    │   └── publish
-    └── exception
+        ├── repository
+        │   ├── port
+        │   ├── adapter
+        │   └── jpa
+        └── publish
 ```
 - 도메인은 USER, PRODUCT, COUPON, ORDER로 구성했습니다.
 - 아키텍처 설명
@@ -26,7 +25,6 @@ Domain
     - repository/adapter: 실제 구현체 (JPA 등), port를 구현
     - repository/jpa: Spring Data JPA Repository
     - publish: 외부 데이터 플랫폼 데이터 전송
-  - exception: 예외 처리(공통)
 
 ---
 ### 기능 구현
