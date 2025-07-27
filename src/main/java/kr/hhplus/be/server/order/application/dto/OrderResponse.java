@@ -1,15 +1,19 @@
 package kr.hhplus.be.server.order.application.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.exception.InvalidRequestException;
+import kr.hhplus.be.server.order.domain.entity.Order;
 
 import java.time.LocalDateTime;
 
-@Data
-@Builder
-public class OrderResponse {
-    private Long orderId;
-    private String status;
-    private LocalDateTime orderDate;
-
+public record OrderResponse(
+        Long orderId,
+        String status,
+        LocalDateTime orderDate
+) {
+    public static OrderResponse from(Order order) {
+        if (order == null) throw new InvalidRequestException(ErrorCode.NOT_NULL, "order");
+        return new OrderResponse(order.getId(), order.getStatus(), order.getOrderDate());
+    }
 }
+

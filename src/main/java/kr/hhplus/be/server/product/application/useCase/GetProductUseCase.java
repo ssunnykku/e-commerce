@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.application.useCase;
 
-import jakarta.transaction.Transactional;
+import kr.hhplus.be.server.exception.BaseException;
 import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.NotFoundException;
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
@@ -8,13 +8,14 @@ import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class GetProductUseCase {
     private final ProductRepository productRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = BaseException.class)
     public ProductResponse execute(Long id) {
         Product product = productRepository.findById(id).orElseThrow(()-> {
             throw new NotFoundException(ErrorCode.NOT_FOUND_ENTITY);

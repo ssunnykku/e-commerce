@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.user.application.useCase;
 
+import kr.hhplus.be.server.exception.BaseException;
 import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
@@ -8,12 +9,14 @@ import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ConsumeBalanceUseCase {
     private final UserRepository userRepository;
 
+    @Transactional(rollbackFor = BaseException.class)
     public UserResponse execute(UserRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));

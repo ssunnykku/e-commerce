@@ -10,9 +10,9 @@ import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.domain.entity.OrderProduct;
 import kr.hhplus.be.server.order.domain.entity.OrderStatus;
+import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
-import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -36,9 +36,23 @@ public class OrderUseCase {
     private final OrderDataPublisher orderDataPublisher;
     private final CouponTypeRepository couponTypeRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = BaseException.class)
     public OrderResponse execute(OrderRequest request) {
-        List<Product> productList = checkProductStock(request);
+        List<Product> productList = new ArrayList<>();
+        List<Long> outOfStockProductIds = new ArrayList<>();
+
+        for (OrderRequest.OrderItemRequest item : request.getOrderItems()) {
+            Optional<Product> productOpt = productRepository.findById(item.getProductId());
+
+            if (productOpt.isPresent() && productOpt.get().hasStock()) {
+                productList.add(productOpt.get());
+            } else {
+                outOfStockProductIds.add(item.getProductId());
+            }
+            if (!outOfStockProductIds.isEmpty()) {
+                throw new OutOfStockListException(ErrorCode.PRODUCT_OUT_OF_STOCK, outOfStockProductIds);
+            }
+        }
 
         Coupon coupon = findCoupon(request);
         User user = findUser(request);
@@ -55,33 +69,12 @@ public class OrderUseCase {
         publishOrderInfo(order, coupon, user);
         saveOrderProducts(request, order);
 
-        return OrderResponse.builder()
-                .orderId(order.getId())
-                .orderDate(order.getOrderDate())
-                .status(order.getStatus())
-                .build();
+        return OrderResponse.from(order);
     }
 
-    // 1. 상품 재고 조회 (product)
-    private List<Product> checkProductStock(OrderRequest request) {
-        List<Product> productList = new ArrayList<>();
-        List<Long> outOfStockProductIds = new ArrayList<>();
+    // 1. 상품 재고 조회 (product), 목록 조회 ->  check 메서드임에도 리턴값을 갖게 되는게 다소 어색 // TODO
+    private void checkProductStock(OrderRequest.OrderItemRequest item) {
 
-        for (OrderRequest.OrderItemRequest item : request.getOrderItems()) {
-            Optional<Product> productOpt = productRepository.findById(item.getProductId());
-
-            if (productOpt.isPresent() && productOpt.get().hasStock()) {
-                productList.add(productOpt.get());
-            } else {
-                outOfStockProductIds.add(item.getProductId());
-            }
-        }
-
-        if (!outOfStockProductIds.isEmpty()) {
-            throw new OutOfStockListException(ErrorCode.PRODUCT_OUT_OF_STOCK, outOfStockProductIds);
-        }
-
-        return productList;
     }
 
     // 2. 선택한 쿠폰 조회 (coupon)

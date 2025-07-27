@@ -20,7 +20,9 @@ public enum ErrorCode {
     ALREADY_USED(HttpStatus.BAD_REQUEST, "이미 사용한 쿠폰입니다."),
 
     PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "상품 재고가 없습니다."),
-    NOT_FOUND_ENTITY(HttpStatus.NOT_FOUND, "정보를 찾을 수 없습니다.")
+    NOT_FOUND_ENTITY(HttpStatus.NOT_FOUND, "정보를 찾을 수 없습니다."),
+
+    NOT_NULL(HttpStatus.BAD_REQUEST, "입력 객체는 null이 될 수 없습니다.")
 
     ;
 

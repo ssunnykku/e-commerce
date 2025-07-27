@@ -6,10 +6,7 @@ import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.exception.CouponNotFoundException;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.InvalidRequestException;
-import kr.hhplus.be.server.exception.UserNotFoundException;
+import kr.hhplus.be.server.exception.*;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,22 +21,22 @@ public class CreateCouponUseCase {
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = BaseException.class)
     public CouponResponse execute(CouponRequest request) {
         // 1. 쿠폰 재고 조회
-        CouponType couponType = findCouponType(request.getCouponTypeId());
-        validateUserExists(request.getUserId());
+        CouponType couponType = findCouponType(request.couponTypeId());
+        validateUserExists(request.userId());
 
         // 2. 쿠폰 발급 대상 여부 확인 (중복 발급 불가)
-        checkUserHasNoCoupon(request.getUserId(), request.getCouponTypeId());
+        checkUserHasNoCoupon(request.userId(), request.couponTypeId());
 
         LocalDate expiresAt = couponType.calculateExpireDate();
 
         // 4. 쿠폰 발급 처리
-        Coupon coupon = issueCouponToUser(couponType, request.getUserId());
+        Coupon coupon = issueCouponToUser(couponType, request.userId());
         Coupon savedCoupon = couponRepository.save(coupon);
 
-        return buildResponse(savedCoupon, couponType, expiresAt);
+        return buildResponse(savedCoupon, couponType);
     }
 
     private CouponType findCouponType(Long couponTypeId) {
@@ -63,15 +60,8 @@ public class CreateCouponUseCase {
         return couponType.issueTo(userId);
     }
 
-    private CouponResponse buildResponse(Coupon coupon, CouponType couponType, LocalDate expiresAt) {
-        return CouponResponse.builder()
-                .couponId(coupon.getId())
-                .couponTypeId(coupon.getCouponTypeId())
-                .couponName(couponType.getCouponName())
-                .discountRate(coupon.getDiscountRate())
-                .expiryDate(expiresAt)
-                .isUsed(coupon.getUsed())
-                .build();
+    private CouponResponse buildResponse(Coupon coupon, CouponType couponType) {
+        return CouponResponse.from(coupon, couponType);
     }
 }
 

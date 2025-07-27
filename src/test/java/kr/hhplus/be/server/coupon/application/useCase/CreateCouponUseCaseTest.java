@@ -48,10 +48,10 @@ class CreateCouponUseCaseTest {
         // given
         Long userId = 1L;
         Long couponTypeId = 100L;
-        CouponRequest request = CouponRequest.builder()
+        CouponRequest request = CouponRequest.from(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
-                .build();
+                .build());
 
         CouponType couponType = mock(CouponType.class);
         Coupon coupon = mock(Coupon.class);
@@ -75,11 +75,11 @@ class CreateCouponUseCaseTest {
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.getCouponId()).isEqualTo(1L);
-        assertThat(response.getCouponTypeId()).isEqualTo(couponTypeId);
-        assertThat(response.getCouponName()).isEqualTo("10% 할인 쿠폰");
-        assertThat(response.getDiscountRate()).isEqualTo(10);
-        assertThat(response.getIsUsed()).isFalse();
+        assertThat(response.id()).isEqualTo(1L);
+        assertThat(response.couponTypeId()).isEqualTo(couponTypeId);
+        assertThat(response.couponName()).isEqualTo("10% 할인 쿠폰");
+        assertThat(response.discountRate()).isEqualTo(10);
+        assertThat(response.isUsed()).isFalse();
 
         verify(couponTypeRepository).findById(couponTypeId);
         verify(userRepository).findById(userId);
@@ -97,10 +97,10 @@ class CreateCouponUseCaseTest {
         when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.empty());
         when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
 
-        CouponRequest request = CouponRequest.builder()
+        CouponRequest request = CouponRequest.from(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
-                .build();
+                .build());
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(CouponNotFoundException.class)
@@ -115,10 +115,10 @@ class CreateCouponUseCaseTest {
         when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.of(mock(CouponType.class)));
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        CouponRequest request = CouponRequest.builder()
+        CouponRequest request = CouponRequest.from(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
-                .build();
+                .build());
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(UserNotFoundException.class)
@@ -136,10 +136,10 @@ class CreateCouponUseCaseTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.of(existingCoupon));
 
-        CouponRequest request = CouponRequest.builder()
+        CouponRequest request = CouponRequest.from(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
-                .build();
+                .build());
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(InvalidRequestException.class)

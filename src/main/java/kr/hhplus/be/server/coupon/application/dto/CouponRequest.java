@@ -1,19 +1,17 @@
 package kr.hhplus.be.server.coupon.application.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import kr.hhplus.be.server.coupon.domain.entity.Coupon;
+import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.exception.InvalidRequestException;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class CouponRequest {
-    @NotNull
-    private Long userId;
+public record CouponRequest(
+        @NotNull Long userId,
+        @NotNull Long couponTypeId
+) {
+    public static CouponRequest from(Coupon coupon) {
+        if (coupon == null) throw new InvalidRequestException(ErrorCode.NOT_NULL, "coupon");
+        return new CouponRequest(coupon.getUserId(), coupon.getCouponTypeId());
+    }
 
-    @NotNull
-    private Long couponTypeId;
 }
