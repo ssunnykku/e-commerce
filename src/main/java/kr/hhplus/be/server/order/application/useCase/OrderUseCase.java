@@ -45,7 +45,7 @@ public class OrderUseCase {
 
         long price = decreaseStockAndCalculatePrice(request);
 
-        long totalPrice = chargeUser(user, price, coupon, productList, request);
+        long totalPrice = pay(user, price, coupon, productList, request);
 
         useCoupon(coupon);
         decreaseCouponCount(coupon);
@@ -109,7 +109,7 @@ public class OrderUseCase {
     }
 
     // 6. 잔액 차감 (결제)
-    private long chargeUser(User user, long price, Coupon coupon, List<Product> productList, OrderRequest request) {
+    private long pay(User user, long price, Coupon coupon, List<Product> productList, OrderRequest request) {
         long discountAmount = coupon.discountPrice(price);
         long totalPrice = price - discountAmount;
         try {
