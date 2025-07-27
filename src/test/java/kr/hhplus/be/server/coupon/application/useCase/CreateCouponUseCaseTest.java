@@ -1,8 +1,7 @@
-package kr.hhplus.be.server.coupon.application;
+package kr.hhplus.be.server.coupon.application.useCase;
 
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
-import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
@@ -55,17 +54,19 @@ class CreateCouponUseCaseTest {
 
         CouponType couponType = mock(CouponType.class);
         Coupon coupon = mock(Coupon.class);
+        LocalDate expiredAt = LocalDate.now().plusDays(30);
 
         when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.of(couponType));
         when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.empty());
-        when(couponType.calculateExpireDate()).thenReturn(LocalDate.now().plusDays(30));
+        when(couponType.calculateExpireDate()).thenReturn(expiredAt);
         when(couponType.issueTo(userId)).thenReturn(coupon);
 
         when(coupon.getId()).thenReturn(1L);
         when(coupon.getCouponTypeId()).thenReturn(couponTypeId);
         when(coupon.getDiscountRate()).thenReturn(10);
         when(coupon.getUsed()).thenReturn(false);
+        when(coupon.getExpiresAt()).thenReturn(expiredAt);
         when(couponType.getCouponName()).thenReturn("10% 할인 쿠폰");
 
         when(couponRepository.save(coupon)).thenReturn(coupon);

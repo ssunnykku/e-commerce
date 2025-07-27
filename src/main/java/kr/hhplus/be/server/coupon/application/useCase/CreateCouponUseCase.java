@@ -34,9 +34,10 @@ public class CreateCouponUseCase {
 
         // 4. 쿠폰 발급 처리
         Coupon coupon = issueCouponToUser(couponType, request.userId());
+        coupon.setExpiresAt(expiresAt);
         Coupon savedCoupon = couponRepository.save(coupon);
 
-        return buildResponse(savedCoupon, couponType);
+        return CouponResponse.from(savedCoupon, couponType);
     }
 
     private CouponType findCouponType(Long couponTypeId) {
@@ -60,8 +61,5 @@ public class CreateCouponUseCase {
         return couponType.issueTo(userId);
     }
 
-    private CouponResponse buildResponse(Coupon coupon, CouponType couponType) {
-        return CouponResponse.from(coupon, couponType);
-    }
 }
 
