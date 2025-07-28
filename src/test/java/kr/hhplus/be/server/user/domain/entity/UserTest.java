@@ -49,5 +49,4 @@ class UserTest {
         assertThat(user.getBalance()).isEqualTo(balance - amount);
     }
 
-
 }

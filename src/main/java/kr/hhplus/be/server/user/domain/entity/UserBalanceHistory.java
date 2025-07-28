@@ -1,10 +1,8 @@
 package kr.hhplus.be.server.user.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import kr.hhplus.be.server.user.application.dto.UserRequest;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -12,9 +10,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_balance_history")
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserBalanceHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +25,13 @@ public class UserBalanceHistory {
     private LocalDateTime createdAt;
 
     @Column(name = "amount", nullable = false)
-    @Builder.Default
     private Long amount = 0L;
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    public static UserBalanceHistory of(Long id, Long userId, Long amount, String status) {
+        return new UserBalanceHistory(id, userId, null, amount, status);
+    }
 
 }

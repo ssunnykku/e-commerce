@@ -27,19 +27,13 @@ public class ChargeUseCase {
 
         user.increaseBalance(request.amount());
 
-        recordHistory(request);
+        recordHistory(request.userId(), request.amount());
 
-        UserResponse userResponse = UserResponse.from(user);
-
-        return userResponse;
+        return UserResponse.from(user);
     }
 
-    public UserBalanceHistory recordHistory(UserRequest request) {
-        UserBalanceHistory history = UserBalanceHistory.builder()
-                .userId(request.userId())
-                .amount(request.amount())
-                .status(BalanceType.CHARGE.getCode())
-                .build();
+    public UserBalanceHistory recordHistory(Long userId, Long amount) {
+        UserBalanceHistory history = UserBalanceHistory.of(null, userId, amount, BalanceType.CHARGE.getCode());
        return userBalanceHistoryRepository.save(history);
     }
 

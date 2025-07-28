@@ -95,14 +95,9 @@ class ChargeUseCaseTest {
         when(userBalanceHistoryRepository.save(any(UserBalanceHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        UserBalanceHistory history = UserBalanceHistory.builder()
-                .userId(user.getUserId())
-                .amount(userRequest.amount())
-                .status(BalanceType.CHARGE.getCode())
-                .build();
-
+        UserBalanceHistory history = UserBalanceHistory.of(null, user.getUserId(), userRequest.amount(), BalanceType.CHARGE.getCode());
         // when
-        UserBalanceHistory resultHistory = chargeUseCase.recordHistory(userRequest);
+        UserBalanceHistory resultHistory = chargeUseCase.recordHistory(userRequest.userId(), userRequest.amount());
 
         // then
         verify(userBalanceHistoryRepository, times(1)).save(any(UserBalanceHistory.class));
