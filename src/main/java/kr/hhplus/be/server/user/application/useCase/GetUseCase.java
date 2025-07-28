@@ -14,11 +14,7 @@ public class GetUseCase {
 
     public UserResponse execute(long userId) {
         User user = userRepository.findById(userId).get();
-        UserResponse userResponse = UserResponse.builder()
-                .userId(userId)
-                .name(user.getName())
-                .balance(user.getBalance())
-                .build();
+        UserResponse userResponse = UserResponse.from(user);
         return userResponse;
     }
 }

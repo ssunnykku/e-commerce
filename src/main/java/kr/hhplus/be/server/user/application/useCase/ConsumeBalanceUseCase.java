@@ -18,13 +18,9 @@ public class ConsumeBalanceUseCase {
 
     @Transactional(rollbackFor = BaseException.class)
     public UserResponse execute(UserRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-       user.use(request.getAmount());
-        return UserResponse.builder()
-                .userId(request.getUserId())
-                .name(user.getName())
-                .balance(user.getBalance())
-                .build();
+       user.use(request.amount());
+        return UserResponse.from(user);
     }
 }

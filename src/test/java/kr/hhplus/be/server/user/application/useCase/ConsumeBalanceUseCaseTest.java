@@ -41,9 +41,9 @@ class ConsumeBalanceUseCaseTest {
         UserResponse response = useCase.execute(request);
 
         // then
-        assertThat(response.getUserId()).isEqualTo(1L);
-        assertThat(response.getBalance()).isEqualTo(4000L);
-        assertThat(response.getName()).isEqualTo("sun");
+        assertThat(response.userId()).isEqualTo(1L);
+        assertThat(response.balance()).isEqualTo(4000L);
+        assertThat(response.name()).isEqualTo("sun");
     }
 
     @Test

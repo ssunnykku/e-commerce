@@ -22,26 +22,22 @@ public class ChargeUseCase {
 
     @Transactional(rollbackFor = BaseException.class)
     public UserResponse execute(UserRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(()-> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        user.increaseBalance(request.getAmount());
+        user.increaseBalance(request.amount());
 
         recordHistory(request);
 
-        UserResponse userResponse = UserResponse.builder()
-                .userId(user.getUserId())
-                .name(user.getName())
-                .balance(user.getBalance())
-                .build();
+        UserResponse userResponse = UserResponse.from(user);
 
         return userResponse;
     }
 
     public UserBalanceHistory recordHistory(UserRequest request) {
         UserBalanceHistory history = UserBalanceHistory.builder()
-                .userId(request.getUserId())
-                .amount(request.getAmount())
+                .userId(request.userId())
+                .amount(request.amount())
                 .status(BalanceType.CHARGE.getCode())
                 .build();
        return userBalanceHistoryRepository.save(history);

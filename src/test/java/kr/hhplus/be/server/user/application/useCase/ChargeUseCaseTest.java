@@ -97,7 +97,7 @@ class ChargeUseCaseTest {
 
         UserBalanceHistory history = UserBalanceHistory.builder()
                 .userId(user.getUserId())
-                .amount(userRequest.getAmount())
+                .amount(userRequest.amount())
                 .status(BalanceType.CHARGE.getCode())
                 .build();
 
@@ -107,7 +107,7 @@ class ChargeUseCaseTest {
         // then
         verify(userBalanceHistoryRepository, times(1)).save(any(UserBalanceHistory.class));
 
-        assertThat(resultHistory.getAmount()).isEqualTo(userRequest.getAmount());
+        assertThat(resultHistory.getAmount()).isEqualTo(userRequest.amount());
         assertThat(resultHistory.getUserId()).isEqualTo(user.getUserId());
         assertThat(resultHistory.getStatus()).isEqualTo(BalanceType.CHARGE.getCode());
 

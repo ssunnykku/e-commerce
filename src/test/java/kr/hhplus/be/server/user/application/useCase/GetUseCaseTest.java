@@ -50,9 +50,9 @@ class GetUseCaseTest {
         verify(userRepository).findById(userId);
 
         assertThat(result).isNotNull();
-        assertThat(result.getUserId()).isEqualTo(userId);
-        assertThat(result.getName()).isEqualTo(userName);
-        assertThat(result.getBalance()).isEqualTo(userBalance);
+        assertThat(result.userId()).isEqualTo(userId);
+        assertThat(result.name()).isEqualTo(userName);
+        assertThat(result.balance()).isEqualTo(userBalance);
     }
 
     @Test
