@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +31,9 @@ public class Order {
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    public static Order of(Long userId, Long couponId, Long totalAmount, String status) {
+        return new Order(null, userId, couponId, totalAmount, null, status);
+    }
 
 }

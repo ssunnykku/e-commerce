@@ -130,12 +130,8 @@ public class OrderUseCase {
 
     // 9. 주문서 저장(ORDER, ORDER_PRODUCT)
     private Order saveOrder(Coupon coupon, User user, long totalPrice) {
-        return orderRepository.save(Order.builder()
-                .userId(user.getUserId())
-                .couponId(coupon.getId())
-                .totalAmount(totalPrice)
-                .status(OrderStatus.ORDERED.getCode())
-                .build());
+        return orderRepository.save(Order.of(
+                        user.getUserId(), coupon.getId(), totalPrice, OrderStatus.ORDERED.getCode()));
     }
 
     // 10. 주문 정보를 데이터 플랫폼에 전송

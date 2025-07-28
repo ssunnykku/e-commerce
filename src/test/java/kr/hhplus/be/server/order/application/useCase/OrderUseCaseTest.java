@@ -153,7 +153,7 @@ class OrderUseCaseTest {
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
 
-        // 필요 시 save 목 설정 (선택)
+        // save 목 설정 
         given(orderRepository.save(any(Order.class))).willAnswer(invocation -> {
             Order savedOrder = invocation.getArgument(0);
             savedOrder.setId(1L);
@@ -167,7 +167,7 @@ class OrderUseCaseTest {
                 .isInstanceOf(InvalidRequestException.class)
                 .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
 
-        // 재고 복구 되었는지 확인
-        assertThat(product.getStock()).isEqualTo(10L); // 재고 복구됨
+        // 재고 복구 확인
+        assertThat(product.getStock()).isEqualTo(10L); 
     }
 }
