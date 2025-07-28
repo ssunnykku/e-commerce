@@ -72,8 +72,7 @@ class OrderUseCaseTest {
         ));
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.builder().id(productId).stock(0L).build()
-        ));
+                Product.of(productId, null, null,0L)));
 
         // expect
         assertThatThrownBy(() -> orderUseCase.execute(request))
@@ -94,7 +93,7 @@ class OrderUseCaseTest {
         ));
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.builder().id(productId).stock(10L).build()
+                Product.of(productId,null,null,10L)
         ));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.empty());
 
@@ -117,7 +116,7 @@ class OrderUseCaseTest {
         ));
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.builder().id(productId).stock(10L).build()
+                Product.of(productId, null,null,10L)
         ));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.of(mock(Coupon.class)));
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -132,11 +131,7 @@ class OrderUseCaseTest {
     void 결제_실패시_재고_복구() {
         // given
         Long productId = 1L;
-        Product product = Product.builder()
-                .id(productId)
-                .stock(10L)
-                .price(2000L)
-                .build();
+        Product product =  Product.of(productId, null,2000L,10L);
 
         given(productRepository.findById(productId)).willReturn(Optional.of(product));
 

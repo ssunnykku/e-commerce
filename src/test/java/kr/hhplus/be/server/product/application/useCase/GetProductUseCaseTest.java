@@ -28,12 +28,7 @@ class GetProductUseCaseTest {
     void execute_success() {
         // given
         Long productId = 1L;
-        Product product = Product.builder()
-                .id(productId)
-                .name("테스트상품")
-                .price(1000L)
-                .stock(10L)
-                .build();
+        Product product =  Product.of(productId, "테스트 상품",1000L,10L);
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
@@ -42,7 +37,7 @@ class GetProductUseCaseTest {
 
         // then
         assertThat(response.id()).isEqualTo(productId);
-        assertThat(response.name()).isEqualTo("테스트상품");
+        assertThat(response.name()).isEqualTo("테스트 상품");
         assertThat(response.price()).isEqualTo(1000);
         assertThat(response.stock()).isEqualTo(10);
     }

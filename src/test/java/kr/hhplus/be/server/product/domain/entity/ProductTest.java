@@ -12,12 +12,7 @@ class ProductTest {
     Product product;
     @BeforeEach
     void setup() {
-        product = Product.builder()
-                .id(1L)
-                .name("스마트폰A")
-                .price(500000L)
-                .stock(50L)
-                .build();
+        product =  Product.of(1L, "스마트폰A",500000L,50L);
     }
 
     @Test

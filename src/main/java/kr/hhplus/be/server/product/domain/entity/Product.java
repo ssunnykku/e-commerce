@@ -10,7 +10,6 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,5 +43,8 @@ public class Product {
         return this.price * quantity;
     }
 
+    public static Product of(Long id, String name, Long price, Long stock) {
+        return new Product(id, name, price, stock);
+    }
 
 }

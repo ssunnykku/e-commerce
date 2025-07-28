@@ -25,19 +25,9 @@ class GetProductListUseCaseTest {
     @Test
     void 상품_목록을_정상적으로_가져온다() {
         // given
-        Product product1 = Product.builder()
-                .id(1L)
-                .name("상품 A")
-                .price(1000L)
-                .stock(10L)
-                .build();
+        Product product1 =  Product.of(1L, "상품 A",1000L,10L);
 
-        Product product2 = Product.builder()
-                .id(2L)
-                .name("상품 B")
-                .price(2000L)
-                .stock(5L)
-                .build();
+        Product product2 =  Product.of(2L, "상품 B",2000L,5L);
 
         when(productRepository.findAll()).thenReturn(List.of(product1, product2));
 
