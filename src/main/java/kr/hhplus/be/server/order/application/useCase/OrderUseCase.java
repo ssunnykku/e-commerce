@@ -41,13 +41,13 @@ public class OrderUseCase {
         List<Product> productList = new ArrayList<>();
         List<Long> outOfStockProductIds = new ArrayList<>();
 
-        for (OrderRequest.OrderItemRequest item : request.getOrderItems()) {
-            Optional<Product> productOpt = productRepository.findById(item.getProductId());
+        for (OrderRequest.OrderItemRequest item : request.orderItems()) {
+            Optional<Product> productOpt = productRepository.findById(item.productId());
 
             if (productOpt.isPresent() && productOpt.get().hasStock()) {
                 productList.add(productOpt.get());
             } else {
-                outOfStockProductIds.add(item.getProductId());
+                outOfStockProductIds.add(item.productId());
             }
             if (!outOfStockProductIds.isEmpty()) {
                 throw new OutOfStockListException(ErrorCode.PRODUCT_OUT_OF_STOCK, outOfStockProductIds);
@@ -79,23 +79,23 @@ public class OrderUseCase {
 
     // 2. 선택한 쿠폰 조회 (coupon)
     private Coupon findCoupon(OrderRequest request) {
-        return couponRepository.findByUserIdAndCouponTypeId(request.getUserId(), request.getCouponId())
+        return couponRepository.findByUserIdAndCouponTypeId(request.userId(), request.couponId())
                 .orElseThrow(() -> new CouponNotFoundException(ErrorCode.COUPON_NOT_FOUND));
     }
 
     // 3. 사용자 잔액 조회 (user)
     private User findUser(OrderRequest request) {
-        return userRepository.findById(request.getUserId())
+        return userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
     }
 
     // 재고 차감, 상품 가격 계산
     private long decreaseStockAndCalculatePrice(OrderRequest request)  {
         long price = 0;
-        for (OrderRequest.OrderItemRequest item : request.getOrderItems()) {
-            Product product = productRepository.findById(item.getProductId()).orElseThrow();
-            product.decreaseStock(item.getQuantity()); // 수량만큼 차감
-            price += product.totalPrice(item.getQuantity());
+        for (OrderRequest.OrderItemRequest item : request.orderItems()) {
+            Product product = productRepository.findById(item.productId()).orElseThrow();
+            product.decreaseStock(item.quantity()); // 수량만큼 차감
+            price += product.totalPrice(item.quantity());
         }
 
         return price;
@@ -110,7 +110,7 @@ public class OrderUseCase {
         } catch (InvalidRequestException e) {
             // 결제 실패시 재고 복구
             for (int i = 0; i < productList.size(); i++) {
-                long quantity = request.getOrderItems().get(i).getQuantity();
+                long quantity = request.orderItems().get(i).quantity();
                 productList.get(i).increaseStock(quantity); // 수량만큼 복구
             }
             throw e;
@@ -147,10 +147,10 @@ public class OrderUseCase {
     // 11. 주문상품 저장
     private void saveOrderProducts(OrderRequest request, Order order) {
         List<OrderProduct> orderProductList = new ArrayList<>();
-        for (OrderRequest.OrderItemRequest item : request.getOrderItems()) {
+        for (OrderRequest.OrderItemRequest item : request.orderItems()) {
             OrderProduct orderProduct = OrderProduct.builder()
-                    .productId(item.getProductId())
-                    .quantity(item.getQuantity())
+                    .productId(item.productId())
+                    .quantity(item.quantity())
                     .build();
             orderProduct.setOrderId(order.getId());
             orderProduct.setOrderDate(order.getOrderDate());

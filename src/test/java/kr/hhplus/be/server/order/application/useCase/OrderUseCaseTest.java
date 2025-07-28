@@ -160,11 +160,7 @@ class OrderUseCaseTest {
             return savedOrder;
         });
 
-        OrderRequest request = OrderRequest.builder()
-                .userId(19L)
-                .couponId(1L)
-                .orderItems(List.of(new OrderRequest.OrderItemRequest(productId, 1L)))
-                .build();
+        OrderRequest request = OrderRequest.from(19L, 1L, List.of(new OrderRequest.OrderItemRequest(productId, 1L)));
 
         // when & then
         assertThatThrownBy(() -> orderUseCase.execute(request))

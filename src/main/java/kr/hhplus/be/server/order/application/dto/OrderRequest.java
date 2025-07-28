@@ -1,30 +1,22 @@
 package kr.hhplus.be.server.order.application.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class OrderRequest {
-    @NotNull
-    private Long userId;
-    @NotNull
-    private Long couponId;
-    private List<OrderItemRequest> orderItems;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    static public class OrderItemRequest {
-        private Long productId;
-        private Long quantity;
-
+public record OrderRequest(
+        @NotNull Long userId,
+        @NotNull Long couponId,
+        List<OrderItemRequest> orderItems
+) {
+    public record OrderItemRequest(
+            Long productId,
+            Long quantity
+    ) {}
+    public static OrderRequest from(Long userId, Long couponId, List<OrderItemRequest> orderItems) {
+        return new OrderRequest(
+                userId, couponId, orderItems
+        );
     }
 }
