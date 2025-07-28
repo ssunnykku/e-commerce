@@ -1,13 +1,9 @@
 package kr.hhplus.be.server.product.application.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import kr.hhplus.be.server.product.domain.entity.Product;
 
-@Data
-@Builder
-public class ProductResponse {
-    private Long id;
-    private String name;
-    private Long price;
-    private Long stock;
+public record ProductResponse(Long id, String name, Long price, Long stock) {
+    public static ProductResponse from(Product product) {
+        return new ProductResponse(product.getId(), product.getName(), product.getPrice(), product.getStock());
+    }
 }

@@ -41,10 +41,10 @@ class GetProductUseCaseTest {
         ProductResponse response = getProductUseCase.execute(productId);
 
         // then
-        assertThat(response.getId()).isEqualTo(productId);
-        assertThat(response.getName()).isEqualTo("테스트상품");
-        assertThat(response.getPrice()).isEqualTo(1000);
-        assertThat(response.getStock()).isEqualTo(10);
+        assertThat(response.id()).isEqualTo(productId);
+        assertThat(response.name()).isEqualTo("테스트상품");
+        assertThat(response.price()).isEqualTo(1000);
+        assertThat(response.stock()).isEqualTo(10);
     }
 
     @Test

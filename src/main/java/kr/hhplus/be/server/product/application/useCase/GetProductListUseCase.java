@@ -21,12 +21,7 @@ public class GetProductListUseCase {
        List<Product> productList =  productRepository.findAll();
 
         return productList.stream()
-                .map(product -> ProductResponse.builder()
-                        .id(product.getId())
-                        .name(product.getName())
-                        .price(product.getPrice())
-                        .stock(product.getStock())
-                        .build())
+                .map(product -> ProductResponse.from(product))
                 .collect(Collectors.toList());
     }
 

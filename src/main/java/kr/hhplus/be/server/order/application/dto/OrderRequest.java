@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-
 public record OrderRequest(
         @NotNull Long userId,
         @NotNull Long couponId,

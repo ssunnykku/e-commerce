@@ -21,12 +21,7 @@ public class GetProductUseCase {
             throw new NotFoundException(ErrorCode.NOT_FOUND_ENTITY);
         });
 
-        return ProductResponse.builder()
-                .name(product.getName())
-                .price(product.getPrice())
-                .id(product.getId())
-                .stock(product.getStock())
-                .build();
+        return ProductResponse.from(product);
     }
 
 }

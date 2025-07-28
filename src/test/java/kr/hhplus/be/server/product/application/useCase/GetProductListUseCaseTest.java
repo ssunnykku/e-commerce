@@ -46,8 +46,8 @@ class GetProductListUseCaseTest {
 
         // then
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getName()).isEqualTo("상품 A");
-        assertThat(result.get(1).getStock()).isEqualTo(5);
+        assertThat(result.get(0).name()).isEqualTo("상품 A");
+        assertThat(result.get(1).stock()).isEqualTo(5);
 
         verify(productRepository, times(1)).findAll();
     }
