@@ -13,7 +13,7 @@ public record OrderRequest(
             Long productId,
             Long quantity
     ) {}
-    public static OrderRequest from(Long userId, Long couponId, List<OrderItemRequest> orderItems) {
+    public static OrderRequest of(Long userId, Long couponId, List<OrderItemRequest> orderItems) {
         return new OrderRequest(
                 userId, couponId, orderItems
         );

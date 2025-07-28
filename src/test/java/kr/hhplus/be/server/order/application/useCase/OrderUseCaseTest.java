@@ -160,7 +160,7 @@ class OrderUseCaseTest {
             return savedOrder;
         });
 
-        OrderRequest request = OrderRequest.from(19L, 1L, List.of(new OrderRequest.OrderItemRequest(productId, 1L)));
+        OrderRequest request = OrderRequest.of(19L, 1L, List.of(new OrderRequest.OrderItemRequest(productId, 1L)));
 
         // when & then
         assertThatThrownBy(() -> orderUseCase.execute(request))

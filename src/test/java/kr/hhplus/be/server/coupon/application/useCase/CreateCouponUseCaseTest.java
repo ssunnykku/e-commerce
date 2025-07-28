@@ -47,7 +47,7 @@ class CreateCouponUseCaseTest {
         // given
         Long userId = 1L;
         Long couponTypeId = 100L;
-        CouponRequest request = CouponRequest.from(Coupon.builder()
+        CouponRequest request = CouponRequest.of(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
                 .build());
@@ -98,7 +98,7 @@ class CreateCouponUseCaseTest {
         when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.empty());
         when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
 
-        CouponRequest request = CouponRequest.from(Coupon.builder()
+        CouponRequest request = CouponRequest.of(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
                 .build());
@@ -116,7 +116,7 @@ class CreateCouponUseCaseTest {
         when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.of(mock(CouponType.class)));
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        CouponRequest request = CouponRequest.from(Coupon.builder()
+        CouponRequest request = CouponRequest.of(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
                 .build());
@@ -137,7 +137,7 @@ class CreateCouponUseCaseTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.of(existingCoupon));
 
-        CouponRequest request = CouponRequest.from(Coupon.builder()
+        CouponRequest request = CouponRequest.of(Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
                 .build());

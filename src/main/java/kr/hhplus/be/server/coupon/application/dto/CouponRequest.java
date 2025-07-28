@@ -9,7 +9,7 @@ public record CouponRequest(
         @NotNull Long userId,
         @NotNull Long couponTypeId
 ) {
-    public static CouponRequest from(Coupon coupon) {
+    public static CouponRequest of(Coupon coupon) {
         if (coupon == null) throw new InvalidRequestException(ErrorCode.NOT_NULL, "coupon");
         return new CouponRequest(coupon.getUserId(), coupon.getCouponTypeId());
     }
