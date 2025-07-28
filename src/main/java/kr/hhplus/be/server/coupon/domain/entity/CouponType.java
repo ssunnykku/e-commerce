@@ -30,21 +30,21 @@ public class CouponType {
     @Column(name = "discount_rate")
     private Integer discountRate;
 
-    @Column(name = "valid_days",  nullable = false)
+    @Column(name = "valid_days", nullable = false)
     private Integer validDays;
 
     @CreatedDate
-    @Column(name = "created_at",  nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
 
-    @Column(name = "quantity",  nullable = false)
+    @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @Column(name = "remaining_quantity",  nullable = false)
+    @Column(name = "remaining_quantity", nullable = false)
     private Long remainingQuantity;
 
     public void checkStock() {
-        if(this.remainingQuantity <= 0) {
+        if (this.remainingQuantity <= 0) {
             throw new OutOfStockException(ErrorCode.COUPON_OUT_OF_STOCK);
         }
     }
@@ -52,7 +52,7 @@ public class CouponType {
     public LocalDate calculateExpireDate() {
         LocalDate expiresAt = this.createdAt.plusDays(this.validDays);
 
-        if(expiresAt.isBefore(LocalDate.now())) {
+        if (expiresAt.isBefore(LocalDate.now())) {
             throw new ExpiredCouponException(ErrorCode.EXPIRED_COUPON);
         }
         return expiresAt;
@@ -60,13 +60,7 @@ public class CouponType {
 
     public Coupon issueTo(Long userId) {
         this.checkStock();
-
-        return Coupon.builder()
-                .couponTypeId(this.id)
-                .userId(userId)
-                .expiresAt(this.calculateExpireDate())
-                .discountRate(this.discountRate)
-                .build();
+        return Coupon.of(userId, this.id, this.calculateExpireDate(), false, this.discountRate);
     }
 
     public void decreaseCoupon() {

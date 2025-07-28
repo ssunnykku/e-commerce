@@ -11,9 +11,8 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "coupons")
 @Data
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 public class Coupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +35,6 @@ public class Coupon {
     private LocalDate usedAt;
 
     @Column(name = "used", nullable = false)
-    @Builder.Default
     private Boolean used = false;
 
     @Column(name = "discount_rate", nullable = false)
@@ -63,6 +61,14 @@ public class Coupon {
 
     public long discountPrice(long totalPrice) {
         return totalPrice *  this.discountRate;
+    }
+
+    public static Coupon of(Long userId, Long couponTypeId){
+        return new Coupon(null, userId, couponTypeId, null, null, null, null, null);
+    }
+
+    public static Coupon of(Long userId, Long couponTypeId, LocalDate expiresAt, boolean used, Integer discountRate){
+        return new Coupon(null, userId, couponTypeId, null, expiresAt, null, used, discountRate);
     }
 
 }
