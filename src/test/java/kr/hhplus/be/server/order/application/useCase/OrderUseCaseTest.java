@@ -140,13 +140,7 @@ class OrderUseCaseTest {
         given(couponRepository.findByUserIdAndCouponTypeId(anyLong(), anyLong()))
                 .willReturn(Optional.of(coupon));
 
-        User user = User.
-
-                builder()
-                .userId(1L)
-                .name("sun")
-                .balance(1000L)
-                .build();
+        User user = User.of(1L, "sun", 1000L);
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
 

@@ -1,7 +1,6 @@
-package kr.hhplus.be.server.user.application;
+package kr.hhplus.be.server.user.application.useCase;
 
 import kr.hhplus.be.server.user.application.dto.UserResponse;
-import kr.hhplus.be.server.user.application.useCase.GetUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -35,11 +34,7 @@ class GetUseCaseTest {
         String userName = "sun";
         long userBalance = 10000L;
 
-        User mockUser = User.builder()
-                .userId(userId)
-                .name(userName)
-                .balance(userBalance)
-                .build();
+        User mockUser = User.of(userId, userName, userBalance);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 

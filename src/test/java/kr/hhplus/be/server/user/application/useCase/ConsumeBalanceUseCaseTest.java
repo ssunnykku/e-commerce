@@ -33,7 +33,7 @@ class ConsumeBalanceUseCaseTest {
     @DisplayName("정상적으로 잔액이 차감되는 경우")
     void useBalance_success() {
         // given
-        User user = new User(1L, "sun", 5000L);
+        User user = User.of(1L, "sun", 5000L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         UserRequest request = new UserRequest(1L, 1000);
 
@@ -63,7 +63,8 @@ class ConsumeBalanceUseCaseTest {
     @DisplayName("잔액이 부족한 경우 예외 발생")
     void useBalance_insufficient() {
         // given
-        User user = new User(1L, "sun", 5000L);
+        User user = User.of(1L, "sun", 5000L);
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         UserRequest request = new UserRequest(1L, 10000L);
 

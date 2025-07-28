@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public class OrderUseCase {
     private final OrderDataPublisher orderDataPublisher;
     private final CouponTypeRepository couponTypeRepository;
 
-    @Transactional(rollbackFor = BaseException.class)
+    @Transactional(rollbackFor = {BaseException.class, SQLException.class})
     public OrderResponse execute(OrderRequest request) {
         List<Product> productList = new ArrayList<>();
         List<Long> outOfStockProductIds = new ArrayList<>();

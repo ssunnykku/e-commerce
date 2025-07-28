@@ -7,9 +7,8 @@ import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
     @Id
@@ -35,6 +34,10 @@ public class User {
 
     public void decreaseBalance(Long amount) {
         this.balance -= amount;
+    }
+
+    public static User of(Long userId, String name, Long balance) {
+        return new User(userId, name, balance);
     }
 
 }

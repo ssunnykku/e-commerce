@@ -46,12 +46,7 @@ class ChargeUseCaseTest {
     @BeforeEach
     void setUp() {
         long userId = ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
-
-        user = User.builder()
-                .userId(userId)
-                .name("sun")
-                .balance(10000L)
-                .build();
+        user = User.of(userId, "sun", 10000L);
     }
 
     @Test
@@ -65,11 +60,7 @@ class ChargeUseCaseTest {
 
         long totalAmount = initialBalance + chargeAmount;
 
-        User initialUser = User.builder()
-                .userId(userId)
-                .name(userName)
-                .balance(initialBalance)
-                .build();
+        User initialUser = User.of(userId, userName, initialBalance);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(initialUser));
 
