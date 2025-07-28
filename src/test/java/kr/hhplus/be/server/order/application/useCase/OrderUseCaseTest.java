@@ -1,11 +1,10 @@
-package kr.hhplus.be.server.order.application;
+package kr.hhplus.be.server.order.application.useCase;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.exception.*;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
-import kr.hhplus.be.server.order.application.useCase.OrderUseCase;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;

@@ -66,7 +66,7 @@ public class OrderUseCase {
 
         Order order = saveOrder(coupon, user, totalPrice);
 
-        publishOrderInfo(order, coupon, user);
+        publishOrderInfo(order, coupon);
         saveOrderProducts(request, order);
 
         return OrderResponse.from(order);
@@ -139,14 +139,8 @@ public class OrderUseCase {
     }
 
     // 10. 주문 정보를 데이터 플랫폼에 전송
-    private void publishOrderInfo(Order order, Coupon coupon, User user) {
-        OrderInfo orderInfo = OrderInfo.builder()
-                .orderId(order.getId())
-                .orderDate(order.getOrderDate())
-                .totalPrice(order.getTotalAmount())
-                .couponId(coupon.getId())
-                .userId(user.getUserId())
-                .build();
+    private void publishOrderInfo(Order order, Coupon coupon) {
+        OrderInfo orderInfo = OrderInfo.from(order, coupon);
         orderDataPublisher.publish(orderInfo);
     }
 
