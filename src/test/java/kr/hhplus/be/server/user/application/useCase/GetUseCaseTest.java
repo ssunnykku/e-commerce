@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy; // assertThatT
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
-
 @ExtendWith(MockitoExtension.class)
 class GetUseCaseTest {
 

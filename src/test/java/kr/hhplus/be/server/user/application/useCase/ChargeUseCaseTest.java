@@ -1,8 +1,7 @@
-package kr.hhplus.be.server.user.application;
+package kr.hhplus.be.server.user.application.useCase;
 
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
-import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
 import kr.hhplus.be.server.user.domain.entity.BalanceType;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.domain.entity.UserBalanceHistory;
@@ -21,9 +20,7 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -31,9 +28,6 @@ class ChargeUseCaseTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private UserBalanceHistory userBalanceHistory;
 
     @InjectMocks
     private ChargeUseCase chargeUseCase;

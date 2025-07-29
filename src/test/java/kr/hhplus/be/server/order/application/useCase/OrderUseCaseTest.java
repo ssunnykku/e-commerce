@@ -4,6 +4,10 @@ import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.exception.*;
+import kr.hhplus.be.server.order.application.service.CouponService;
+import kr.hhplus.be.server.order.application.service.OrderService;
+import kr.hhplus.be.server.order.application.service.ProductService;
+import kr.hhplus.be.server.order.application.service.UserService;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
@@ -17,7 +21,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,34 +36,38 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class OrderUseCaseTest {
+
+    private ProductRepository productRepository = mock(ProductRepository.class);
+    private UserRepository userRepository = mock(UserRepository.class);
+    private OrderRepository orderRepository = mock(OrderRepository.class);
+    private OrderProductRepository orderProductRepository = mock(OrderProductRepository.class);
+
+
+    private CouponRepository couponRepository = mock(CouponRepository.class);
+    private CouponTypeRepository couponTypeRepository = mock(CouponTypeRepository.class);
+
     private OrderUseCase orderUseCase;
 
-    private ProductRepository productRepository;
-    private CouponRepository couponRepository;
-    private UserRepository userRepository;
-    private OrderRepository orderRepository;
-    private OrderProductRepository orderProductRepository;
-    private CouponTypeRepository couponTypeRepository;
+    private OrderService orderService;
+    private ProductService productService;
+    private CouponService couponService;
+    private UserService userService;
     private OrderDataPublisher orderDataPublisher;
 
     @BeforeEach
     void setUp() {
-        productRepository = mock(ProductRepository.class);
-        couponRepository = mock(CouponRepository.class);
-        userRepository = mock(UserRepository.class);
-        orderRepository = mock(OrderRepository.class);
-        orderProductRepository = mock(OrderProductRepository.class);
-        couponTypeRepository = mock(CouponTypeRepository.class);
+        orderService = mock(OrderService.class);
+        productService = mock(ProductService.class);
+        couponService = mock(CouponService.class);
+        userService =  mock(UserService.class);
         orderDataPublisher = mock(OrderDataPublisher.class);
 
         orderUseCase = new OrderUseCase(
-                orderRepository,
-                orderProductRepository,
-                productRepository,
-                couponRepository,
-                userRepository,
-                orderDataPublisher,
-                couponTypeRepository
+                productService,
+                couponService,
+                userService,
+                orderService,
+                orderDataPublisher
         );
     }
 
