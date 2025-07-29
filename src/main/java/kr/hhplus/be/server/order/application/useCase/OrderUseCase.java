@@ -60,7 +60,7 @@ public class OrderUseCase {
             pay(user, finalPaymentPrice);
 
             // 7. 쿠폰 수 차감
-            decreaseCouponCount(coupon);
+            if (coupon != null) decreaseCouponCount(coupon);
 
             // 8. 주문 저장  (Order, OrderProduct)
             Order order = saveOrder(coupon, user, finalPaymentPrice);
@@ -150,12 +150,22 @@ public class OrderUseCase {
 
     // 9. 주문서 저장(ORDER, ORDER_PRODUCT)
     private Order saveOrder(Coupon coupon, User user, long totalPrice) {
+        Long couponId = null;
+        if(coupon != null) {
+            couponId = coupon.getId();
+        }
         return orderRepository.save(Order.of(
-                user.getUserId(), coupon.getId(), totalPrice, OrderStatus.ORDERED.getCode()));
+                user.getUserId(), couponId, totalPrice, OrderStatus.ORDERED.getCode()));
     }
 
     private void publishOrderInfo(Order order, Coupon coupon) {
-        OrderInfo orderInfo = OrderInfo.from(order, coupon);
+        OrderInfo orderInfo = null;
+        if (coupon == null) {
+            orderInfo = OrderInfo.from(order);
+        } else {
+            orderInfo = OrderInfo.from(order, coupon);
+        }
+
         orderDataPublisher.publish(orderInfo);
     }
 

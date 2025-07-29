@@ -1,7 +1,10 @@
 package kr.hhplus.be.server.order.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -33,6 +36,7 @@ public class Order {
     private String status;
 
     public static Order of(Long userId, Long couponId, Long totalAmount, String status) {
+        if (couponId == null) couponId = null;
         return new Order(null, userId, couponId, totalAmount, null, status);
     }
 

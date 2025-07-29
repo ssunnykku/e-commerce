@@ -25,4 +25,14 @@ public record OrderInfo(
                 order.getOrderDate(),
                 order.getCouponId());
     }
+
+    public static OrderInfo from(Order order) {
+        if (order == null) throw new InvalidRequestException(ErrorCode.NOT_NULL, "order");
+        return new OrderInfo(order.getId(),
+                order.getUserId(),
+                order.getTotalAmount(),
+                null,
+                order.getOrderDate(),
+                order.getCouponId());
+    }
 }

@@ -89,36 +89,6 @@ class OrderUseCaseTest {
     }
 
     @Test
-    @DisplayName("예외: 존재하지 않는 쿠폰")
-    void 존재하지않는_쿠폰_예외() {
-        // given
-        Long userId = 1L;
-        Long couponId = 999L;
-        Set<Long> productIds = Set.of(1L, 2L, 3L);
-
-        List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
-                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
-                .collect(Collectors.toList());
-
-        OrderRequest request = OrderRequest.of(userId, null, orderItems);
-
-        List<Product> products = productIds.stream()
-                .map(id -> Product.of(id, null, null, 10L))
-                .collect(Collectors.toList());
-
-        User user = User.of(userId, "sun", 100000L);
-
-        when(productRepository.findAllById(productIds)).thenReturn(products);
-        when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.empty());
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        // expect
-        assertThatThrownBy(() -> orderUseCase.execute(request))
-                .isInstanceOf(CouponNotFoundException.class)
-                .hasMessageContaining(ErrorCode.COUPON_NOT_FOUND.getMessage());
-    }
-
-    @Test
     @DisplayName("예외: 존재하지 않는 사용자")
     void 존재하지않는_사용자_예외() {
         // given
@@ -204,7 +174,7 @@ class OrderUseCaseTest {
         // given
         Long userId = 1L;
         Long couponId = 999L;
-        Set<Long> productIds = new HashSet<>(Set.of(1L, 2L));
+        Set<Long> productIds = new HashSet<>(Set.of(1L, 2L, 3L));
 
         List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
                 .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
@@ -213,8 +183,8 @@ class OrderUseCaseTest {
         OrderRequest request = OrderRequest.of(userId, null, orderItems);
 
         List<Product> existingProducts = List.of(
-                Product.of(1L, null, null, 10L),
-                Product.of(2L, null, null, 10L)
+                Product.of(1L, "칸쵸 멜론", 1500L, 10L),
+                Product.of(2L, "칸쵸", 10000L, 10L)
         );
         User user = User.of(userId, "sun", 100000L);
 
@@ -224,7 +194,7 @@ class OrderUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> orderUseCase.execute(request))
-                .isInstanceOf(ProductNotFoundException.class);
-              //  .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
 }
