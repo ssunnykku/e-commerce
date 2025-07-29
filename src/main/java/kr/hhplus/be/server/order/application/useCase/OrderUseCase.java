@@ -43,13 +43,14 @@ public class OrderUseCase {
         Coupon coupon = findCoupon(request);
         User user = findUser(request);
 
-        long price = decreaseStockAndCalculatePrice(productList);
+        long price = decreaseStockAndCalculatePrice(request);
+
+        long totalPrice = chargeUser(user, price, coupon, productList, request);
 
         useCoupon(coupon);
         decreaseCouponCount(coupon);
 
-        long totalPrice = chargeUser(user, price, coupon);
-        Order order = saveOrder(request, coupon, user, totalPrice);
+        Order order = saveOrder(coupon, user, totalPrice);
 
         publishOrderInfo(order, coupon, user);
         saveOrderProducts(request, order);
@@ -96,35 +97,46 @@ public class OrderUseCase {
     }
 
     // 재고 차감, 상품 가격 계산
-    private long decreaseStockAndCalculatePrice(List<Product> productList) {
+    private long decreaseStockAndCalculatePrice(OrderRequest request)  {
         long price = 0;
-        for (Product product : productList) {
-            product.decreaseStock(product.getStock());
-            price += product.totalPrice();
+        for (OrderRequest.OrderItemRequest item : request.getOrderItems()) {
+            Product product = productRepository.findById(item.getProductId()).orElseThrow();
+            product.decreaseStock(item.getQuantity()); // 수량만큼 차감
+            price += product.totalPrice(item.getQuantity());
         }
+
         return price;
     }
 
-    // 6. 쿠폰 사용 처리 (used = true, used_at) (coupon)
+    // 6. 잔액 차감 (결제)
+    private long chargeUser(User user, long price, Coupon coupon, List<Product> productList, OrderRequest request) {
+        long discountAmount = coupon.discountPrice(price);
+        long totalPrice = price - discountAmount;
+        try {
+            user.use(totalPrice);
+        } catch (InvalidRequestException e) {
+            // 결제 실패시 재고 복구
+            for (int i = 0; i < productList.size(); i++) {
+                long quantity = request.getOrderItems().get(i).getQuantity();
+                productList.get(i).increaseStock(quantity); // 수량만큼 복구
+            }
+            throw e;
+        }
+        return totalPrice;
+    }
+
+    // 7. 쿠폰 사용 처리 (used = true, used_at) (coupon)
     private void useCoupon(Coupon coupon) {
         coupon.use();
     }
 
-    // 7. 쿠폰 수 차감
+    // 8. 쿠폰 수 차감
     private void decreaseCouponCount(Coupon coupon) {
         couponTypeRepository.findById(coupon.getId()).ifPresent(couponType -> couponType.decreaseCoupon());
     }
 
-    // 8. 잔액 차감 (user)
-    private long chargeUser(User user, long price, Coupon coupon) {
-        long discountAmount = coupon.discountPrice(price);
-        long totalPrice = price + discountAmount;
-        user.use(totalPrice);
-        return totalPrice;
-    }
-
     // 9. 주문서 저장(ORDER, ORDER_PRODUCT)
-    private Order saveOrder(OrderRequest request, Coupon coupon, User user, long totalPrice) {
+    private Order saveOrder(Coupon coupon, User user, long totalPrice) {
         return orderRepository.save(Order.builder()
                 .userId(user.getUserId())
                 .couponId(coupon.getId())

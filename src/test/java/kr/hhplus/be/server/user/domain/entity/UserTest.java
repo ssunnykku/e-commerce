@@ -2,6 +2,7 @@ package kr.hhplus.be.server.user.domain.entity;
 
 import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.InvalidRequestException;
+import kr.hhplus.be.server.exception.OutOfStockListException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,12 +23,13 @@ class UserTest {
         assertThat(user.getBalance()).isEqualTo(15000L);
     }
 
+
     @Test
     @DisplayName("잔액보다 큰 금액 사용을 시도할 경우 예외 발생")
     void 잔액_부족() {
         User user = new User(1L, "sun", 10000L);
 
-        assertThatThrownBy(() -> user.use(60000L))
+        assertThatThrownBy(()->user.use(60000L))
                 .isInstanceOf(InvalidRequestException.class)
                 .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
     }

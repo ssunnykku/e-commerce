@@ -63,9 +63,9 @@ class ConsumeBalanceUseCaseTest {
     @DisplayName("잔액이 부족한 경우 예외 발생")
     void useBalance_insufficient() {
         // given
-        User user = new User(1L, "sun", 500L);  // 현재 잔액보다 큰 금액을 사용
+        User user = new User(1L, "sun", 5000L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        UserRequest request = new UserRequest(1L, 1000L);
+        UserRequest request = new UserRequest(1L, 10000L);
 
         // when & then
         assertThatThrownBy(() -> useCase.execute(request))

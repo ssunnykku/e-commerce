@@ -3,17 +3,16 @@ package kr.hhplus.be.server.order.application;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.exception.CouponNotFoundException;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.OutOfStockListException;
-import kr.hhplus.be.server.exception.UserNotFoundException;
+import kr.hhplus.be.server.exception.*;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.useCase.OrderUseCase;
+import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
+import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +22,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -126,4 +129,50 @@ class OrderUseCaseTest {
                 .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
     }
 
+    @Test
+    void 결제_실패시_재고_복구() {
+        // given
+        Long productId = 1L;
+        Product product = Product.builder()
+                .id(productId)
+                .stock(10L)
+                .price(2000L)
+                .build();
+
+        given(productRepository.findById(productId)).willReturn(Optional.of(product));
+
+        Coupon coupon = mock(Coupon.class);
+        given(coupon.discountPrice(anyLong())).willReturn(0L);
+        given(couponRepository.findByUserIdAndCouponTypeId(anyLong(), anyLong()))
+                .willReturn(Optional.of(coupon));
+
+        User user = User.builder()
+                .userId(1L)
+                .name("sun")
+                .balance(1000L)
+                .build();
+
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+
+        // 필요 시 save 목 설정 (선택)
+        given(orderRepository.save(any(Order.class))).willAnswer(invocation -> {
+            Order savedOrder = invocation.getArgument(0);
+            savedOrder.setId(1L);
+            return savedOrder;
+        });
+
+        OrderRequest request = OrderRequest.builder()
+                .userId(19L)
+                .couponId(1L)
+                .orderItems(List.of(new OrderRequest.OrderItemRequest(productId, 1L)))
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> orderUseCase.execute(request))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
+
+        // 재고 복구 되었는지 확인
+        assertThat(product.getStock()).isEqualTo(10L); // 재고 복구됨
+    }
 }
