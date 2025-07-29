@@ -35,3 +35,4 @@ springdoc:
     path: /v1/api-docs
   swagger-ui:
     path: /swagger-ui.html
+  packages-to-scan: kr.hhplus.be.server.mock.controller
