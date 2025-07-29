@@ -21,10 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,94 +35,115 @@ public class OrderUseCase {
     private final OrderDataPublisher orderDataPublisher;
     private final CouponTypeRepository couponTypeRepository;
 
-    @Transactional(rollbackFor = {BaseException.class, SQLException.class})
+    @Transactional
     public OrderResponse execute(OrderRequest request) {
-        List<Product> productList = new ArrayList<>();
+        // 1. 상품 재고 조회 (product), 재고 유효성 검증
+        Map<Product, Long> productsWithQuantities = findAndValidateProducts(request.orderItems());
+
+        // 재고 복구를 위한 productList
+        List<Product> products = new ArrayList<>(productsWithQuantities.keySet());
+
+        try {
+            // 2. 쿠폰 조회
+            Coupon coupon = findCoupon(request);
+
+            // 3. 사용자 조회
+            User user = findUser(request.userId());
+
+            // 4. 재고 차감, 상품 가격 계산
+            long calculatedPrice = decreaseStockAndCalculatePrice(productsWithQuantities);
+
+            // 5. 쿠폰 할인 적용된 최종 결제 금액
+            long finalPaymentPrice = applyCouponDiscount(calculatedPrice, coupon);
+
+            // 6. 사용자 잔액 차감 (결제)
+            pay(user, finalPaymentPrice);
+
+            // 7. 쿠폰 수 차감
+            decreaseCouponCount(coupon);
+
+            // 8. 주문 저장  (Order, OrderProduct)
+            Order order = saveOrder(coupon, user, finalPaymentPrice);
+            saveOrderProducts(request, order); // 주문 상품 저장
+
+            // 9. 주문 정보 외부 발행
+            publishOrderInfo(order, coupon);
+
+            return OrderResponse.from(order);
+        } catch (InvalidRequestException e) {
+            // 재고 복구
+            products.forEach(p -> p.increaseStock(1L));
+            throw e;
+        }
+    }
+
+    private Map<Product, Long> findAndValidateProducts(List<OrderRequest.OrderItemRequest> orderItems) {
+        Map<Long, Long> requestedQuantities = orderItems.stream()
+                .collect(Collectors.toMap(OrderRequest.OrderItemRequest::productId, OrderRequest.OrderItemRequest::quantity));
+
+        List<Product> products = productRepository.findAllById(requestedQuantities.keySet());
+
+        if (products.size() != requestedQuantities.size()) {
+            // 요청된 상품 ID 중 실제 존재하지 않는 상품이 있을 경우
+            List<Long> foundProductIds = products.stream().map(Product::getId).collect(Collectors.toList());
+            List<Long> notFoundProductIds = requestedQuantities.keySet().stream()
+                    .filter(id -> !foundProductIds.contains(id))
+                    .collect(Collectors.toList());
+            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND, notFoundProductIds);
+        }
+
         List<Long> outOfStockProductIds = new ArrayList<>();
-
-        for (OrderRequest.OrderItemRequest item : request.orderItems()) {
-            Optional<Product> productOpt = productRepository.findById(item.productId());
-
-            if (productOpt.isPresent() && productOpt.get().hasStock()) {
-                productList.add(productOpt.get());
-            } else {
-                outOfStockProductIds.add(item.productId());
-            }
-            if (!outOfStockProductIds.isEmpty()) {
-                throw new OutOfStockListException(ErrorCode.PRODUCT_OUT_OF_STOCK, outOfStockProductIds);
+        for (Product product : products) {
+            if (!product.hasStock()) { // Product 도메인 엔티티의 재고 검증 메서드
+                outOfStockProductIds.add(product.getId());
             }
         }
 
-        Coupon coupon = findCoupon(request);
-        User user = findUser(request);
+        if (!outOfStockProductIds.isEmpty()) {
+            throw new OutOfStockListException(ErrorCode.PRODUCT_OUT_OF_STOCK, outOfStockProductIds);
+        }
 
-        long price = decreaseStockAndCalculatePrice(request);
-
-        long totalPrice = pay(user, price, coupon, productList, request);
-
-        useCoupon(coupon);
-        decreaseCouponCount(coupon);
-
-        Order order = saveOrder(coupon, user, totalPrice);
-
-        publishOrderInfo(order, coupon);
-        saveOrderProducts(request, order);
-
-        return OrderResponse.from(order);
+        return products.stream()
+                .collect(Collectors.toMap(product -> product, product -> requestedQuantities.get(product.getId())));
     }
 
-    // 1. 상품 재고 조회 (product), 목록 조회 ->  check 메서드임에도 리턴값을 갖게 되는게 다소 어색 // TODO
-    private void checkProductStock(OrderRequest.OrderItemRequest item) {
 
-    }
-
-    // 2. 선택한 쿠폰 조회 (coupon)
     private Coupon findCoupon(OrderRequest request) {
         return couponRepository.findByUserIdAndCouponTypeId(request.userId(), request.couponId())
-                .orElseThrow(() -> new CouponNotFoundException(ErrorCode.COUPON_NOT_FOUND));
+                .orElse(null);
     }
 
-    // 3. 사용자 잔액 조회 (user)
-    private User findUser(OrderRequest request) {
-        return userRepository.findById(request.userId())
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
     }
 
-    // 재고 차감, 상품 가격 계산
-    private long decreaseStockAndCalculatePrice(OrderRequest request)  {
-        long price = 0;
-        for (OrderRequest.OrderItemRequest item : request.orderItems()) {
-            Product product = productRepository.findById(item.productId()).orElseThrow();
-            product.decreaseStock(item.quantity()); // 수량만큼 차감
-            price += product.totalPrice(item.quantity());
-        }
+    private long decreaseStockAndCalculatePrice(Map<Product, Long> productsWithQuantities) {
+        long totalPrice = 0;
 
-        return price;
-    }
+        for (Map.Entry<Product, Long> entry : productsWithQuantities.entrySet()) {
+            Product product = entry.getKey();
+            Long quantity = entry.getValue();
 
-    // 6. 잔액 차감 (결제)
-    private long pay(User user, long price, Coupon coupon, List<Product> productList, OrderRequest request) {
-        long discountAmount = coupon.discountPrice(price);
-        long totalPrice = price - discountAmount;
-        try {
-            user.use(totalPrice);
-        } catch (InvalidRequestException e) {
-            // 결제 실패시 재고 복구
-            for (int i = 0; i < productList.size(); i++) {
-                long quantity = request.orderItems().get(i).quantity();
-                productList.get(i).increaseStock(quantity); // 수량만큼 복구
-            }
-            throw e;
+            product.decreaseStock(quantity); // 수량만큼 차감
+            totalPrice += product.totalPrice(quantity);
+
         }
         return totalPrice;
     }
 
-    // 7. 쿠폰 사용 처리 (used = true, used_at) (coupon)
-    private void useCoupon(Coupon coupon) {
-        coupon.use();
+    private void pay(User user, Long finalPaymentPrice) {
+        user.use(finalPaymentPrice);
+        userRepository.save(user);
     }
 
-    // 8. 쿠폰 수 차감
+    private long applyCouponDiscount(long price, Coupon coupon) {
+        if (coupon == null) {
+            return price;
+        }
+        return price - coupon.discountPrice(price);
+    }
+
     private void decreaseCouponCount(Coupon coupon) {
         couponTypeRepository.findById(coupon.getId()).ifPresent(couponType -> couponType.decreaseCoupon());
     }
@@ -132,16 +151,14 @@ public class OrderUseCase {
     // 9. 주문서 저장(ORDER, ORDER_PRODUCT)
     private Order saveOrder(Coupon coupon, User user, long totalPrice) {
         return orderRepository.save(Order.of(
-                        user.getUserId(), coupon.getId(), totalPrice, OrderStatus.ORDERED.getCode()));
+                user.getUserId(), coupon.getId(), totalPrice, OrderStatus.ORDERED.getCode()));
     }
 
-    // 10. 주문 정보를 데이터 플랫폼에 전송
     private void publishOrderInfo(Order order, Coupon coupon) {
         OrderInfo orderInfo = OrderInfo.from(order, coupon);
         orderDataPublisher.publish(orderInfo);
     }
 
-    // 11. 주문상품 저장
     private void saveOrderProducts(OrderRequest request, Order order) {
         List<OrderProduct> orderProductList = new ArrayList<>();
         for (OrderRequest.OrderItemRequest item : request.orderItems()) {

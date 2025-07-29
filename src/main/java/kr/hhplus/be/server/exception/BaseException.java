@@ -3,6 +3,8 @@ package kr.hhplus.be.server.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 @Getter
 public class BaseException extends RuntimeException {
     private final ErrorCode errorCode;
@@ -14,6 +16,11 @@ public class BaseException extends RuntimeException {
 
     public BaseException(ErrorCode errorCode, String message) {
         super(errorCode.getMessage() + ": " + message);
+        this.errorCode = errorCode;
+    }
+
+    public BaseException(ErrorCode errorCode, List<Long> list) {
+        super(errorCode.getMessage() + ": " + list);
         this.errorCode = errorCode;
     }
 

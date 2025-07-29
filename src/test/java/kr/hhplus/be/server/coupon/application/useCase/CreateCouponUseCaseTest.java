@@ -7,6 +7,7 @@ import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.exception.CouponNotFoundException;
+import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.InvalidRequestException;
 import kr.hhplus.be.server.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -99,7 +100,7 @@ class CreateCouponUseCaseTest {
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(CouponNotFoundException.class)
-                .hasMessageContaining("쿠폰을 찾을 수 없습니다.");
+                .hasMessageContaining(ErrorCode.COUPON_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -114,7 +115,7 @@ class CreateCouponUseCaseTest {
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessageContaining("사용자를 찾을 수 없습니다.");
+                .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -132,6 +133,6 @@ class CreateCouponUseCaseTest {
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(InvalidRequestException.class)
-                .hasMessageContaining("이미 발급받은 쿠폰입니다.");
+                .hasMessageContaining(ErrorCode.USER_ALREADY_HAS_COUPON.getMessage());
     }
 }

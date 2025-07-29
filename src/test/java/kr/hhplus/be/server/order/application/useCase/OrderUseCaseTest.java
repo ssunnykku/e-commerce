@@ -17,8 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -65,14 +65,22 @@ class OrderUseCaseTest {
     void 재고없는상품_주문_예외() {
         // given
         Long userId = 1L;
-        Long productId = 100L;
+        Set<Long> productIds = Set.of(1L, 2L, 3L);
 
-        OrderRequest request = new OrderRequest(userId, 1L, List.of(
-                new OrderRequest.OrderItemRequest(productId, 1L)
-        ));
+        List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .collect(Collectors.toList());
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.of(productId, null, null,0L)));
+        OrderRequest request = OrderRequest.of(userId, null, orderItems);
+
+        List<Product> products = productIds.stream()
+                .map(id -> Product.of(id, null, null, 0L))
+                .collect(Collectors.toList());
+
+        User user = User.of(userId, "sun", 100000L);
+
+        when(productRepository.findAllById(productIds)).thenReturn(products);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // expect
         assertThatThrownBy(() -> orderUseCase.execute(request))
@@ -86,16 +94,23 @@ class OrderUseCaseTest {
         // given
         Long userId = 1L;
         Long couponId = 999L;
-        Long productId = 10L;
+        Set<Long> productIds = Set.of(1L, 2L, 3L);
 
-        OrderRequest request = new OrderRequest(userId, couponId, List.of(
-                new OrderRequest.OrderItemRequest(productId, 1L)
-        ));
+        List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .collect(Collectors.toList());
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.of(productId,null,null,10L)
-        ));
+        OrderRequest request = OrderRequest.of(userId, null, orderItems);
+
+        List<Product> products = productIds.stream()
+                .map(id -> Product.of(id, null, null, 10L))
+                .collect(Collectors.toList());
+
+        User user = User.of(userId, "sun", 100000L);
+
+        when(productRepository.findAllById(productIds)).thenReturn(products);
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // expect
         assertThatThrownBy(() -> orderUseCase.execute(request))
@@ -109,15 +124,19 @@ class OrderUseCaseTest {
         // given
         Long userId = 999L;
         Long couponId = 1L;
-        Long productId = 10L;
+        Set<Long> productIds = Set.of(10L);
 
-        OrderRequest request = new OrderRequest(userId, couponId, List.of(
-                new OrderRequest.OrderItemRequest(productId, 1L)
-        ));
+        List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .collect(Collectors.toList());
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.of(productId, null,null,10L)
-        ));
+        OrderRequest request = OrderRequest.of(userId, couponId, orderItems);
+
+        List<Product> products = productIds.stream()
+                .map(id -> Product.of(id, null, null, 10L))
+                .collect(Collectors.toList());
+
+        when(productRepository.findAllById(productIds)).thenReturn(products);
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.of(mock(Coupon.class)));
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
@@ -130,16 +149,33 @@ class OrderUseCaseTest {
     @Test
     void 결제_실패시_재고_복구() {
         // given
+        Long userId = 999L;
+        Long couponId = 1L;
         Long productId = 1L;
-        Product product =  Product.of(productId, null,2000L,10L);
+        // Product product =  Product.of(productId, null,2000L,10L);
 
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
+        Set<Long> productIds = Set.of(10L);
+
+        List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .collect(Collectors.toList());
+
+        // OrderRequest request = OrderRequest.of(userId, couponId, orderItems);
+
+        List<Product> products = productIds.stream()
+                .map(id -> Product.of(id, "스마트워치A", 2000L, 10L))
+                .collect(Collectors.toList());
+
+        when(productRepository.findAllById(productIds)).thenReturn(products);
+
+        // given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
         Coupon coupon = mock(Coupon.class);
         given(coupon.discountPrice(anyLong())).willReturn(0L);
         given(couponRepository.findByUserIdAndCouponTypeId(anyLong(), anyLong()))
                 .willReturn(Optional.of(coupon));
 
+        // 사용자 잔액 < 상품 금액 (결제 실패)
         User user = User.of(1L, "sun", 1000L);
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
@@ -151,7 +187,7 @@ class OrderUseCaseTest {
             return savedOrder;
         });
 
-        OrderRequest request = OrderRequest.of(19L, 1L, List.of(new OrderRequest.OrderItemRequest(productId, 1L)));
+        OrderRequest request = OrderRequest.of(userId, couponId, orderItems);
 
         // when & then
         assertThatThrownBy(() -> orderUseCase.execute(request))
@@ -159,6 +195,36 @@ class OrderUseCaseTest {
                 .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
 
         // 재고 복구 확인
-        assertThat(product.getStock()).isEqualTo(10L); 
+        assertThat(products.get(0).getStock()).isEqualTo(10L);
+    }
+
+    @Test
+    @DisplayName("예외: 존재하지 않는 상품_ProductNotFoundException")
+    void 존재하지_않는_상품_예외() {
+        // given
+        Long userId = 1L;
+        Long couponId = 999L;
+        Set<Long> productIds = new HashSet<>(Set.of(1L, 2L));
+
+        List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .collect(Collectors.toList());
+
+        OrderRequest request = OrderRequest.of(userId, null, orderItems);
+
+        List<Product> existingProducts = List.of(
+                Product.of(1L, null, null, 10L),
+                Product.of(2L, null, null, 10L)
+        );
+        User user = User.of(userId, "sun", 100000L);
+
+        when(productRepository.findAllById(productIds)).thenReturn(existingProducts);
+        when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // expect
+        assertThatThrownBy(() -> orderUseCase.execute(request))
+                .isInstanceOf(ProductNotFoundException.class);
+              //  .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
 }
