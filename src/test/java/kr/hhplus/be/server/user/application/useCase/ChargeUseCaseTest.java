@@ -74,13 +74,12 @@ class ChargeUseCaseTest {
     @Test
     void 충전_히스토리_기록 () {
         // given
-        UserRequest userRequest = new UserRequest(user.getUserId(),  20000L);
+        UserRequest userRequest = new UserRequest(user.getUserId(),20000L);
 
         // 객체를 그대로 반환
         when(userBalanceHistoryRepository.save(any(UserBalanceHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        UserBalanceHistory history = UserBalanceHistory.of(null, user.getUserId(), userRequest.amount(), BalanceType.CHARGE.getCode());
         // when
         UserBalanceHistory resultHistory = chargeUseCase.recordHistory(userRequest.userId(), userRequest.amount());
 

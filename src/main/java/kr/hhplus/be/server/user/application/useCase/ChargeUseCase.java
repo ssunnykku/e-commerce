@@ -20,7 +20,7 @@ public class ChargeUseCase {
     private final UserRepository userRepository;
     private final BalanceHistoryRepository userBalanceHistoryRepository;
 
-    @Transactional(rollbackFor = BaseException.class)
+    @Transactional
     public UserResponse execute(UserRequest request) {
         User user = userRepository.findById(request.userId())
                 .orElseThrow(()-> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
@@ -33,7 +33,7 @@ public class ChargeUseCase {
     }
 
     public UserBalanceHistory recordHistory(Long userId, Long amount) {
-        UserBalanceHistory history = UserBalanceHistory.of(null, userId, amount, BalanceType.CHARGE.getCode());
+        UserBalanceHistory history = UserBalanceHistory.of(userId, amount, BalanceType.CHARGE.getCode());
        return userBalanceHistoryRepository.save(history);
     }
 

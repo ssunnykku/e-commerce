@@ -40,4 +40,9 @@ public class Order {
         return new Order(null, userId, couponId, totalAmount, null, status);
     }
 
+    public static Order of(Long userId, Long totalAmount, String status) {
+        return new Order(null, userId, null, totalAmount, null, status);
+    }
+
+
 }

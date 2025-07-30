@@ -9,7 +9,7 @@ import kr.hhplus.be.server.order.application.dto.OrderInfo;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.domain.entity.Order;
-import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
+import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;

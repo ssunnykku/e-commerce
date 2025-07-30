@@ -9,6 +9,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
     @Id
@@ -38,6 +39,13 @@ public class User {
 
     public static User of(Long userId, String name, Long balance) {
         return new User(userId, name, balance);
+    }
+
+    public static User of(String name, Long balance) {
+        return User.builder()
+                .name(name)
+                .balance(balance)
+                .build();
     }
 
 }
