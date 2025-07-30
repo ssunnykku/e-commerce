@@ -6,10 +6,11 @@ import kr.hhplus.be.server.exception.OutOfStockException;
 import lombok.*;
 
 @Entity
-@Table(name = "products")
 @Getter
+@Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "products")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +42,21 @@ public class Product {
 
     public Long totalPrice(Long quantity) {
         return this.price * quantity;
+    }
+
+    public static Product of(String name, Long price, Long stock) {
+        return Product.builder()
+                .name(name)
+                .price(price)
+                .stock(stock)
+                .build();
+    }
+
+    public static Product of(Long id, Long stock) {
+        return Product.builder()
+                .id(id)
+                .stock(stock)
+                .build();
     }
 
     public static Product of(Long id, String name, Long price, Long stock) {

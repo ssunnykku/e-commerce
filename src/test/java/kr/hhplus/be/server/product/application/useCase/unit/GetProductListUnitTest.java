@@ -1,6 +1,7 @@
-package kr.hhplus.be.server.product.application.useCase;
+package kr.hhplus.be.server.product.application.useCase.unit;
 
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
+import kr.hhplus.be.server.product.application.useCase.GetProductListUseCase;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +12,7 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.*;
 
-class GetProductListUseCaseTest {
+class GetProductListUnitTest {
 
     private ProductRepository productRepository;
     private GetProductListUseCase getProductListUseCase;

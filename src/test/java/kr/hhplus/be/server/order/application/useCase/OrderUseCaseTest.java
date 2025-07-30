@@ -85,7 +85,7 @@ class OrderUseCaseTest {
         OrderRequest request = OrderRequest.of(userId, null, orderItems);
 
         List<Product> products = productIds.stream()
-                .map(id -> Product.of(id, null, null, 0L))
+                .map(id -> Product.of(id,0L))
                 .collect(Collectors.toList());
 
         User user = User.of(userId, "sun", 100000L);
@@ -114,7 +114,7 @@ class OrderUseCaseTest {
         OrderRequest request = OrderRequest.of(userId, couponId, orderItems);
 
         List<Product> products = productIds.stream()
-                .map(id -> Product.of(id, null, null, 10L))
+                .map(id -> Product.of(id, 10L))
                 .collect(Collectors.toList());
 
         when(productRepository.findAllById(productIds)).thenReturn(products);

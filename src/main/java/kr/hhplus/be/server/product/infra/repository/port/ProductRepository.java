@@ -10,4 +10,6 @@ public interface ProductRepository {
     Optional<Product> findById(Long id);
     List<Product> findAllById(Set<Long> ids);
     List<Product> findAll();
+    Product save(Product product);
+    List<Product> saveAll(List<Product> products);
 }

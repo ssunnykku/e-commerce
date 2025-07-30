@@ -1,10 +1,8 @@
 package kr.hhplus.be.server.product.infra.repository.adapter;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.UserNotFoundException;
 import kr.hhplus.be.server.product.domain.entity.Product;
-import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import kr.hhplus.be.server.product.infra.repository.ProductJpaRepository;
+import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +23,16 @@ public class ProductRepositoryAdapter implements ProductRepository {
     @Override
     public List<Product> findAll() {
         return jpaRepository.findAll();
+    }
+
+    @Override
+    public Product save(Product product) {
+        return jpaRepository.save(product);
+    }
+
+    @Override
+    public List<Product> saveAll(List<Product> products) {
+        return jpaRepository.saveAll(products);
     }
 
     @Override
