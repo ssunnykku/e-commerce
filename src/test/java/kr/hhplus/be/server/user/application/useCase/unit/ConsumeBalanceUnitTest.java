@@ -1,10 +1,11 @@
-package kr.hhplus.be.server.user.application.useCase;
+package kr.hhplus.be.server.user.application.useCase.unit;
 
 import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.InvalidRequestException;
 import kr.hhplus.be.server.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
+import kr.hhplus.be.server.user.application.useCase.ConsumeBalanceUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class ConsumeBalanceUseCaseTest {
+class ConsumeBalanceUnitTest {
 
     private UserRepository userRepository;
     private ConsumeBalanceUseCase useCase;

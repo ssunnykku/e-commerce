@@ -1,8 +1,5 @@
 package kr.hhplus.be.server.product.application.useCase;
 
-import jakarta.transaction.Transactional;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.NotFoundException;
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
