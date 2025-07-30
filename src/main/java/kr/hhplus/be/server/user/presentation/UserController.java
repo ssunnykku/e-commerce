@@ -3,7 +3,7 @@ package kr.hhplus.be.server.user.presentation;
 import jakarta.validation.Valid;
 import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
 import kr.hhplus.be.server.user.application.useCase.ConsumeBalanceUseCase;
-import kr.hhplus.be.server.user.application.useCase.GetUseCase;
+import kr.hhplus.be.server.user.application.useCase.GetUserUseCase;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/balance")
 public class UserController {
     private final ChargeUseCase chargeUseCase;
-    private final GetUseCase getUseCase;
+    private final GetUserUseCase getUserUseCase;
     private final ConsumeBalanceUseCase consumeBalanceUseCase;
 
 
@@ -29,7 +29,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getBalance(
             @PathVariable long userId) {
-        UserResponse user = getUseCase.execute(userId);
+        UserResponse user = getUserUseCase.execute(userId);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 

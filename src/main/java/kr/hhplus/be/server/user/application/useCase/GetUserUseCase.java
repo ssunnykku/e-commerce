@@ -1,15 +1,14 @@
 package kr.hhplus.be.server.user.application.useCase;
 
-import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.domain.entity.User;
+import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class GetUseCase {
+public class GetUserUseCase {
     private final UserRepository userRepository;
 
     public UserResponse execute(long userId) {

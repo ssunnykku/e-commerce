@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.user.application.useCase.unit;
 
 import kr.hhplus.be.server.user.application.dto.UserResponse;
-import kr.hhplus.be.server.user.application.useCase.GetUseCase;
+import kr.hhplus.be.server.user.application.useCase.GetUserUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,13 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class GetUnitTest {
+class GetUserUnitTest {
 
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
-    private GetUseCase getUseCase;
+    private GetUserUseCase getUserUseCase;
 
     @Test
     void 사용자_ID로_사용자_정보_조회() {
@@ -39,7 +39,7 @@ class GetUnitTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 
         // When
-        UserResponse result = getUseCase.execute(userId);
+        UserResponse result = getUserUseCase.execute(userId);
 
         // Then
         verify(userRepository).findById(userId);
@@ -59,7 +59,7 @@ class GetUnitTest {
         when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> getUseCase.execute(nonExistentUserId))
+        assertThatThrownBy(() -> getUserUseCase.execute(nonExistentUserId))
                 .isInstanceOf(NoSuchElementException.class);
 
         verify(userRepository).findById(nonExistentUserId);
