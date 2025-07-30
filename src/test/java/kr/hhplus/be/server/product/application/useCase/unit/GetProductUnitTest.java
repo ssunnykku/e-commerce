@@ -31,7 +31,7 @@ class GetProductUnitTest {
         Long productId = 1L;
         Product product =  Product.of(productId, "테스트 상품",1000L,10L);
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findBy(productId)).thenReturn(Optional.of(product));
 
         // when
         ProductResponse response = getProductUseCase.execute(productId);
@@ -48,7 +48,7 @@ class GetProductUnitTest {
     void execute_notFound() {
         // given
         Long productId = 999L;
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+        when(productRepository.findBy(productId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> getProductUseCase.execute(productId))

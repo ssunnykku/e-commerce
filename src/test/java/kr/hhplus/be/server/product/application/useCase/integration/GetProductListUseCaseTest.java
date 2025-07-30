@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.product.application.useCase.integration;
 
+import kr.hhplus.be.server.product.application.dto.ProductResponse;
 import kr.hhplus.be.server.product.application.useCase.GetProductListUseCase;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
@@ -12,13 +13,17 @@ import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
-class GetProductListUseCaseTest {
+public class GetProductListUseCaseTest {
     @Autowired
     private ProductRepository productRepository;
-    private List<Product> products;
+    @Autowired
     private GetProductListUseCase getProductListUseCase;
+
+    private List<Product> products;
 
     @BeforeEach
     void setUp() {
@@ -33,8 +38,14 @@ class GetProductListUseCaseTest {
     @Test
     void 상품_리스트_조회() {
         // when
-     //   List<ProductResponse> responses = getProductListUseCase.execute();
+        List<ProductResponse> responses = getProductListUseCase.execute();
         // then
-     //   assertThat(responses).hasSize(products.size());
+        assertThat(responses).hasSize(products.size());
+        assertThat(responses.get(0)).isEqualTo(ProductResponse.from(products.get(0)));
+        assertThat(responses.get(1)).isEqualTo(ProductResponse.from(products.get(1)));
+        assertThat(responses.get(0).name()).isEqualTo(products.get(0).getName());
+        assertThat(responses.get(0).price()).isEqualTo(products.get(0).getPrice());
+        assertThat(responses.get(0).stock()).isEqualTo(products.get(0).getStock());
+
     }
 }

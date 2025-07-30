@@ -16,7 +16,7 @@ public class ProductRepositoryAdapter implements ProductRepository {
     private final ProductJpaRepository jpaRepository;
 
     @Override
-    public Optional<Product> findById(Long id) {
+    public Optional<Product> findBy(Long id) {
         return jpaRepository.findById(id);
     }
 
@@ -34,6 +34,9 @@ public class ProductRepositoryAdapter implements ProductRepository {
     public List<Product> saveAll(List<Product> products) {
         return jpaRepository.saveAll(products);
     }
+
+    @Override
+    public void deleteAll() { jpaRepository.deleteAll();}
 
     @Override
     public List<Product> findAllById(Set<Long> ids) {
