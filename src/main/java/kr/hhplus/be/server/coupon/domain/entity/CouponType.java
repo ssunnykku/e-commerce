@@ -10,15 +10,17 @@ import kr.hhplus.be.server.exception.OutOfStockException;
 import lombok.*;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "coupon_type")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class CouponType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +42,7 @@ public class CouponType {
     @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @Column(name = "remaining_quantity", nullable = false)
+    @Column(name = "remaining_quantity")
     private Long remainingQuantity;
 
     public void checkStock() {
@@ -67,4 +69,15 @@ public class CouponType {
         this.checkStock();
         this.remainingQuantity -= 1;
     }
+
+    public static CouponType of(String couponName,  Integer discountRate, Integer validDays, Long quantity) {
+        return CouponType.builder()
+                .couponName(couponName)
+                .discountRate(discountRate)
+                .validDays(validDays)
+                .quantity(quantity)
+                .remainingQuantity(quantity)
+                .build();
+    }
+
 }

@@ -32,7 +32,7 @@ public class CreateCouponUseCase {
 
         LocalDate expiresAt = couponType.calculateExpireDate();
 
-        // 4. 쿠폰 발급 처리
+        // 3. 쿠폰 발급 처리
         Coupon coupon = issueCouponToUser(couponType, request.userId());
         coupon.setExpiresAt(expiresAt);
         Coupon savedCoupon = couponRepository.save(coupon);

@@ -5,6 +5,7 @@ import kr.hhplus.be.server.exception.ErrorCode;
 import kr.hhplus.be.server.exception.InvalidCouponStateException;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 
@@ -13,6 +14,8 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Coupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,8 +37,8 @@ public class Coupon {
     @Column(name = "used_at")
     private LocalDate usedAt;
 
-    @Column(name = "used", nullable = false)
-    private Boolean used = false;
+    @Column(name = "used", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean used;
 
     @Column(name = "discount_rate", nullable = false)
     private Integer discountRate;
@@ -64,11 +67,20 @@ public class Coupon {
     }
 
     public static Coupon of(Long userId, Long couponTypeId){
-        return new Coupon(null, userId, couponTypeId, null, null, null, null, null);
+        return Coupon.builder()
+                .userId(userId)
+                .couponTypeId(couponTypeId)
+                .build();
     }
 
     public static Coupon of(Long userId, Long couponTypeId, LocalDate expiresAt, boolean used, Integer discountRate){
-        return new Coupon(null, userId, couponTypeId, null, expiresAt, null, used, discountRate);
+        return Coupon.builder()
+                .userId(userId)
+                .couponTypeId(couponTypeId)
+                .expiresAt(expiresAt)
+                .used(used)
+                .discountRate(discountRate)
+                .build();
     }
 
 }

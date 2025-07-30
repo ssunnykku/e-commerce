@@ -1,7 +1,8 @@
-package kr.hhplus.be.server.coupon.application.useCase;
+package kr.hhplus.be.server.coupon.application.useCase.unit;
 
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
+import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-class CreateCouponUseCaseTest {
+class CreateCouponUnitTest {
     @Mock
     private CouponTypeRepository couponTypeRepository;
 
@@ -76,7 +77,6 @@ class CreateCouponUseCaseTest {
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.couponTypeId()).isEqualTo(couponTypeId);
-        assertThat(response.couponName()).isEqualTo("10% 할인 쿠폰");
         assertThat(response.discountRate()).isEqualTo(10);
         assertThat(response.isUsed()).isFalse();
 

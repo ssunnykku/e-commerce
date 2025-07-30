@@ -17,4 +17,9 @@ public class CouponTypeRepositoryAdaptor implements CouponTypeRepository {
     public Optional<CouponType> findById(Long id) {
         return jpaRepository.findById(id);
     }
+
+    @Override
+    public CouponType save(CouponType couponType) {
+        return jpaRepository.save(couponType);
+    }
 }
