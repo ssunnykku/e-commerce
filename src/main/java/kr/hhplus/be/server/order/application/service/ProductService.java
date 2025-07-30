@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    public Map<Product, Long> findAndValidateProducts(List<OrderRequest.OrderItemRequest> orderItems) {
-        Map<Long, Long> requestedQuantities = orderItems.stream()
+    public Map<Product, Integer> findAndValidateProducts(List<OrderRequest.OrderItemRequest> orderItems) {
+        Map<Long, Integer> requestedQuantities = orderItems.stream()
                 .collect(Collectors.toMap(OrderRequest.OrderItemRequest::productId, OrderRequest.OrderItemRequest::quantity));
 
         List<Product> products = productRepository.findAllById(requestedQuantities.keySet());
@@ -50,12 +50,12 @@ public class ProductService {
                 .collect(Collectors.toMap(product -> product, product -> requestedQuantities.get(product.getId())));
     }
 
-    public long decreaseStockAndCalculatePrice(Map<Product, Long> productsWithQuantities) {
+    public long decreaseStockAndCalculatePrice(Map<Product, Integer> productsWithQuantities) {
         long totalPrice = 0;
 
-        for (Map.Entry<Product, Long> entry : productsWithQuantities.entrySet()) {
+        for (Map.Entry<Product, Integer> entry : productsWithQuantities.entrySet()) {
             Product product = entry.getKey();
-            Long quantity = entry.getValue();
+            Integer quantity = entry.getValue();
 
             product.decreaseStock(quantity); // 수량만큼 차감
             totalPrice += product.totalPrice(quantity);

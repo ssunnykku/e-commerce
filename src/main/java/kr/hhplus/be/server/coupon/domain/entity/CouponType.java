@@ -40,10 +40,10 @@ public class CouponType {
     private LocalDate createdAt;
 
     @Column(name = "quantity", nullable = false)
-    private Long quantity;
+    private Integer quantity;
 
     @Column(name = "remaining_quantity")
-    private Long remainingQuantity;
+    private Integer remainingQuantity;
 
     public void checkStock() {
         if (this.remainingQuantity <= 0) {
@@ -70,7 +70,7 @@ public class CouponType {
         this.remainingQuantity -= 1;
     }
 
-    public static CouponType of(String couponName,  Integer discountRate, Integer validDays, Long quantity) {
+    public static CouponType of(String couponName,  Integer discountRate, Integer validDays, Integer quantity) {
         return CouponType.builder()
                 .couponName(couponName)
                 .discountRate(discountRate)
@@ -79,5 +79,6 @@ public class CouponType {
                 .remainingQuantity(quantity)
                 .build();
     }
+
 
 }

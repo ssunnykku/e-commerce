@@ -5,12 +5,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Entity
 @Table(name = "order_product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PROTECTED)
 public class OrderProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +23,18 @@ public class OrderProduct {
     private Long orderId;
 
     @Column(name = "quantity", nullable = false)
-    private Long quantity;
+    private Integer quantity;
 
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
+
+    public static OrderProduct of(Long productId, Long orderId,  Integer quantity, LocalDateTime orderDate) {
+        return OrderProduct.builder()
+                .productId(productId)
+                .quantity(quantity)
+                .orderId(orderId)
+                .orderDate(orderDate)
+                .build();
+    }
 
 }

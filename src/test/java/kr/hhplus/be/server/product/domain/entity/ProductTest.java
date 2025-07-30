@@ -18,7 +18,7 @@ class ProductTest {
     @Test
     void 재고보다_요청_상품수가_많으면_예외처리() {
         // given
-        Long quantity = 100L;
+        Integer quantity = 100;
 
         // then
         assertThatThrownBy(() -> product.decreaseStock(quantity))
@@ -28,7 +28,7 @@ class ProductTest {
 
     @Test
     void 상품_재고_차감() {
-        Long quantity = 21L;
+        Integer quantity = 21;
 
         // given
         Long resultQuantity = product.getStock() - quantity;

@@ -20,24 +20,20 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
 
-    public Order saveOrder(Coupon coupon, User user, long totalPrice) {
+    public Order saveOrder(Coupon coupon, User user, long totalAmount) {
         Long couponId = null;
         if(coupon != null) {
             couponId = coupon.getId();
         }
         return orderRepository.save(Order.of(
-                user.getUserId(), couponId, totalPrice, OrderStatus.ORDERED.getCode()));
+                user.getUserId(), couponId, totalAmount, OrderStatus.ORDERED.getCode()));
     }
 
     public void saveOrderProducts(OrderRequest request, Order order) {
         List<OrderProduct> orderProductList = new ArrayList<>();
         for (OrderRequest.OrderItemRequest item : request.orderItems()) {
-            OrderProduct orderProduct = OrderProduct.builder()
-                    .productId(item.productId())
-                    .quantity(item.quantity())
-                    .build();
-            orderProduct.setOrderId(order.getId());
-            orderProduct.setOrderDate(order.getOrderDate());
+            OrderProduct orderProduct = OrderProduct.of(item.productId(), order.getId(), item.quantity(), order.getOrderDate());
+
             orderProductList.add(orderProduct);
         }
         orderProductRepository.saveAll(orderProductList);

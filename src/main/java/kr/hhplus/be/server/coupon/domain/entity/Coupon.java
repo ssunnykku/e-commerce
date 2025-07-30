@@ -48,7 +48,7 @@ public class Coupon {
             throw new InvalidCouponStateException(ErrorCode.EXPIRED_COUPON);
         }
         if (isUsed()) {
-            throw new InvalidCouponStateException (ErrorCode.ALREADY_USED);
+            throw new InvalidCouponStateException(ErrorCode.ALREADY_USED);
         }
         this.used = true;
         this.usedAt = LocalDate.now();
@@ -66,10 +66,47 @@ public class Coupon {
         return totalPrice *  this.discountRate;
     }
 
+    public long finalDiscountPrice(long totalPrice) {
+        return totalPrice - discountPrice(totalPrice);
+    }
+
     public static Coupon of(Long userId, Long couponTypeId){
         return Coupon.builder()
                 .userId(userId)
                 .couponTypeId(couponTypeId)
+                .expiresAt(LocalDate.now().plusMonths(1)) // 기본값 한달
+                .used(false)
+                .build();
+    }
+
+    // test용
+    public static Coupon of(Long id, Long userId, Long couponTypeId){
+        return Coupon.builder()
+                .id(id)
+                .userId(userId)
+                .couponTypeId(couponTypeId)
+                .expiresAt(LocalDate.now().plusMonths(1)) // 기본값 한달
+                .used(false)
+                .build();
+    }
+
+    public static Coupon of(Long userId, Long couponTypeId, Integer discountRate, LocalDate expiresAt){
+        return Coupon.builder()
+                .userId(userId)
+                .couponTypeId(couponTypeId)
+                .discountRate(discountRate)
+                .expiresAt(expiresAt)
+                .used(false)
+                .build();
+    }
+
+    public static Coupon of(Long userId, Long couponTypeId, Integer discountRate, boolean used){
+        return Coupon.builder()
+                .userId(userId)
+                .couponTypeId(couponTypeId)
+                .discountRate(discountRate)
+                .expiresAt(LocalDate.now().plusMonths(1)) // 기본값 1달
+                .used(used)
                 .build();
     }
 

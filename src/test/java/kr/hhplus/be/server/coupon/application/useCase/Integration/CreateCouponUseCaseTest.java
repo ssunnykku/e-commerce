@@ -36,7 +36,7 @@ class CreateCouponUseCaseTest {
         user = User.of("sun", 20000L);
         userRepository.save(user);
 
-        couponType = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 100L));
+        couponType = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 100));
     }
 
     @Test

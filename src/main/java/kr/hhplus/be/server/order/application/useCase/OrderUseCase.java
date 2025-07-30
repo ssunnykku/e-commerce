@@ -33,7 +33,7 @@ public class OrderUseCase {
     @Transactional
     public OrderResponse execute(OrderRequest request) {
         // 1. 상품 재고 조회 (product), 재고 유효성 검증
-        Map<Product, Long> productsWithQuantities = productService.findAndValidateProducts(request.orderItems());
+        Map<Product, Integer> productsWithQuantities = productService.findAndValidateProducts(request.orderItems());
 
         // 재고 복구를 위한 productList
         List<Product> products = new ArrayList<>(productsWithQuantities.keySet());

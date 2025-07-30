@@ -79,7 +79,7 @@ class OrderUseCaseTest {
         Set<Long> productIds = Set.of(1L, 2L, 3L);
 
         List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
-                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1))
                 .collect(Collectors.toList());
 
         OrderRequest request = OrderRequest.of(userId, null, orderItems);
@@ -108,7 +108,7 @@ class OrderUseCaseTest {
         Set<Long> productIds = Set.of(10L);
 
         List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
-                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1))
                 .collect(Collectors.toList());
 
         OrderRequest request = OrderRequest.of(userId, couponId, orderItems);
@@ -138,7 +138,7 @@ class OrderUseCaseTest {
         Set<Long> productIds = Set.of(10L);
 
         List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
-                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1))
                 .collect(Collectors.toList());
 
         // OrderRequest request = OrderRequest.of(userId, couponId, orderItems);
@@ -188,7 +188,7 @@ class OrderUseCaseTest {
         Set<Long> productIds = new HashSet<>(Set.of(1L, 2L, 3L));
 
         List<OrderRequest.OrderItemRequest> orderItems = productIds.stream()
-                .map(id -> new OrderRequest.OrderItemRequest(id, 1L))
+                .map(id -> new OrderRequest.OrderItemRequest(id, 1))
                 .collect(Collectors.toList());
 
         OrderRequest request = OrderRequest.of(userId, null, orderItems);

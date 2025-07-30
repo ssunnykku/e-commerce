@@ -25,7 +25,7 @@ public class Product {
     @Column(name = "stock", nullable = false)
     private Long stock;
 
-    public void decreaseStock(Long quantity) {
+    public void decreaseStock(Integer quantity) {
         if(this.stock < quantity) {
             throw new OutOfStockException(ErrorCode.PRODUCT_OUT_OF_STOCK);
         }
@@ -40,7 +40,7 @@ public class Product {
         return this.stock > 0;
     }
 
-    public Long totalPrice(Long quantity) {
+    public Long totalPrice(Integer quantity) {
         return this.price * quantity;
     }
 

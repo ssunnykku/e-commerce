@@ -11,7 +11,7 @@ public record OrderRequest(
 ) {
     public record OrderItemRequest(
             Long productId,
-            Long quantity
+            Integer quantity
     ) {}
     public static OrderRequest of(Long userId, Long couponId, List<OrderItemRequest> orderItems) {
         return new OrderRequest(

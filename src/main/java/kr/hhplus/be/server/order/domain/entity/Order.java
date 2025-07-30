@@ -22,7 +22,7 @@ public class Order {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "coupon_id", nullable = false)
+    @Column(name = "coupon_id")
     private Long couponId;
 
     @Column(name = "total_amount", nullable = false)
