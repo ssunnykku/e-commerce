@@ -1,10 +1,11 @@
-package kr.hhplus.be.server.coupon.presentation;
-
+package kr.hhplus.be.server.order.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
-import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
-import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
+import kr.hhplus.be.server.order.application.dto.OrderRequest;
+import kr.hhplus.be.server.order.application.dto.OrderRequest.OrderItemRequest;
+import kr.hhplus.be.server.order.application.dto.OrderResponse;
+import kr.hhplus.be.server.order.application.useCase.OrderUseCase;
+import kr.hhplus.be.server.order.domain.entity.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,62 +19,69 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-class CouponControllerTest {
+class OrderControllerTest {
 
     private MockMvc mockMvc;
 
     @Mock
-    private CreateCouponUseCase createCouponUseCase;
+    private OrderUseCase orderUseCase;
 
     @InjectMocks
-    private CouponController couponController;
+    private OrderController orderController;
 
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setup() {
         objectMapper = new ObjectMapper();
-        mockMvc = MockMvcBuilders.standaloneSetup(couponController)
-                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(orderController).build();
     }
 
     @Nested
-    @DisplayName("POST /coupons")
-    class IssueCoupon {
+    @DisplayName("POST /orders")
+    class PlaceProductOrder {
 
         @Test
-        @DisplayName("정상 발급 시 201 CREATED 반환")
-        void issueCouponSuccess() throws Exception {
+        @DisplayName("정상 주문 시 200 OK 반환")
+        void placeOrderSuccess() throws Exception {
             // given
-            CouponRequest request = new CouponRequest(1L, 10L);
-            CouponResponse response = new CouponResponse(1L, 10L, 10L, null, null, false);
+            OrderRequest request = OrderRequest.of(
+                    1L,
+                    100L,
+                    List.of(OrderItemRequest.of(10L, 2))
+            );
 
-            Mockito.when(createCouponUseCase.execute(any(CouponRequest.class)))
-                    .thenReturn(response);
+            OrderResponse response = new OrderResponse(
+                    1234L,
+                    OrderStatus.ORDERED.getCode(),
+                    null
+            );
+
+            Mockito.when(orderUseCase.execute(any(OrderRequest.class))).thenReturn(response);
 
             // when & then
-            mockMvc.perform(post("/coupons")
+            mockMvc.perform(post("/orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.userId").value(1))
-                    .andExpect(jsonPath("$.couponTypeId").value(10))
-                    .andExpect(jsonPath("$.isUsed").value(false));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.orderId").value(1234L))
+                    .andExpect(jsonPath("$.status").value(OrderStatus.ORDERED.getCode()));
         }
 
         @Test
         @DisplayName("필드 누락 시 400 BAD_REQUEST 반환")
-        void issueCouponValidationError() throws Exception {
-            // 누락된 필드
-            String invalidJson = "{ 'userId': null, 'couponTypeId': null }";
+        void placeOrderValidationError() throws Exception {
+            String invalidJson = "{ 'userId': null, 'couponId': null, 'orderItems': null }";
 
-            mockMvc.perform(post("/coupons")
+            mockMvc.perform(post("/orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(invalidJson))
                     .andExpect(status().isBadRequest());
@@ -81,13 +89,14 @@ class CouponControllerTest {
 
         @Test
         @DisplayName("JSON 형식 오류 시 400 BAD_REQUEST 반환")
-        void issueCouponInvalidJson() throws Exception {
-            String invalidJson = "{ \"userId\": \"string\", \"couponTypeId\": 10 }";
+        void placeOrderInvalidJson() throws Exception {
+            String invalidJson = "{ 'userId': 'string', 'couponId': 100, 'orderItems': [] }";
 
-            mockMvc.perform(post("/coupons")
+            mockMvc.perform(post("/orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(invalidJson))
                     .andExpect(status().isBadRequest());
         }
     }
 }
+
