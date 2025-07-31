@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.user.application.useCase.integration;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.UserNotFoundException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;

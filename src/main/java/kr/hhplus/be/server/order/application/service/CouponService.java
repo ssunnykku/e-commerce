@@ -4,8 +4,8 @@ import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.exception.CouponNotFoundException;
-import kr.hhplus.be.server.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.CouponNotFoundException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

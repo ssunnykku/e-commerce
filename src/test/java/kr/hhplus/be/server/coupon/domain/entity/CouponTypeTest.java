@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.coupon.domain.entity;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.ExpiredCouponException;
-import kr.hhplus.be.server.exception.OutOfStockException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.ExpiredCouponException;
+import kr.hhplus.be.server.common.exception.OutOfStockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

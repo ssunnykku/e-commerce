@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.order.application.service.unit;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.OutOfStockException;
-import kr.hhplus.be.server.exception.OutOfStockListException;
-import kr.hhplus.be.server.exception.ProductNotFoundException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.OutOfStockException;
+import kr.hhplus.be.server.common.exception.OutOfStockListException;
+import kr.hhplus.be.server.common.exception.ProductNotFoundException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.service.ProductService;
 import kr.hhplus.be.server.product.domain.entity.Product;

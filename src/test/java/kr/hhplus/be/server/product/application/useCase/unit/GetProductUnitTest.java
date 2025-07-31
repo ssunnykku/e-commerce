@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.application.useCase.unit;
 
-import kr.hhplus.be.server.exception.NotFoundException;
+import kr.hhplus.be.server.common.exception.NotFoundException;
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
 import kr.hhplus.be.server.product.application.useCase.GetProductUseCase;
 import kr.hhplus.be.server.product.domain.entity.Product;

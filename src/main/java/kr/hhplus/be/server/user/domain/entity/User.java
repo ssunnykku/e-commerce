@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.user.domain.entity;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.InvalidRequestException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.InvalidRequestException;
 import lombok.*;
 
 @Entity
