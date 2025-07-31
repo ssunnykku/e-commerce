@@ -63,7 +63,10 @@ public class Coupon {
     }
 
     public long discountPrice(long totalPrice) {
-        return totalPrice *  this.discountRate;
+        if(this.discountRate != null) {
+            return totalPrice *  this.discountRate / 100;
+        }
+        return 0L;
     }
 
     public long finalDiscountPrice(long totalPrice) {
@@ -73,13 +76,13 @@ public class Coupon {
     public static Coupon of(Long userId, Long couponTypeId){
         return Coupon.builder()
                 .userId(userId)
+                .discountRate(0)
                 .couponTypeId(couponTypeId)
                 .expiresAt(LocalDate.now().plusMonths(1)) // 기본값 한달
                 .used(false)
                 .build();
     }
 
-    // test용
     public static Coupon of(Long id, Long userId, Long couponTypeId){
         return Coupon.builder()
                 .id(id)

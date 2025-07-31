@@ -53,19 +53,27 @@ public class OrderUseCase {
         long calculatedPrice = productService.decreaseStockAndCalculatePrice(productsWithQuantities);
 
         // 5. 쿠폰 할인 적용된 최종 결제 금액
-        long finalPaymentPrice = couponService.applyCouponDiscount(calculatedPrice, coupon);
+      //  long finalPaymentPrice = couponService.applyCouponDiscount(calculatedPrice, coupon);
+        // 5. 할인 적용된 금액
+        long discountedAmount = 0L;
+        long finalPaymentPrice = calculatedPrice;
+
+        if (coupon != null) {
+            discountedAmount = calculatedPrice - coupon.finalDiscountPrice(calculatedPrice);
+            finalPaymentPrice = coupon.finalDiscountPrice(calculatedPrice);
+            coupon.use();
+            // 쿠폰 수 차감
+            couponService.decreaseCouponCount(coupon);
+        }
 
         // 6. 사용자 잔액 차감 (결제)
         userService.pay(user, finalPaymentPrice);
 
-        // 7. 쿠폰 수 차감
-        if (coupon != null) couponService.decreaseCouponCount(coupon);
-
-        // 8. 주문 저장  (Order, OrderProduct)
-        Order order = orderService.saveOrder(coupon, user, finalPaymentPrice);
+        // 7. 주문 저장  (Order, OrderProduct)
+        Order order = orderService.saveOrder(coupon, user, finalPaymentPrice, discountedAmount);
         orderService.saveOrderProducts(request, order); // 주문 상품 저장
 
-        // 9. 주문 정보 외부 발행
+        // 8. 주문 정보 외부 발행
         publishOrderInfo(order, coupon);
 
         return OrderResponse.from(order);

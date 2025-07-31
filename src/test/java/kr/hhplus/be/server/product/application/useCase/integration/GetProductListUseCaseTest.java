@@ -27,10 +27,12 @@ public class GetProductListUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        products = List.of(Product.of("아이패드", 900_000, 100),
-                Product.of("에어팟", 300_000, 100),
-                Product.of("아이폰", 1_500_000, 100),
-                Product.of("맥북", 2_500_000, 100));
+        productRepository.deleteAll();  // <-- 이 줄이 중요함
+
+        products = List.of(Product.of("아이패드", 900_000L, 100L),
+                Product.of("에어팟", 300_000L, 100L),
+                Product.of("아이폰", 1_500_000L, 100L),
+                Product.of("맥북", 2_500_000L, 100L));
         
         productRepository.saveAll(products);
     }

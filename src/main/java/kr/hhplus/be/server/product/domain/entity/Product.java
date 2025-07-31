@@ -20,10 +20,10 @@ public class Product {
     private String name;
 
     @Column(name = "price", nullable = false)
-    private Integer price;
+    private Long price;
 
     @Column(name = "stock", nullable = false)
-    private Integer stock;
+    private Long stock;
 
     public void decreaseStock(Integer quantity) {
         if(this.stock < quantity) {
@@ -40,11 +40,11 @@ public class Product {
         return this.stock > 0;
     }
 
-    public Integer totalPrice(Integer quantity) {
+    public Long totalPrice(Integer quantity) {
         return this.price * quantity;
     }
 
-    public static Product of(String name, Integer price, Integer stock) {
+    public static Product of(String name, Long price, Long stock) {
         return Product.builder()
                 .name(name)
                 .price(price)
@@ -52,14 +52,14 @@ public class Product {
                 .build();
     }
 
-    public static Product of(Long id, Integer stock) {
+    public static Product of(Long id, Long stock) {
         return Product.builder()
                 .id(id)
                 .stock(stock)
                 .build();
     }
 
-    public static Product of(Long id, String name, Integer price, Integer stock) {
+    public static Product of(Long id, String name, Long price, Long stock) {
         return new Product(id, name, price, stock);
     }
 

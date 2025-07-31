@@ -19,6 +19,11 @@ public class OrderRepositoryAdapter implements OrderRepository {
     }
 
     @Override
+    public Optional<Order> findBy(Long couponId) {
+        return orderJpaRepository.findByCouponId(couponId);
+    }
+
+    @Override
     public Order save(Order order) {
         return orderJpaRepository.save(order);
     }

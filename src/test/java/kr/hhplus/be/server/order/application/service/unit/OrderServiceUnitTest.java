@@ -41,9 +41,11 @@ class OrderServiceUnitTest {
     void 주문서_저장_parameterized(TestData data) {
         // given
         Long couponId = (data.coupon != null) ? data.coupon.getId() : null;
+        long discountAmount = (data.coupon != null) ? data.coupon.discountPrice(data.totalAmount) : 0;
+
 
         Order order = Order.of(
-                data.userId, couponId, data.totalAmount, OrderStatus.ORDERED.getCode());
+                data.userId, couponId, data.totalAmount, OrderStatus.ORDERED.getCode(), discountAmount);
 
         User user = User.of(data.userId, "sun", 2_000_000L);
 
@@ -51,7 +53,7 @@ class OrderServiceUnitTest {
                 .thenReturn(order);
 
         // when
-        Order result = orderService.saveOrder(data.coupon, user, data.totalAmount);
+        Order result = orderService.saveOrder(data.coupon, user, data.totalAmount, discountAmount);
 
         // then
         verify(orderRepository).save(order);

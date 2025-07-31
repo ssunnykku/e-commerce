@@ -52,6 +52,8 @@ dependencies {
 
 	// H2 Database
 	runtimeOnly("com.h2database:h2")
+	// docker
+	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
 }
 

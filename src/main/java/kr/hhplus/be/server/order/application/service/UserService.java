@@ -19,7 +19,6 @@ public class UserService {
 
     public void pay(User user, Long finalPaymentPrice) {
         user.use(finalPaymentPrice);
-        userRepository.save(user);
     }
 
 }

@@ -70,7 +70,7 @@ public class CouponType {
         this.remainingQuantity -= 1;
     }
 
-    public static CouponType of(String couponName,  Integer discountRate, Integer validDays, Integer quantity) {
+    public static CouponType of(String couponName, Integer discountRate, Integer validDays, Integer quantity) {
         return CouponType.builder()
                 .couponName(couponName)
                 .discountRate(discountRate)

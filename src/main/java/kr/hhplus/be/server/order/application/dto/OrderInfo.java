@@ -21,7 +21,7 @@ public record OrderInfo(
         return new OrderInfo(order.getId(),
                 order.getUserId(),
                 order.getTotalAmount(),
-                coupon.discountPrice(order.getTotalAmount()),
+                coupon.discountPrice(order.getDiscountAmount()),
                 order.getOrderDate(),
                 order.getCouponId());
     }

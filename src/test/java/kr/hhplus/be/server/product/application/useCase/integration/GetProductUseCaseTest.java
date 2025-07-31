@@ -33,7 +33,7 @@ public class GetProductUseCaseTest {
 
     @ParameterizedTest
     @MethodSource("상품데이터")
-    void 상품_정보_조회(String name, Integer price, Integer stock) {
+    void 상품_정보_조회(String name, Long price, Long stock) {
         // given
         Product savedProduct = productRepository.save(Product.of(name, price, stock));
 
@@ -49,9 +49,9 @@ public class GetProductUseCaseTest {
 
     static Stream<Arguments> 상품데이터() {
         return Stream.of(
-                Arguments.of("아이패드", 900_000, 100),
-                Arguments.of("맥북", 2_000_000, 50),
-                Arguments.of("에어팟", 250_000, 300)
+                Arguments.of("아이패드", 900_000L, 100L),
+                Arguments.of("맥북", 2_000_000L, 50L),
+                Arguments.of("에어팟", 250_000L, 300L)
         );
     }
 }

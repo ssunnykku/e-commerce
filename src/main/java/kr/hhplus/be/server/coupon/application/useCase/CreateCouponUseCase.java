@@ -58,6 +58,7 @@ public class CreateCouponUseCase {
     }
 
     private Coupon issueCouponToUser(CouponType couponType, Long userId) {
+        // TODO 재고 소진시 예외처리(CouponStockSoldOutException)
         return couponType.issueTo(userId);
     }
 

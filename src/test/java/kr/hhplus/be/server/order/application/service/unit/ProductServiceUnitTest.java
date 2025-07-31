@@ -37,10 +37,10 @@ class ProductServiceUnitTest {
         // given
         Set<Long> productIds = Set.of(1L, 2L, 3L, 4L);
         List<Product> productList = List.of(
-                Product.of(1L, "칸쵸 초코", 1_500, 100),
-                Product.of(2L, "칸쵸 멜론", 1_500, 20),
-                Product.of(3L, "바나나킥", 2_000, 50),
-                Product.of(4L, "빈츠", 5_000, 200)
+                Product.of(1L, "칸쵸 초코", 1_500L, 100L),
+                Product.of(2L, "칸쵸 멜론", 1_500L, 20L),
+                Product.of(3L, "바나나킥", 2_000L, 50L),
+                Product.of(4L, "빈츠", 5_000L, 200L)
         );
         when(productRepository.findAllById(productIds)).thenReturn(productList);
         // when
@@ -73,8 +73,8 @@ class ProductServiceUnitTest {
         // given
         Map<Long, Integer> requestedQuantities = Map.of(11L, 7, 12L, 8, 13L, 9);
         List<Product> productList = List.of(
-                Product.of(11L, "칸쵸 초코", 1_500, 150),
-                Product.of(13L, "바나나킥", 2_000, 30));
+                Product.of(11L, "칸쵸 초코", 1_500L, 150L),
+                Product.of(13L, "바나나킥", 2_000L, 30L));
 
         // when & then
         assertThatThrownBy(() -> productService.findAndValidateProducts(requestedQuantities, productList))
@@ -109,8 +109,8 @@ class ProductServiceUnitTest {
     void 재고_조회_예외_처리() {
         // given
         List<Product> productList = List.of(
-                Product.of(1L, "초코파이", 1500, 0), // 재고 없음
-                Product.of(2L, "칸쵸", 1200, 50)    // 재고 있음
+                Product.of(1L, "초코파이", 1500L, 0L), // 재고 없음
+                Product.of(2L, "칸쵸", 1200L, 50L)    // 재고 있음
         );
 
         // when & then
@@ -125,9 +125,9 @@ class ProductServiceUnitTest {
     void 재고_부족_예외_처리() {
         // given
         Map<Product, Integer> productsWithQuantities = Map.of(
-                Product.of(11L, "칸쵸 초코", 1_500, 150), 250,
-                Product.of(12L, "칸쵸 멜론", 1_500, 50), 10,
-                Product.of(13L, "바나나킥", 2_000, 30), 30);
+                Product.of(11L, "칸쵸 초코", 1_500L, 150L), 250,
+                Product.of(12L, "칸쵸 멜론", 1_500L, 50L), 10,
+                Product.of(13L, "바나나킥", 2_000L, 30L), 30);
 
         // when & then
         assertThatThrownBy(() -> productService.decreaseStockAndCalculatePrice(productsWithQuantities))
@@ -138,9 +138,9 @@ class ProductServiceUnitTest {
     @Test
     void 재고_및_총_금액_계산() {
         // given
-        Product item1 = Product.of(11L, "칸쵸 초코", 1500, 150);
-        Product item2 = Product.of(12L, "칸쵸 멜론", 1500, 50);
-        Product item3 = Product.of(13L, "바나나킥", 2000, 30);
+        Product item1 = Product.of(11L, "칸쵸 초코", 1500L, 150L);
+        Product item2 = Product.of(12L, "칸쵸 멜론", 1500L, 50L);
+        Product item3 = Product.of(13L, "바나나킥", 2000L, 30L);
 
         Map<Product, Integer> productsWithQuantities = Map.of(
                 item1, 5,

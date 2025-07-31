@@ -6,6 +6,7 @@ import kr.hhplus.be.server.coupon.infra.repositpry.CouponJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -21,5 +22,10 @@ public class CouponRepositoryAdapter implements CouponRepository {
     @Override
     public Optional<Coupon> findByUserIdAndCouponTypeId(Long userId, Long couponTypeId) {
         return jpaRepository.findByUserIdAndCouponTypeId(userId, couponTypeId);
+    }
+
+    @Override
+    public List<Coupon> saveAll(List<Coupon> coupons) {
+        return jpaRepository.saveAll(coupons);
     }
 }

@@ -33,6 +33,7 @@ public class CouponService {
         if (coupon == null) {
             return price;
         }
+
         coupon.use();
         return coupon.finalDiscountPrice(price);
     }

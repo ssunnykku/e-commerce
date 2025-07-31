@@ -26,9 +26,9 @@ class GetProductListUnitTest {
     @Test
     void 상품_목록을_정상적으로_가져온다() {
         // given
-        Product product1 =  Product.of(1L, "상품 A",1000,10);
+        Product product1 =  Product.of(1L, "상품 A",1000L,10L);
 
-        Product product2 =  Product.of(2L, "상품 B",2000,5);
+        Product product2 =  Product.of(2L, "상품 B",2000L,5L);
 
         when(productRepository.findAll()).thenReturn(List.of(product1, product2));
 
