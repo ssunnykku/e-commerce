@@ -81,15 +81,14 @@ class ProductServiceUnitTest {
                 .isInstanceOf(ProductNotFoundException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage(), List.of(12));
     }
-// TODO
-/*    @Test
+    @Test
     void 존재하는_상품_리스트_반환() {
         // given
         Map<Long, Integer> requestedQuantities = Map.of(11L, 5, 12L, 3, 13L, 2);
         List<Product> productList = List.of(
-                Product.of(11L, "칸쵸 초코", 1_500, 150),
-                Product.of(12L, "칸쵸 멜론", 1_500, 50),
-                Product.of(13L, "바나나킥", 2_000, 30));
+                Product.of(11L, "칸쵸 초코", 1_500L, 150L),
+                Product.of(12L, "칸쵸 멜론", 1_500L, 50L),
+                Product.of(13L, "바나나킥", 2_000L, 30L));
 
         // when
         Map<Product, Integer> result = productService.findAndValidateProducts(requestedQuantities, productList);
@@ -102,7 +101,7 @@ class ProductServiceUnitTest {
         Product firstKey = result.keySet().iterator().next();
         assertThat(firstKey.getName()).isEqualTo(productList.get(0).getName());
 
-    }*/
+    }
 
     @Test
     @DisplayName("재고 없으면 OutOfStockListException")
