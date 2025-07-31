@@ -77,7 +77,6 @@ class ChargeUnitTest {
         // given
         UserRequest userRequest = new UserRequest(user.getUserId(),20000L);
 
-        // 객체를 그대로 반환
         when(userBalanceHistoryRepository.save(any(UserBalanceHistory.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 

@@ -12,7 +12,12 @@ public record OrderRequest(
     public record OrderItemRequest(
             Long productId,
             Integer quantity
-    ) {}
+    ) {
+        public static OrderItemRequest of(Long productId, Integer quantity) {
+            return new OrderItemRequest(productId, quantity);
+        }
+    }
+
     public static OrderRequest of(Long userId, Long couponId, List<OrderItemRequest> orderItems) {
         return new OrderRequest(
                 userId, couponId, orderItems

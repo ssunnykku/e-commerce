@@ -12,7 +12,7 @@ class ProductTest {
     Product product;
     @BeforeEach
     void setup() {
-        product =  Product.of(1L, "스마트폰A",500000L,50L);
+        product =  Product.of(1L, "스마트폰A",500000,50);
     }
 
     @Test
@@ -31,7 +31,7 @@ class ProductTest {
         Integer quantity = 21;
 
         // given
-        Long resultQuantity = product.getStock() - quantity;
+        Integer resultQuantity = product.getStock() - quantity;
 
         // when
         product.decreaseStock(quantity);

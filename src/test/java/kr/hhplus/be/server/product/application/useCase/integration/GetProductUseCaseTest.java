@@ -7,6 +7,7 @@ import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,7 +33,7 @@ public class GetProductUseCaseTest {
 
     @ParameterizedTest
     @MethodSource("상품데이터")
-    void 상품_정보_조회(String name, long price, long stock) {
+    void 상품_정보_조회(String name, Integer price, Integer stock) {
         // given
         Product savedProduct = productRepository.save(Product.of(name, price, stock));
 
@@ -46,11 +47,11 @@ public class GetProductUseCaseTest {
         assertThat(result.stock()).isEqualTo(stock);
     }
 
-    static Stream<org.junit.jupiter.params.provider.Arguments> 상품데이터() {
+    static Stream<Arguments> 상품데이터() {
         return Stream.of(
-                org.junit.jupiter.params.provider.Arguments.of("아이패드", 900_000L, 100L),
-                org.junit.jupiter.params.provider.Arguments.of("맥북", 2_000_000L, 50L),
-                org.junit.jupiter.params.provider.Arguments.of("에어팟", 250_000L, 300L)
+                Arguments.of("아이패드", 900_000, 100),
+                Arguments.of("맥북", 2_000_000, 50),
+                Arguments.of("에어팟", 250_000, 300)
         );
     }
 }

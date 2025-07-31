@@ -29,7 +29,7 @@ class GetProductUnitTest {
     void execute_success() {
         // given
         Long productId = 1L;
-        Product product =  Product.of(productId, "테스트 상품",1000L,10L);
+        Product product =  Product.of(productId, "테스트 상품",1000,10);
 
         when(productRepository.findBy(productId)).thenReturn(Optional.of(product));
 
