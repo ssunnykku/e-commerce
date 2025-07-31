@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.coupon.domain.entity;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.InvalidCouponStateException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.InvalidCouponStateException;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

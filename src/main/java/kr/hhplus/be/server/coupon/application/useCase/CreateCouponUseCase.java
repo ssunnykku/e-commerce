@@ -1,12 +1,12 @@
 package kr.hhplus.be.server.coupon.application.useCase;
 
+import kr.hhplus.be.server.common.exception.*;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.exception.*;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

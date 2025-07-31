@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.order.application.dto;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.InvalidRequestException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.InvalidRequestException;
 import kr.hhplus.be.server.order.domain.entity.Order;
 
 import java.time.LocalDateTime;
