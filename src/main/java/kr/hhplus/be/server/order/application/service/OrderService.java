@@ -32,7 +32,7 @@ public class OrderService {
     public void saveOrderProducts(OrderRequest request, Order order) {
         List<OrderProduct> orderProductList = new ArrayList<>();
         for (OrderRequest.OrderItemRequest item : request.orderItems()) {
-            OrderProduct orderProduct = OrderProduct.of(item.productId(), order.getId(), item.quantity(), order.getOrderDate());
+            OrderProduct orderProduct = OrderProduct.of(item.productId(), order.getId(), item.quantity(), order.getOrderDate(), OrderStatus.ORDERED.getCode());
 
             orderProductList.add(orderProduct);
         }

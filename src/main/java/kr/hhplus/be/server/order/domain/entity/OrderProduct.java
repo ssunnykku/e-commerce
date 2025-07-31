@@ -28,12 +28,16 @@ public class OrderProduct {
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
 
-    public static OrderProduct of(Long productId, Long orderId,  Integer quantity, LocalDateTime orderDate) {
+    @Column(name = "status")
+    private String status;
+
+    public static OrderProduct of(Long productId, Long orderId, Integer quantity, LocalDateTime orderDate, String status) {
         return OrderProduct.builder()
                 .productId(productId)
                 .quantity(quantity)
                 .orderId(orderId)
                 .orderDate(orderDate)
+                .status(status)
                 .build();
     }
 
