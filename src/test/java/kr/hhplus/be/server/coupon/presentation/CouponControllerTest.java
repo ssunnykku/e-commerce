@@ -82,7 +82,7 @@ class CouponControllerTest {
         @Test
         @DisplayName("JSON 형식 오류 시 400 BAD_REQUEST 반환")
         void issueCouponInvalidJson() throws Exception {
-            String invalidJson = "{ \"userId\": \"string\", \"couponTypeId\": 10 }";
+            String invalidJson = "{ 'userId': 'string', 'couponTypeId': 10 }";
 
             mockMvc.perform(post("/coupons")
                             .contentType(MediaType.APPLICATION_JSON)
