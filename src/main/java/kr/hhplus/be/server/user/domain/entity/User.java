@@ -1,15 +1,15 @@
 package kr.hhplus.be.server.user.domain.entity;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.InvalidRequestException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.InvalidRequestException;
 import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
     @Id
@@ -35,6 +35,17 @@ public class User {
 
     public void decreaseBalance(Long amount) {
         this.balance -= amount;
+    }
+
+    public static User of(Long userId, String name, Long balance) {
+        return new User(userId, name, balance);
+    }
+
+    public static User of(String name, Long balance) {
+        return User.builder()
+                .name(name)
+                .balance(balance)
+                .build();
     }
 
 }

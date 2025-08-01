@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.order.infra.repository.adapter;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.NotFoundException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.NotFoundException;
 import kr.hhplus.be.server.order.domain.entity.OrderProduct;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.OrderProductJpaRepository;

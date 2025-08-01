@@ -4,21 +4,23 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.ExpiredCouponException;
-import kr.hhplus.be.server.exception.OutOfStockException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.ExpiredCouponException;
+import kr.hhplus.be.server.common.exception.OutOfStockException;
 import lombok.*;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "coupon_type")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class CouponType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,21 +32,21 @@ public class CouponType {
     @Column(name = "discount_rate")
     private Integer discountRate;
 
-    @Column(name = "valid_days",  nullable = false)
+    @Column(name = "valid_days", nullable = false)
     private Integer validDays;
 
     @CreatedDate
-    @Column(name = "created_at",  nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
 
-    @Column(name = "quantity",  nullable = false)
-    private Long quantity;
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
 
-    @Column(name = "remaining_quantity",  nullable = false)
-    private Long remainingQuantity;
+    @Column(name = "remaining_quantity")
+    private Integer remainingQuantity;
 
     public void checkStock() {
-        if(this.remainingQuantity <= 0) {
+        if (this.remainingQuantity <= 0) {
             throw new OutOfStockException(ErrorCode.COUPON_OUT_OF_STOCK);
         }
     }
@@ -52,7 +54,7 @@ public class CouponType {
     public LocalDate calculateExpireDate() {
         LocalDate expiresAt = this.createdAt.plusDays(this.validDays);
 
-        if(expiresAt.isBefore(LocalDate.now())) {
+        if (expiresAt.isBefore(LocalDate.now())) {
             throw new ExpiredCouponException(ErrorCode.EXPIRED_COUPON);
         }
         return expiresAt;
@@ -60,17 +62,23 @@ public class CouponType {
 
     public Coupon issueTo(Long userId) {
         this.checkStock();
-
-        return Coupon.builder()
-                .couponTypeId(this.id)
-                .userId(userId)
-                .expiresAt(this.calculateExpireDate())
-                .discountRate(this.discountRate)
-                .build();
+        return Coupon.of(userId, this.id, this.calculateExpireDate(), false, this.discountRate);
     }
 
     public void decreaseCoupon() {
         this.checkStock();
         this.remainingQuantity -= 1;
     }
+
+    public static CouponType of(String couponName, Integer discountRate, Integer validDays, Integer quantity) {
+        return CouponType.builder()
+                .couponName(couponName)
+                .discountRate(discountRate)
+                .validDays(validDays)
+                .quantity(quantity)
+                .remainingQuantity(quantity)
+                .build();
+    }
+
+
 }

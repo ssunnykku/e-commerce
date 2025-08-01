@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.coupon.domain.entity;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.ExpiredCouponException;
-import kr.hhplus.be.server.exception.OutOfStockException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.ExpiredCouponException;
+import kr.hhplus.be.server.common.exception.OutOfStockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,13 +18,13 @@ class CouponTypeTest {
 
     @BeforeEach
     void setUp() {
-        validCouponType = createCouponType(5L, LocalDate.now(), 10); // 재고 5, 만료 안됨
+        validCouponType = createCouponType(5, LocalDate.now(), 10); // 재고 5, 만료 안됨
     }
 
     @Test
     @DisplayName("재고 확인 - 재고 없으면 OutOfStockException")
     void 재고가_0이면_OutOfStockException() {
-        CouponType noStockCoupon = createCouponType(0L, LocalDate.now(), 10);
+        CouponType noStockCoupon = createCouponType(0, LocalDate.now(), 10);
 
         assertThatThrownBy(noStockCoupon::checkStock)
                 .isInstanceOf(OutOfStockException.class)
@@ -47,7 +47,7 @@ class CouponTypeTest {
     @Test
     @DisplayName("쿠폰 발급 - 재고 없으면 예외 발생")
     void 쿠폰_발급_재고없음_예외() {
-        CouponType noStockCoupon = createCouponType(0L, LocalDate.now(), 30);
+        CouponType noStockCoupon = createCouponType(0, LocalDate.now(), 30);
         Long userId = 42L;
 
         assertThatThrownBy(() -> noStockCoupon.issueTo(userId))
@@ -58,7 +58,7 @@ class CouponTypeTest {
     @Test
     @DisplayName("쿠폰 발급 - 유효기간 만료 시 예외 발생")
     void 쿠폰_만료시_ExpiredCouponException() {
-        CouponType expiredCoupon = createCouponType(10L, LocalDate.now().minusDays(20), 10); // 만료
+        CouponType expiredCoupon = createCouponType(10, LocalDate.now().minusDays(20), 10); // 만료
 
         assertThatThrownBy(expiredCoupon::calculateExpireDate)
                 .isInstanceOf(ExpiredCouponException.class)
@@ -68,7 +68,7 @@ class CouponTypeTest {
     @Test
     @DisplayName("쿠폰 수 감소 - 재고 없으면 예외")
     void 쿠폰수_감소시_재고없으면_예외() {
-        CouponType noStockCoupon = createCouponType(0L, LocalDate.now(), 30);
+        CouponType noStockCoupon = createCouponType(0, LocalDate.now(), 30);
 
         assertThatThrownBy(noStockCoupon::decreaseCoupon)
                 .isInstanceOf(OutOfStockException.class)
@@ -85,14 +85,14 @@ class CouponTypeTest {
         assertThat(validCouponType.getRemainingQuantity()).isEqualTo(before - 1);
     }
 
-    private CouponType createCouponType(Long remainingQuantity, LocalDate createdAt, int validDays) {
+    private CouponType createCouponType(Integer remainingQuantity, LocalDate createdAt, int validDays) {
         return CouponType.builder()
                 .id(1L)
                 .couponName("10% 할인 쿠폰")
                 .discountRate(10)
                 .validDays(validDays)
                 .createdAt(createdAt)
-                .quantity(100L)
+                .quantity(100)
                 .remainingQuantity(remainingQuantity)
                 .build();
     }
