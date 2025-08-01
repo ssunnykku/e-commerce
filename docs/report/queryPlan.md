@@ -59,7 +59,7 @@
 *   **개선 후 실행 계획:**
     *   type: ref → 인덱스 사용으로 좁은 범위만 탐색
     *   filesort 제거됨 → 정렬이 인덱스로 처리됨
-    *   rows: 651 → 기존 15만건 대비 엄청난 감소
+    *   rows: 651 → 기존 15만건 대비 감소
 
 | id | select\_type | table | partitions | type | possible\_keys | key | key\_len | ref | rows | filtered | Extra |
   | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
