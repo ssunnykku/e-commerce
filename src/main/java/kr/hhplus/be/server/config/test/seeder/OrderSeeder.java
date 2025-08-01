@@ -3,7 +3,6 @@ package kr.hhplus.be.server.config.test.seeder;
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.domain.entity.OrderProduct;
-import kr.hhplus.be.server.order.domain.entity.OrderStatus;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import kr.hhplus.be.server.product.domain.entity.Product;
@@ -12,7 +11,10 @@ import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,7 @@ public class OrderSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
 
     private static final int TOTAL_ORDERS = 100_000;
+    private static final List<String> STATUSES = List.of("0", "1"); // ORDERED, CANCELED
 
     @Override
     @Transactional
@@ -38,11 +41,11 @@ public class OrderSeeder implements CommandLineRunner {
 
         if (products.isEmpty()) {
             List<Product> tempProducts = new ArrayList<>();
-            for (int i = 1; i <= 10; i++) {
-                tempProducts.add(Product.of("상품 " + i, 10_000L * i, 100L));
+            for (int i = 1; i <= 100; i++) {
+                tempProducts.add(Product.of("상품 " + i, 5_000L + (i * 100), 100L));
             }
             products = productRepository.saveAll(tempProducts);
-            System.out.println("상품 더미 10건 생성 완료");
+            System.out.println("상품 더미 100건 생성 완료");
         }
 
         if (users.isEmpty()) {
@@ -68,6 +71,12 @@ public class OrderSeeder implements CommandLineRunner {
             long totalAmount = 0L;
             List<OrderProduct> tempOrderProductList = new ArrayList<>();
 
+            // 주문 날짜를 90일 내 랜덤 생성
+            LocalDateTime randomOrderDate = LocalDateTime.now().minusDays(random.nextInt(90));
+
+            // 상태값 '0' 또는 '1' 랜덤
+            String status = STATUSES.get(random.nextInt(STATUSES.size()));
+
             for (Product product : selectedProducts) {
                 int quantity = random.nextInt(5) + 1;
                 long price = product.getPrice() * quantity;
@@ -78,14 +87,14 @@ public class OrderSeeder implements CommandLineRunner {
                                 product.getId(),
                                 null,
                                 quantity,
-                                null,
-                                OrderStatus.ORDERED.getCode()
+                                randomOrderDate,
+                                status
                         )
                 );
             }
 
             Order order = orderRepository.save(
-                    Order.of(randomUser.getUserId(), totalAmount, OrderStatus.ORDERED.getCode())
+                    Order.of(randomUser.getUserId(), totalAmount, status)
             );
 
             List<OrderProduct> orderProductList = tempOrderProductList.stream()
@@ -93,13 +102,16 @@ public class OrderSeeder implements CommandLineRunner {
                             op.getProductId(),
                             order.getId(),
                             op.getQuantity(),
-                            order.getOrderDate(),
+                            randomOrderDate,
                             op.getStatus()
                     ))
                     .collect(Collectors.toList());
 
             orderProductRepository.saveAll(orderProductList);
 
+            if (i % 10_000 == 0) {
+                System.out.println(i + "건 생성 완료");
+            }
         }
 
         System.out.println("주문 10만건 더미 생성 완료");
