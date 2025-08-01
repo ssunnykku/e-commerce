@@ -1,11 +1,11 @@
-package kr.hhplus.be.server.order.application.useCase;
+package kr.hhplus.be.server.order.application.processor;
 
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.common.exception.ErrorCode;
-import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import kr.hhplus.be.server.product.domain.entity.Product;
@@ -30,9 +30,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
-class OrderUseCaseTest {
+class OrderProcessorTest {
     @Autowired
-    private OrderUseCase orderUseCase;
+    private OrderProcessor orderProcessor;
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -44,7 +44,7 @@ class OrderUseCaseTest {
 
     private User user;
     private CouponType couponType;
-    private List<Product>  products;
+    private List<Product> products;
     private List<Product> productDummy;
     @Autowired
     private OrderRepository orderRepository;
@@ -78,7 +78,7 @@ class OrderUseCaseTest {
                 products.stream().map(product->
                         OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
         //when
-        orderUseCase.execute(request);
+        orderProcessor.order(request);
         //then
         // 재고차감
         for (Product product : productDummy) {
@@ -116,7 +116,7 @@ class OrderUseCaseTest {
                 Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate())
         );
 
-        // 사용자 잔액 일부러 부족하게 설정
+        // 사용자 잔액 부족하게 설정
         user = userRepository.save(User.of(user.getUserId(), "sun", 1_000L));
 
         OrderRequest request = OrderRequest.of(user.getUserId(), coupon.getId(),
@@ -124,7 +124,7 @@ class OrderUseCaseTest {
                         OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
 
         // when & then
-        assertThatThrownBy(() -> orderUseCase.execute(request))
+        assertThatThrownBy(() -> orderProcessor.order(request))
                 .isInstanceOf(RuntimeException.class); // 결제 실패 예외
 
         // then: 재고가 원복되었는지 확인
@@ -148,7 +148,7 @@ class OrderUseCaseTest {
         );
 
         // when & then
-        assertThatThrownBy(() -> orderUseCase.execute(request))
+        assertThatThrownBy(() -> orderProcessor.order(request))
                 .isInstanceOf(OutOfStockListException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_OUT_OF_STOCK.getMessage());
     }
@@ -163,7 +163,7 @@ class OrderUseCaseTest {
                         OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
 
         // when
-        orderUseCase.execute(request);
+        orderProcessor.order(request);
 
         // then
         for (Product product : productDummy) {

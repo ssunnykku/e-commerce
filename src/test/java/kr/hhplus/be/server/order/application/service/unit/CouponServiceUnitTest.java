@@ -7,7 +7,7 @@ import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.common.exception.CouponNotFoundException;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.InvalidCouponStateException;
-import kr.hhplus.be.server.order.application.service.CouponService;
+import kr.hhplus.be.server.order.application.domainService.CouponService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

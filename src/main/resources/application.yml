@@ -16,7 +16,7 @@ spring:
     generate-ddl: false
     show-sql: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
@@ -32,7 +32,7 @@ spring:
 
 springdoc:
   api-docs:
-    path: /v1/api-docs
+    path: /v1
   swagger-ui:
     path: /swagger-ui.html
-  packages-to-scan: kr.hhplus.be.server.mock.controller
+  packages-to-scan: kr.hhplus.be.server

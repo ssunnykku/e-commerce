@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.order.application.service;
+package kr.hhplus.be.server.order.application.domainService;
 
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.UserNotFoundException;

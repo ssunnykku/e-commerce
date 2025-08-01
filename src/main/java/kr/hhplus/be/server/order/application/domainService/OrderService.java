@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.order.application.service;
+package kr.hhplus.be.server.order.application.domainService;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
