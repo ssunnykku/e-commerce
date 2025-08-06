@@ -115,7 +115,7 @@ class CreateCouponUnitTest {
         when(userRepository.findById(userId)).thenReturn(mock(User.class));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.of(existingCoupon));
 
-        CouponRequest request = CouponRequest.of(Coupon.of(userId, couponTypeId));
+        CouponRequest request = CouponRequest.of(userId, couponTypeId);
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(InvalidRequestException.class)
