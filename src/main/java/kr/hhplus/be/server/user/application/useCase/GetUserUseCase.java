@@ -12,7 +12,7 @@ public class GetUserUseCase {
     private final UserRepository userRepository;
 
     public UserResponse execute(long userId) {
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId);
         UserResponse userResponse = UserResponse.from(user);
         return userResponse;
     }

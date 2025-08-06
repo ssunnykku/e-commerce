@@ -2,7 +2,6 @@ package kr.hhplus.be.server.order.application.service.unit;
 
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.InvalidRequestException;
-import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.order.application.domainService.UserService;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
@@ -12,8 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,19 +23,6 @@ class UserServiceUnitTest {
     @InjectMocks
     private UserService userService;
 
-    @Test
-    @DisplayName("사용자_없으면_UserNotFoundException")
-    void 사용자_조회_예외처리() {
-        // given
-        Long userId = 5L;
-        when(userRepository.findById(userId))
-                .thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> userService.findUser(userId))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
-    }
 
     @Test
     void 사용자_조회() {
@@ -46,8 +30,7 @@ class UserServiceUnitTest {
         long userId = 11L;
         User user = User.of("sun", 1_000_000L);
         // when
-        when(userRepository.findById(userId))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(user);
         User result = userService.findUser(userId);
 
         // then

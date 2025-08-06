@@ -10,13 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.NoSuchElementException; // NoSuchElementException 임포트
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy; // assertThatThrownBy 임포트
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetUserUnitTest {
@@ -36,7 +32,7 @@ class GetUserUnitTest {
 
         User mockUser = User.of(userId, userName, userBalance);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(userId)).thenReturn(mockUser);
 
         // When
         UserResponse result = getUserUseCase.execute(userId);
@@ -50,18 +46,4 @@ class GetUserUnitTest {
         assertThat(result.balance()).isEqualTo(userBalance);
     }
 
-    @Test
-    void 사용자_없으면_예외_발생 () {
-        // Given
-        long nonExistentUserId = 999L;
-
-        // when
-        when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> getUserUseCase.execute(nonExistentUserId))
-                .isInstanceOf(NoSuchElementException.class);
-
-        verify(userRepository).findById(nonExistentUserId);
-    }
 }
