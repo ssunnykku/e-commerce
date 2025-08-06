@@ -1,12 +1,10 @@
 package kr.hhplus.be.server.order.application.service.unit;
 
-import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.coupon.domain.entity.CouponType;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.common.exception.CouponNotFoundException;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.InvalidCouponStateException;
+import kr.hhplus.be.server.coupon.domain.entity.Coupon;
+import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
+import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.order.application.domainService.CouponService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,26 +76,6 @@ class CouponServiceUnitTest {
 
     }
 
-    @Test
-    @DisplayName("존재하지 않은 쿠폰 유형 예외_CouponNotFoundException")
-    void 쿠폰_유형_찾을_수_없음() {
-        // given
-        Long couponId = 1L;
-
-        Coupon mockCoupon = mock(Coupon.class);
-        when(mockCoupon.getCouponTypeId()).thenReturn(couponId);
-
-        when(couponTypeRepository.findById(couponId)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> couponService.decreaseCouponCount(mockCoupon))
-                .isInstanceOf(CouponNotFoundException.class)
-                .hasMessageContaining(ErrorCode.COUPON_TYPE_NOT_FOUND.getMessage());
-
-        verify(couponTypeRepository).findById(couponId);
-
-    }
-
 
     @Test
     @DisplayName("쿠폰 사용시 쿠폰 수량 감소")
@@ -105,20 +83,17 @@ class CouponServiceUnitTest {
         // given
         Long userId = 999L;
         Long couponTypeId = 5L;
-        Integer quantity = 20;
-
-        when(couponTypeRepository.findById(couponTypeId))
-                .thenReturn(Optional.of(CouponType.of("20% 할인 쿠폰", 10, 10, quantity)));
+        when(couponRepository.findByUserIdAndCouponTypeId(userId,couponTypeId))
+                .thenReturn(Optional.ofNullable(Coupon.of(userId, couponTypeId, 20, LocalDate.now())));
         // when
-        CouponType result = couponService.decreaseCouponCount(Coupon.of(userId,couponTypeId));
+        Coupon result = couponService.findCoupon(userId,couponTypeId);
 
         // then
-        verify(couponTypeRepository).findById(couponTypeId);
+        verify(couponRepository).findByUserIdAndCouponTypeId(userId,couponTypeId);
 
         assertThat(result).isNotNull();
-        assertThat(result.getRemainingQuantity()).isEqualTo(quantity - 1);
-        assertThat(result.getCouponName()).isEqualTo("20% 할인 쿠폰");
-        assertThat(result.getDiscountRate()).isEqualTo(10);
+        assertThat(result.getUsed()).isEqualTo(false);
+        assertThat(result.getDiscountRate()).isEqualTo(20);
     }
 
     @Test

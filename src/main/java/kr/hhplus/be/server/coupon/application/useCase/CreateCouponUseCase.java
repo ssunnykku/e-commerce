@@ -45,16 +45,8 @@ public class CreateCouponUseCase {
                 .orElseThrow(() -> new CouponNotFoundException(ErrorCode.COUPON_NOT_FOUND));
     }
 
-    private void validateUserExists(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-    }
-
     private void checkUserHasNoCoupon(Long userId, Long couponTypeId) {
-        couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)
-                .ifPresent(coupon -> {
-                    throw new InvalidRequestException(ErrorCode.USER_ALREADY_HAS_COUPON);
-                });
+        couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId);
     }
 
     private Coupon issueCouponToUser(CouponType couponType, Long userId) {

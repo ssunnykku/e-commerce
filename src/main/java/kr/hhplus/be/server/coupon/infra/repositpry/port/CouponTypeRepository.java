@@ -5,5 +5,7 @@ import java.util.Optional;
 
 public interface CouponTypeRepository {
     Optional<CouponType> findById(Long id);
+    Optional<CouponType> findByIdLock(Long id);
     CouponType save(CouponType couponType);
+
 }

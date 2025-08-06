@@ -1,5 +1,8 @@
 package kr.hhplus.be.server.coupon.application.useCase.unit;
 
+import kr.hhplus.be.server.common.exception.CouponNotFoundException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.InvalidRequestException;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
@@ -7,10 +10,6 @@ import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.common.exception.CouponNotFoundException;
-import kr.hhplus.be.server.common.exception.ErrorCode;
-import kr.hhplus.be.server.common.exception.InvalidRequestException;
-import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,14 +48,16 @@ class CreateCouponUnitTest {
         // given
         Long userId = 1L;
         Long couponTypeId = 100L;
-        CouponRequest request = CouponRequest.of(Coupon.of(userId, couponTypeId));
+        CouponRequest request = CouponRequest.of(userId, couponTypeId);
 
         CouponType couponType = mock(CouponType.class);
         Coupon coupon = mock(Coupon.class);
+        when(couponType.getId()).thenReturn(couponTypeId);
+
         LocalDate expiredAt = LocalDate.now().plusDays(30);
 
-        when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.of(couponType));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+        when(couponTypeRepository.findByIdLock(couponTypeId)).thenReturn(Optional.of(couponType));
+        when(userRepository.findById(userId)).thenReturn(mock(User.class));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.empty());
         when(couponType.calculateExpireDate()).thenReturn(expiredAt);
         when(couponType.issueTo(userId)).thenReturn(coupon);
@@ -80,7 +81,7 @@ class CreateCouponUnitTest {
         assertThat(response.discountRate()).isEqualTo(10);
         assertThat(response.isUsed()).isFalse();
 
-        verify(couponTypeRepository).findById(couponTypeId);
+        verify(couponTypeRepository).findByIdLock(couponTypeId);
         verify(userRepository).findById(userId);
         verify(couponRepository).findByUserIdAndCouponTypeId(userId, couponTypeId);
         verify(couponType).calculateExpireDate();
@@ -93,29 +94,14 @@ class CreateCouponUnitTest {
         Long userId = 1L;
         Long couponTypeId = 100L;
 
-        when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.empty());
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+        when(couponTypeRepository.findByIdLock(couponTypeId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(mock(User.class));
 
-        CouponRequest request = CouponRequest.of(Coupon.of(userId, couponTypeId));
+        CouponRequest request = CouponRequest.of(userId, couponTypeId);
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(CouponNotFoundException.class)
                 .hasMessageContaining(ErrorCode.COUPON_NOT_FOUND.getMessage());
-    }
-
-    @Test
-    void 사용자가_없으면_UserNotFoundException_발생() {
-        Long userId = 1L;
-        Long couponTypeId = 100L;
-
-        when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.of(mock(CouponType.class)));
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        CouponRequest request = CouponRequest.of(Coupon.of(userId, couponTypeId));
-
-        assertThatThrownBy(() -> createCouponUseCase.execute(request))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -125,8 +111,8 @@ class CreateCouponUnitTest {
 
         Coupon existingCoupon = mock(Coupon.class);
 
-        when(couponTypeRepository.findById(couponTypeId)).thenReturn(Optional.of(mock(CouponType.class)));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+        when(couponTypeRepository.findByIdLock(couponTypeId)).thenReturn(Optional.of(mock(CouponType.class)));
+        when(userRepository.findById(userId)).thenReturn(mock(User.class));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.of(existingCoupon));
 
         CouponRequest request = CouponRequest.of(Coupon.of(userId, couponTypeId));

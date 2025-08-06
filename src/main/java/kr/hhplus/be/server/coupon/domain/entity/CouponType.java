@@ -70,7 +70,29 @@ public class CouponType {
         this.remainingQuantity -= 1;
     }
 
-    public static CouponType of(String couponName, Integer discountRate, Integer validDays, Integer quantity) {
+    // for test
+    public static CouponType of(Long id,
+                                String couponName,
+                                Integer discountRate,
+                                Integer validDays,
+                                Integer quantity,
+                                LocalDate createdAt) {
+        return CouponType.builder()
+                .id(id)
+                .couponName(couponName)
+                .discountRate(discountRate)
+                .validDays(validDays)
+                .quantity(quantity)
+                .remainingQuantity(quantity)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    public static CouponType of(
+                                String couponName,
+                                Integer discountRate,
+                                Integer validDays,
+                                Integer quantity) {
         return CouponType.builder()
                 .couponName(couponName)
                 .discountRate(discountRate)

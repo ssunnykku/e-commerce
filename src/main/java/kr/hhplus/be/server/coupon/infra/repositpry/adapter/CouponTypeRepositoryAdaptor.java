@@ -19,6 +19,11 @@ public class CouponTypeRepositoryAdaptor implements CouponTypeRepository {
     }
 
     @Override
+    public Optional<CouponType> findByIdLock(Long couponId) {
+        return jpaRepository.findByIdWithPessimisticLock(couponId);
+    }
+
+    @Override
     public CouponType save(CouponType couponType) {
         return jpaRepository.save(couponType);
     }
