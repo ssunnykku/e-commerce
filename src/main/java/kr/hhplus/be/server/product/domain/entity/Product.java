@@ -24,6 +24,9 @@ public class Product {
 
     @Column(name = "stock", nullable = false)
     private Long stock;
+//
+//    @Version
+//    private Long version;
 
     public void decreaseStock(Integer quantity) {
         if(this.stock < quantity) {
