@@ -2,7 +2,6 @@ package kr.hhplus.be.server.user.application.useCase.unit;
 
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.InvalidRequestException;
-import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.application.useCase.ConsumeBalanceUseCase;
@@ -11,8 +10,6 @@ import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,7 +32,7 @@ class ConsumeBalanceUnitTest {
     void useBalance_success() {
         // given
         User user = User.of(1L, "sun", 5000L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(user);
         UserRequest request = new UserRequest(1L, 1000);
 
         // when
@@ -48,25 +45,12 @@ class ConsumeBalanceUnitTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 사용자일 경우 예외 발생")
-    void useBalance_userNotFound() {
-        // given
-        when(userRepository.findById(999L)).thenReturn(Optional.empty());
-        UserRequest request = new UserRequest(999L, 1000L);
-
-        // when & then
-        assertThatThrownBy(() -> useCase.execute(request))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
-    }
-
-    @Test
     @DisplayName("잔액이 부족한 경우 예외 발생")
     void useBalance_insufficient() {
         // given
         User user = User.of(1L, "sun", 5000L);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(user);
         UserRequest request = new UserRequest(1L, 10000L);
 
         // when & then

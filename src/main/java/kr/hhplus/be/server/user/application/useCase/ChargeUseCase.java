@@ -1,9 +1,7 @@
 package kr.hhplus.be.server.user.application.useCase;
 
-import kr.hhplus.be.server.common.exception.ErrorCode;
-import kr.hhplus.be.server.common.exception.UserNotFoundException;
-import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
+import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.domain.entity.BalanceType;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.domain.entity.UserBalanceHistory;
@@ -21,9 +19,8 @@ public class ChargeUseCase {
 
     @Transactional
     public UserResponse execute(UserRequest request) {
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(()-> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-
+       // User user = userRepository.findByIdRock(request.userId());
+        User user = userRepository.findById(request.userId());
         user.increaseBalance(request.amount());
 
         recordHistory(request.userId(), request.amount());

@@ -1,8 +1,5 @@
 package kr.hhplus.be.server.user.application.useCase;
 
-import kr.hhplus.be.server.common.exception.BaseException;
-import kr.hhplus.be.server.common.exception.ErrorCode;
-import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -16,10 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConsumeBalanceUseCase {
     private final UserRepository userRepository;
 
-    @Transactional(rollbackFor = BaseException.class)
+    @Transactional
     public UserResponse execute(UserRequest request) {
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(request.userId());
+       // User user = userRepository.findByIdRock(request.userId());
        user.use(request.amount());
         return UserResponse.from(user);
     }
