@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.application.useCase;
 
+import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.application.processor.OrderProcessor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class OrderUseCase {
     private final OrderProcessor orderProcessor;
 
+    @Transactional
     public OrderResponse execute(OrderRequest request) {
       return orderProcessor.order(request);
     };

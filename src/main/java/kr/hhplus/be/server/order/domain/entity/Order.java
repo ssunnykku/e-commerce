@@ -48,6 +48,16 @@ public class Order {
                 .build();
     }
 
+    public static Order of(Long userId, Long totalAmount, String status, long discountAmount) {
+        return Order.builder()
+                .userId(userId)
+                .couponId(null)
+                .totalAmount(totalAmount)
+                .status(status)
+                .discountAmount(discountAmount)
+                .build();
+    }
+
     public static Order of(Long userId, Long totalAmount, String status) {
         return Order.builder()
                 .userId(userId)

@@ -20,12 +20,23 @@ public class CouponRepositoryAdapter implements CouponRepository {
     }
 
     @Override
-    public Optional<Coupon> findByUserIdAndCouponTypeId(Long userId, Long couponTypeId) {
+    public Coupon findByUserIdAndCouponTypeId(Long userId, Long couponTypeId) {
         return jpaRepository.findByUserIdAndCouponTypeId(userId, couponTypeId);
+
     }
 
     @Override
     public List<Coupon> saveAll(List<Coupon> coupons) {
         return jpaRepository.saveAll(coupons);
+    }
+
+    @Override
+    public Optional<Coupon> findById(long couponId) {
+        return jpaRepository.findById(couponId);
+    }
+
+    @Override
+    public List<Coupon> findAll() {
+        return jpaRepository.findAll();
     }
 }

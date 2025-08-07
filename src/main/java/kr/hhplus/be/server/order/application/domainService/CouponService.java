@@ -14,16 +14,16 @@ public class CouponService {
 
     // 사용자 쿠폰 조회
     public Coupon findCoupon(Long userId, Long couponId) {
-        return couponRepository.findByUserIdAndCouponTypeId(userId, couponId).get();
+        return couponRepository.findByUserIdAndCouponTypeId(userId, couponId);
     }
 
     public long applyCouponDiscount(long price, Coupon coupon) {
         if (coupon == null) {
             return price;
         }
-
+        long discounted = coupon.finalDiscountPrice(price);
         coupon.use();
-        // couponRepository.save(coupon);
-        return coupon.finalDiscountPrice(price);
+        couponRepository.save(coupon);
+        return discounted;
     }
 }

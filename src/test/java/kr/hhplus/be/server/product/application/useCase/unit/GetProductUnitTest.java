@@ -1,28 +1,33 @@
 package kr.hhplus.be.server.product.application.useCase.unit;
 
+import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.NotFoundException;
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
 import kr.hhplus.be.server.product.application.useCase.GetProductUseCase;
 import kr.hhplus.be.server.product.domain.entity.Product;
+import kr.hhplus.be.server.product.infra.repository.ProductJpaRepository;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class GetProductUnitTest {
+    @Mock
     private ProductRepository productRepository;
+
+    @InjectMocks
     private GetProductUseCase getProductUseCase;
 
-    @BeforeEach
-    void setUp() {
-        productRepository = mock(ProductRepository.class);
-        getProductUseCase = new GetProductUseCase(productRepository);
-    }
+    @Mock
+    private ProductJpaRepository productJpaRepository;
 
     @Test
     @DisplayName("상품 ID로 조회 성공")
@@ -48,7 +53,7 @@ class GetProductUnitTest {
     void execute_notFound() {
         // given
         Long productId = 999L;
-        when(productRepository.findBy(productId));
+        when(productRepository.findBy(productId)).thenThrow(new NotFoundException(ErrorCode.NOT_FOUND_ENTITY));
 
         // when & then
         assertThatThrownBy(() -> getProductUseCase.execute(productId))

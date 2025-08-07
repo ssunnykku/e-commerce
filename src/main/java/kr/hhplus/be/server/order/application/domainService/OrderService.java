@@ -23,12 +23,16 @@ public class OrderService {
     private final OrderProductRepository orderProductRepository;
 
     public Order saveOrder(Coupon coupon, User user, long totalAmount, long discountedAmount) {
-        Long couponId = null;
-        if(coupon != null) {
-            couponId = coupon.getId();
-        }
+
+       if(coupon == null) {
         return orderRepository.save(Order.of(
-                user.getUserId(), couponId, totalAmount, OrderStatus.ORDERED.getCode(), discountedAmount));
+                   user.getUserId(), totalAmount, OrderStatus.ORDERED.getCode(), discountedAmount));
+
+       }
+
+       return orderRepository.save(Order.of(
+                user.getUserId(), coupon.getId(), totalAmount, OrderStatus.ORDERED.getCode(), discountedAmount));
+
     }
 
     public void saveOrderProducts(OrderRequest request, Order order) {

@@ -16,6 +16,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Version
+    private Long version;
+
     @Column(name = "name", nullable = false)
     private  String name;
 
@@ -38,7 +41,7 @@ public class User {
     }
 
     public static User of(Long userId, String name, Long balance) {
-        return new User(userId, name, balance);
+        return User.builder().userId(userId).name(name).balance(balance).build();
     }
 
     public static User of(String name, Long balance) {

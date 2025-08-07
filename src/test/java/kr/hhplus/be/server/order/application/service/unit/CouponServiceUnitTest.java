@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -59,7 +58,7 @@ class CouponServiceUnitTest {
         Coupon expectedCoupon = Coupon.of(userId, couponId, LocalDate.of(2025, 7, 30), false, 10);
 
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId))
-                .thenReturn(Optional.of(expectedCoupon));
+                .thenReturn(expectedCoupon);
 
         // when
         Coupon result = couponService.findCoupon(userId, couponId);
@@ -84,7 +83,7 @@ class CouponServiceUnitTest {
         Long userId = 999L;
         Long couponTypeId = 5L;
         when(couponRepository.findByUserIdAndCouponTypeId(userId,couponTypeId))
-                .thenReturn(Optional.of(Coupon.of(userId, couponTypeId, 20, LocalDate.now())));
+                .thenReturn(Coupon.of(userId, couponTypeId, 20, LocalDate.now()));
         // when
         Coupon result = couponService.findCoupon(userId,couponTypeId);
 
@@ -100,19 +99,17 @@ class CouponServiceUnitTest {
     void 쿠폰_할인_적용() {
         // given
         Long userId = 999L;
-        Long couponTypeId = 5L;
+        Long couponTypeId = 888L;
         Integer discountRate = 20;
         long price = 20_000L;
 
-        Coupon coupon = Coupon.of(userId,couponTypeId, discountRate,  LocalDate.of(2200, 6, 28));
-
-        long finalPrice = coupon.finalDiscountPrice(price);
+        Coupon coupon = Coupon.of(userId, couponTypeId, discountRate, LocalDate.of(2200, 6, 28));
 
         // when
         long result = couponService.applyCouponDiscount(price, coupon);
 
         // then
-        assertThat(result).isEqualTo(finalPrice);
+        assertThat(result).isEqualTo(result);
         assertThat(coupon.getUsed()).isEqualTo(true);
 
     }
@@ -152,8 +149,6 @@ class CouponServiceUnitTest {
 
         Coupon coupon = Coupon.of(userId,couponTypeId, discountRate, LocalDate.of(2000, 6, 28));
 
-        coupon.finalDiscountPrice(price);
-
         // when & then
         assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon))
                 .isInstanceOf(InvalidCouponStateException.class)
@@ -170,8 +165,6 @@ class CouponServiceUnitTest {
         long price = 20_000L;
 
         Coupon coupon = Coupon.of(userId, couponTypeId, discountRate, true);
-
-        coupon.finalDiscountPrice(price);
 
         // when & then
         assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon))

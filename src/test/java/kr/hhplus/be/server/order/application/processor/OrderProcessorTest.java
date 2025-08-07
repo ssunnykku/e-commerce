@@ -7,6 +7,7 @@ import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
+import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
@@ -22,7 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -70,48 +70,6 @@ class OrderProcessorTest {
 
         user = userRepository.save(User.of("sun", 100_000_000L));
 
-    }
-
-    @Test
-    @DisplayName("상품을 주문: 재고 차감, 쿠폰 사용 처리, 주문 정보 저장, 사용자 잔액 차감")
-    void 상품_주문() {
-        //given
-        int quantity = 1;
-         LocalDate expireDate = couponType.calculateExpireDate();
-
-        // 사용자에게 쿠폰 발급
-        Coupon coupon = couponRepository.save(Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), expireDate));
-
-        OrderRequest request = OrderRequest.of(user.getUserId(), coupon.getId(),
-                products.stream().map(product->
-                        OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
-
-        //when
-        orderProcessor.order(request);
-        //then
-        // 재고차감
-        for (Product product : productDummy) {
-            Product result =  productRepository.findBy(product.getId());
-            assertThat(result.getStock()).isEqualTo(product.getStock() - quantity);
-        }
-        // 쿠폰 사용 처리
-        Coupon userCoupon = couponRepository.findByUserIdAndCouponTypeId(user.getUserId(), couponType.getId()).get();
-        assertThat(userCoupon).isNotNull();
-        assertThat(userCoupon.getUsed()).isEqualTo(true);
-        assertThat(userCoupon.getDiscountRate()).isEqualTo(couponType.getDiscountRate());
-
-        // 주문 정보 저장 확인
-        long expectedTotal = products.stream().mapToLong(p -> p.getPrice() * quantity).sum();
-
-        orderRepository.findBy(userCoupon.getId()).ifPresent(order -> {
-            assertThat(order.getUserId()).isEqualTo(user.getUserId());
-            assertThat(order.getDiscountAmount()).isEqualTo(expectedTotal * couponType.getDiscountRate() / 100);
-        });
-        // 사용자 잔액 차감
-        User userInfo = userRepository.findById(user.getUserId());
-        assertThat(userInfo).isNotNull();
-        assertThat(userInfo.getUserId()).isEqualTo(user.getUserId());
-        assertThat(userInfo.getBalance()).isEqualTo(user.getBalance() - (expectedTotal - (expectedTotal * couponType.getDiscountRate() / 100)));
     }
 
 
@@ -206,7 +164,66 @@ class OrderProcessorTest {
     }
 
     @Test
-    @DisplayName("동시성: 동시에 재고 차감")
+    @DisplayName("쿠폰을 사용한 주문 처리 - 재고 차감, 사용자 잔액 차감, 쿠폰 사용 처리, 주문 저장")
+    void order_withCoupon_reducesStockAndUserBalanceAndSavesOrder() {
+        // given
+        int quantity = 1;
+        Long userId = user.getUserId(); // 테스트용 사용자
+        long userInitialBalance = user.getBalance(); // 예: 10_000_000L
+
+        // 상품 가격 총합 계산용
+        long expectedTotalPrice = products.stream().mapToLong(p -> p.getPrice() * quantity).sum();
+
+        // 1. 쿠폰 타입 생성 및 저장
+        CouponType couponType = couponTypeRepository.save(CouponType.of("20% 할인 쿠폰", 20, 30, 100));
+
+        // 2. 쿠폰 발급 및 저장
+        Coupon coupon = couponRepository.save(Coupon.of(userId, couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate()));
+
+        // 3. 주문 요청 생성
+        OrderRequest request = OrderRequest.of(
+                userId,
+                couponType.getId(),
+                products.stream()
+                        .map(product -> OrderRequest.OrderItemRequest.of(product.getId(), quantity))
+                        .toList()
+        );
+
+        // when
+        orderProcessor.order(request);
+
+        // then
+        // 1. 재고 차감 확인
+        for (Product product : products) {
+            Product updated = productRepository.findBy(product.getId());
+            assertThat(updated.getStock()).isEqualTo(product.getStock() - quantity);
+        }
+
+        // 2. 쿠폰 사용 처리 확인
+        Coupon usedCoupon = couponRepository.findById(coupon.getId()).orElseThrow();
+        assertThat(usedCoupon.getUsed()).isTrue();
+
+        // 3. 사용자 잔액 차감 확인
+        User updatedUser = userRepository.findById(userId);
+        long expectedDiscount = expectedTotalPrice * couponType.getDiscountRate() / 100;
+        long expectedFinalPrice = expectedTotalPrice - expectedDiscount;
+        long expectedBalance = userInitialBalance - expectedFinalPrice;
+
+        assertThat(updatedUser.getBalance()).isEqualTo(expectedBalance);
+
+        // 4. 주문 저장 확인
+        Order order = orderRepository.findBy(usedCoupon.getId()).orElseThrow();
+
+        assertThat(order.getUserId()).isEqualTo(userId);
+        assertThat(order.getCouponId()).isEqualTo(coupon.getId());
+        assertThat(order.getDiscountAmount()).isEqualTo(expectedDiscount);
+
+        assertThat(order.getTotalAmount()).isEqualTo(expectedFinalPrice);
+    }
+
+
+    @Test
+    @DisplayName("동시성: 동시에 재고 차감(20명의 사용자)")
     void 동시성_테스트() throws InterruptedException {
         // given
         Coupon coupon = couponRepository.save(

@@ -21,7 +21,6 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class OrderProcessor {
     private final ProductService productService;
     private final CouponService couponService;
@@ -44,7 +43,7 @@ public class OrderProcessor {
         List<Long> outOfStockProduct = productService.findOutOfStockProduct(productList);
 
         // 2. 쿠폰 조회
-        Coupon coupon = couponService.findCoupon(request.userId(), request.couponId());
+        Coupon coupon = couponService.findCoupon(request.userId(), request.couponTypeId());
 
         // 3. 사용자 조회
         User user = userService.findUser(request.userId());

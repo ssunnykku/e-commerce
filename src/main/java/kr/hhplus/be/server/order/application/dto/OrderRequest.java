@@ -6,7 +6,7 @@ import java.util.List;
 
 public record OrderRequest(
         @NotNull Long userId,
-        @NotNull Long couponId,
+        @NotNull Long couponTypeId,
         List<OrderItemRequest> orderItems
 ) {
     public record OrderItemRequest(
@@ -18,9 +18,9 @@ public record OrderRequest(
         }
     }
 
-    public static OrderRequest of(Long userId, Long couponId, List<OrderItemRequest> orderItems) {
+    public static OrderRequest of(Long userId, Long couponTypeId, List<OrderItemRequest> orderItems) {
         return new OrderRequest(
-                userId, couponId, orderItems
+                userId, couponTypeId, orderItems
         );
     }
 }

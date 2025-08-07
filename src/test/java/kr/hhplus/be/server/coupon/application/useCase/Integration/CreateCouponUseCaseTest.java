@@ -101,20 +101,20 @@ public class CreateCouponUseCaseTest {
         latch.await();
 
         // then
-        CouponType a = couponTypeRepository.findById(couponType2.getId()).get();
+        CouponType a = couponTypeRepository.findById(couponType2.getId());
         assertThat(a).isNotNull();
         assertThat(a.getRemainingQuantity()).isEqualTo(0);
 
     }
 
     @Test
-    @DisplayName("동시성: 쿠폰 발급(20명)")
+    @DisplayName("동시성: 쿠폰 발급(30명)")
     void 동시성_테스트2() throws Exception {
         // given
-        CouponType couponType2 = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 20));
+        CouponType couponType2 = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 100));
 
-        int userCount = 20;
-        ExecutorService executorService = Executors.newFixedThreadPool(20); // 스레드 풀 생성
+        int userCount = 30;
+        ExecutorService executorService = Executors.newFixedThreadPool(5); // 스레드 풀 생성
         CountDownLatch latch = new CountDownLatch(userCount); // CountDownLatch 생성
 
         List<User> users = new ArrayList<>();
@@ -143,9 +143,9 @@ public class CreateCouponUseCaseTest {
         latch.await();
 
         // then
-        CouponType a = couponTypeRepository.findById(couponType2.getId()).get();
+        CouponType a = couponTypeRepository.findById(couponType2.getId());
         assertThat(a).isNotNull();
-        assertThat(a.getRemainingQuantity()).isEqualTo(0);
+        assertThat(a.getRemainingQuantity()).isEqualTo(70);
 
     }
 }

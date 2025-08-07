@@ -62,11 +62,14 @@ public class CouponType {
 
     public Coupon issueTo(Long userId) {
         this.checkStock();
+        this.decreaseCoupon();
         return Coupon.of(userId, this.id, this.calculateExpireDate(), false, this.discountRate);
     }
 
     public void decreaseCoupon() {
-        this.checkStock();
+        if (this.remainingQuantity <= 0) {
+            throw new OutOfStockException(ErrorCode.COUPON_OUT_OF_STOCK);
+        }
         this.remainingQuantity -= 1;
     }
 

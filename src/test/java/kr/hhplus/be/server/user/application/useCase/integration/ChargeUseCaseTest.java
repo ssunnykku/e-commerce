@@ -15,6 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static kr.hhplus.be.server.TestcontainersConfiguration.MYSQL_CONTAINER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -69,36 +73,36 @@ class ChargeUseCaseTest {
 
     }
 
-//    @Test
-//    @DisplayName("동시성: 동시 충전")
-//    void 동시성_테스트() throws InterruptedException {
-//        // given
-//        User sun = userRepository.save(User.of("sun1", 0L));
-//
-//        int countCharge = 2;
-//        ExecutorService executorService = Executors.newFixedThreadPool(2); // 스레드 풀 생성
-//        CountDownLatch latch = new CountDownLatch(countCharge); // CountDownLatch 생성
-//
-//        // when
-//        for (int i = 0; i < countCharge; i++) {
-//            executorService.submit(() -> {
-//                try {
-//                    chargeUseCase.execute(UserRequest.of(sun.getUserId(), 1000L));
-//                } catch (Exception e) {
-//                    log.error(e.getMessage());
-//                } finally {
-//                    latch.countDown();
-//
-//                }
-//            });
-//        }
-//
-//        latch.await();
-//
-//        // then
-//        User result = userRepository.findById(sun.getUserId());
-//        assertThat(result.getBalance()).isEqualTo(2000L);
-//    }
+    @Test
+    @DisplayName("동시성: 동시 충전")
+    void 동시성_테스트() throws InterruptedException {
+        // given
+        User sun = userRepository.save(User.of("sun1", 0L));
+
+        int countCharge = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(2); // 스레드 풀 생성
+        CountDownLatch latch = new CountDownLatch(countCharge); // CountDownLatch 생성
+
+        // when
+        for (int i = 0; i < countCharge; i++) {
+            executorService.submit(() -> {
+                try {
+                    chargeUseCase.execute(UserRequest.of(sun.getUserId(), 1000L));
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                } finally {
+                    latch.countDown();
+
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        User result = userRepository.findById(sun.getUserId());
+        assertThat(result.getBalance()).isEqualTo(2000L);
+    }
 
 
 }
