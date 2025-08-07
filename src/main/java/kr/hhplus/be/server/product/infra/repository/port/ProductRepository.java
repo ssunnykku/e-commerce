@@ -13,4 +13,6 @@ public interface ProductRepository {
     Product save(Product product);
     List<Product> saveAll(List<Product> products);
     void deleteAll();
+    List<Product> findAllByIdLock(Set<Long> ids);
+
 }

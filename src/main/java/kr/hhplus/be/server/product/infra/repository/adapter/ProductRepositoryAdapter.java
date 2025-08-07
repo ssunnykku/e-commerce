@@ -39,6 +39,11 @@ public class ProductRepositoryAdapter implements ProductRepository {
     public void deleteAll() { jpaRepository.deleteAll();}
 
     @Override
+    public List<Product> findAllByIdLock(Set<Long> ids) {
+        return jpaRepository.findAllByIdWithPessimisticLock(ids);
+    }
+
+    @Override
     public List<Product> findAllById(Set<Long> ids) {
         return jpaRepository.findAllById(ids);
     }

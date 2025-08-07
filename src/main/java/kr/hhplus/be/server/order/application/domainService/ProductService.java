@@ -8,6 +8,7 @@ import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +18,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
 
-    public List<Product> findProductsAll(Set<Long> productIds) {
-        return productRepository.findAllById(productIds);
+    public List<Product> findProductsAllWithLock(Set<Long> productIds) {
+        return productRepository.findAllByIdLock(productIds);
     }
 
     public Map<Long, Integer> getQuantitiesOfProducts(List<OrderRequest.OrderItemRequest> orderItems) {
