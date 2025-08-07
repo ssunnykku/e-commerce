@@ -91,7 +91,7 @@ class OrderProcessorTest {
         //then
         // 재고차감
         for (Product product : productDummy) {
-            Product result =  productRepository.findBy(product.getId()).get();
+            Product result =  productRepository.findBy(product.getId());
             assertThat(result.getStock()).isEqualTo(product.getStock() - quantity);
         }
         // 쿠폰 사용 처리
@@ -146,7 +146,7 @@ class OrderProcessorTest {
 
         // then: 재고가 원복되었는지 확인
         for (Product product : productDummy2) {
-            Product result = productRepository.findBy(product.getId()).orElseThrow();
+            Product result = productRepository.findBy(product.getId());
             assertThat(result.getStock()).isEqualTo(product.getStock()); // 초기 재고와 동일해야 함
         }
     }
@@ -196,7 +196,7 @@ class OrderProcessorTest {
 
         // then
         for (Product product : productDummy2) {
-            Product result = productRepository.findBy(product.getId()).get();
+            Product result = productRepository.findBy(product.getId());
             assertThat(result.getStock()).isEqualTo(product.getStock() - quantity);
         }
 
@@ -206,7 +206,7 @@ class OrderProcessorTest {
     }
 
     @Test
-    @DisplayName("동시에 재고 차감")
+    @DisplayName("동시성: 동시에 재고 차감")
     void 동시성_테스트() throws InterruptedException {
         // given
         Coupon coupon = couponRepository.save(
@@ -251,7 +251,7 @@ class OrderProcessorTest {
         latch.await();
 
         // then
-        Product product = productRepository.findBy(product1.getId()).get();
+        Product product = productRepository.findBy(product1.getId());
         assertThat(product.getStock()).isEqualTo(100L - (userCount * quantity));
 
     }

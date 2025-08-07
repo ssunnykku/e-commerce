@@ -1,7 +1,5 @@
 package kr.hhplus.be.server.product.application.useCase;
 
-import kr.hhplus.be.server.common.exception.ErrorCode;
-import kr.hhplus.be.server.common.exception.NotFoundException;
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
@@ -16,9 +14,7 @@ public class GetProductUseCase {
 
     @Transactional
     public ProductResponse execute(Long id) {
-        Product product = productRepository.findBy(id).orElseThrow(()-> {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_ENTITY);
-        });
+        Product product = productRepository.findBy(id);
 
         return ProductResponse.from(product);
     }

@@ -9,10 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class GetProductUnitTest {
     private ProductRepository productRepository;
@@ -31,7 +31,7 @@ class GetProductUnitTest {
         Long productId = 1L;
         Product product =  Product.of(productId, "테스트 상품",1000L,10L);
 
-        when(productRepository.findBy(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findBy(productId)).thenReturn(product);
 
         // when
         ProductResponse response = getProductUseCase.execute(productId);
@@ -48,7 +48,7 @@ class GetProductUnitTest {
     void execute_notFound() {
         // given
         Long productId = 999L;
-        when(productRepository.findBy(productId)).thenReturn(Optional.empty());
+        when(productRepository.findBy(productId));
 
         // when & then
         assertThatThrownBy(() -> getProductUseCase.execute(productId))
