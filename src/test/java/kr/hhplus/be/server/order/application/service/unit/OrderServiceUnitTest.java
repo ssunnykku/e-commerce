@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.order.application.service.unit;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.order.application.domainService.OrderService;
+import kr.hhplus.be.server.order.application.service.OrderService;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.domain.entity.OrderStatus;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;

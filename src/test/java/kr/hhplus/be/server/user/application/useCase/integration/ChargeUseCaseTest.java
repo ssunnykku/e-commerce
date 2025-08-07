@@ -15,6 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,6 +85,7 @@ class ChargeUseCaseTest {
         int countCharge = 2;
         ExecutorService executorService = Executors.newFixedThreadPool(2); // 스레드 풀 생성
         CountDownLatch latch = new CountDownLatch(countCharge); // CountDownLatch 생성
+        List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
 
         // when
         for (int i = 0; i < countCharge; i++) {
@@ -89,7 +93,8 @@ class ChargeUseCaseTest {
                 try {
                     chargeUseCase.execute(UserRequest.of(sun.getUserId(), 1000L));
                 } catch (Exception e) {
-                    log.error(e.getMessage());
+                    exceptions.add(e);
+                    log.error("충전 실패: {}", e.getMessage());
                 } finally {
                     latch.countDown();
 

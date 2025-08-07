@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.order.application.domainService;
+package kr.hhplus.be.server.order.application.service;
 
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.OutOfStockListException;
@@ -8,7 +8,6 @@ import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
 

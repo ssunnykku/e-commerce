@@ -5,7 +5,7 @@ import kr.hhplus.be.server.common.exception.OutOfStockException;
 import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.common.exception.ProductNotFoundException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
-import kr.hhplus.be.server.order.application.domainService.ProductService;
+import kr.hhplus.be.server.order.application.service.ProductService;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import org.junit.jupiter.api.DisplayName;

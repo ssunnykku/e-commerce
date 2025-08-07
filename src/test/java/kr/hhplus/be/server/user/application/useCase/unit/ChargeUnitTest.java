@@ -2,6 +2,7 @@ package kr.hhplus.be.server.user.application.useCase.unit;
 
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
+import kr.hhplus.be.server.user.application.service.UserBalanceHistoryService;
 import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
 import kr.hhplus.be.server.user.domain.entity.BalanceType;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -31,6 +32,9 @@ class ChargeUnitTest {
 
     @InjectMocks
     private ChargeUseCase chargeUseCase;
+
+    @Mock
+    private UserBalanceHistoryService userBalanceHistoryService;
 
     @Mock
     private BalanceHistoryRepository userBalanceHistoryRepository;
@@ -80,7 +84,7 @@ class ChargeUnitTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        UserBalanceHistory resultHistory = chargeUseCase.recordHistory(userRequest.userId(), userRequest.amount());
+        UserBalanceHistory resultHistory = userBalanceHistoryService.recordHistory(userRequest.userId(), userRequest.amount());
 
         // then
         verify(userBalanceHistoryRepository, times(1)).save(any(UserBalanceHistory.class));
@@ -90,6 +94,5 @@ class ChargeUnitTest {
         assertThat(resultHistory.getStatus()).isEqualTo(BalanceType.CHARGE.getCode());
 
     }
-
 
 }
