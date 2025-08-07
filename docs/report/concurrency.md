@@ -38,12 +38,13 @@
 - `@Version` 필드로 충돌 감지 → `@Retryable`로 재시도 → `@Recover`로 복구
 
 #### ✅ 주요 코드
+- [User.java](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/main/java/kr/hhplus/be/server/user/domain/entity/User.java)
 
 ```java
 @Version
 private Long version; // User 엔티티 내부
 ```
-
+- [ChargeUseCase.java](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/main/java/kr/hhplus/be/server/user/application/useCase/ChargeUseCase.java)
 ```java
  @Retryable(
         value = {OptimisticLockException.class, OptimisticLockingFailureException.class},
@@ -60,7 +61,7 @@ public UserResponse recover(...) {
     throw new ConflictException(...);
 }
 ```
-
+- [UserBalanceHistoryService.java](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/main/java/kr/hhplus/be/server/user/application/service/UserBalanceHistoryService.java)
 ```java
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public void recordHistory(...) { ... }
@@ -78,7 +79,7 @@ public void recordHistory(...) { ... }
 - `SELECT ... FOR UPDATE` 방식으로 동시 접근 차단
 
 #### ✅ 주요 코드
-
+- [ProductJpaRepository.java](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/main/java/kr/hhplus/be/server/product/infra/repository/ProductJpaRepository.java)
 ```java
 @Lock(LockModeType.PESSIMISTIC_WRITE)
 @Query("SELECT p FROM Product p WHERE p.id = :id")
@@ -97,7 +98,7 @@ Optional<Product> findByIdWithPessimisticLock(@Param("id") Long id);
 - 쿠폰 타입 조회 시 락 획득으로 Race Condition 방지
 
 #### ✅ 주요 코드
-
+- 
 ```java
 @Lock(LockModeType.PESSIMISTIC_WRITE)
 @Query("SELECT c FROM CouponType c WHERE c.id = :id")
@@ -135,7 +136,7 @@ public void recordHistory(...) { ... }
 
 ---
 
-## 6. 동시성 테스트 예시 (발췌)
+## 6. 동시성 테스트 예시
 
 ```java
 @Test
@@ -182,13 +183,3 @@ void 동시성_재고차감() throws InterruptedException {
 }
 ```
 
----
-
-## 7. 보완 및 추가 고려 사항
-
-- [ ] 테스트 중 데드락, 무한 재시도 여부 확인 필요
-- [ ] 분산 환경에서는 Redis 기반 분산락 도입도 고려
-- [ ] `@Transactional(readOnly = true)`로 읽기 트랜잭션 분리
-- [ ] `@Recover`는 다양한 예외 케이스에 대응 가능하도록 설계 확장
-
----

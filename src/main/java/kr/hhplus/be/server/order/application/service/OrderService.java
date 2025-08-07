@@ -21,7 +21,6 @@ public class OrderService {
     private final OrderProductRepository orderProductRepository;
 
     public Order saveOrder(Coupon coupon, User user, long totalAmount, long discountedAmount) {
-
        if(coupon == null) {
         return orderRepository.save(Order.of(
                    user.getUserId(), totalAmount, OrderStatus.ORDERED.getCode(), discountedAmount));
