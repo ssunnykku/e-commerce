@@ -39,7 +39,7 @@ class CouponServiceUnitTest {
         Long couponId = 1L;
 
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId))
-                .thenReturn(Optional.empty());
+                .thenReturn(null);
         // when
         Coupon result = couponService.findCoupon(userId, couponId);
 
@@ -84,7 +84,7 @@ class CouponServiceUnitTest {
         Long userId = 999L;
         Long couponTypeId = 5L;
         when(couponRepository.findByUserIdAndCouponTypeId(userId,couponTypeId))
-                .thenReturn(Optional.ofNullable(Coupon.of(userId, couponTypeId, 20, LocalDate.now())));
+                .thenReturn(Optional.of(Coupon.of(userId, couponTypeId, 20, LocalDate.now())));
         // when
         Coupon result = couponService.findCoupon(userId,couponTypeId);
 
@@ -126,7 +126,7 @@ class CouponServiceUnitTest {
         long originalPrice = 10_000L;
 
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId))
-                .thenReturn(Optional.empty());
+                .thenReturn(null);
 
         // when
         Coupon foundCoupon = couponService.findCoupon(userId, couponTypeId);

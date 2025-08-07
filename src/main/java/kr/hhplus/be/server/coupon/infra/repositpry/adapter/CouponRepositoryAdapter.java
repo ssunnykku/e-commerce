@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.coupon.infra.repositpry.adapter;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.CouponJpaRepository;
+import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.coupon.application.useCase;
 
+import kr.hhplus.be.server.common.exception.BaseException;
 import kr.hhplus.be.server.common.exception.CouponNotFoundException;
 import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.InvalidRequestException;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
@@ -22,11 +24,11 @@ public class CreateCouponUseCase {
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = BaseException.class)
     public CouponResponse execute(CouponRequest request) {
         // 1. 쿠폰 재고 조회
         userRepository.findById(request.userId());
-        CouponType couponType = findCouponTypeWithLock(request.couponTypeId());
+        CouponType couponType = findCouponType(request.couponTypeId());
 
         // 2. 쿠폰 발급 대상 여부 확인 (중복 발급 불가)
         checkUserHasNoCoupon(request.userId(), request.couponTypeId());
@@ -37,20 +39,20 @@ public class CreateCouponUseCase {
         Coupon coupon = issueCouponToUser(couponType, request.userId());
         coupon.setExpiresAt(expiresAt);
         Coupon savedCoupon = couponRepository.save(coupon);
-        couponType.decreaseCoupon();
-        couponTypeRepository.save(couponType);
-
 
         return CouponResponse.from(savedCoupon, couponType);
     }
 
-    private CouponType findCouponTypeWithLock(Long couponTypeId) {
+    private CouponType findCouponType(Long couponTypeId) {
         return couponTypeRepository.findByIdLock(couponTypeId)
                 .orElseThrow(() -> new CouponNotFoundException(ErrorCode.COUPON_NOT_FOUND));
     }
 
     private void checkUserHasNoCoupon(Long userId, Long couponTypeId) {
-        couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId);
+        couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)
+                .ifPresent(coupon -> {
+                    throw new InvalidRequestException(ErrorCode.USER_ALREADY_HAS_COUPON);
+                });
     }
 
     private Coupon issueCouponToUser(CouponType couponType, Long userId) {

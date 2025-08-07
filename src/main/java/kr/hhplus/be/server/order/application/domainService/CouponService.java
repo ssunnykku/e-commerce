@@ -14,8 +14,7 @@ public class CouponService {
 
     // 사용자 쿠폰 조회
     public Coupon findCoupon(Long userId, Long couponId) {
-        return couponRepository.findByUserIdAndCouponTypeId(userId, couponId)
-                .orElse(null);
+        return couponRepository.findByUserIdAndCouponTypeId(userId, couponId).get();
     }
 
     public long applyCouponDiscount(long price, Coupon coupon) {

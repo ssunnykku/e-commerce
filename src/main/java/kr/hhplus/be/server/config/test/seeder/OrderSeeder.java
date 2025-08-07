@@ -10,9 +10,8 @@ import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 //@Component
 //@Profile("local")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderSeeder implements CommandLineRunner {
 
     private final OrderRepository orderRepository;
@@ -34,7 +34,7 @@ public class OrderSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        System.out.println("주문 더미 데이터 생성 시작");
+        log.debug("주문 더미 데이터 생성 시작");
 
         List<Product> products = productRepository.findAll();
         List<User> users = userRepository.findAll();
@@ -45,7 +45,7 @@ public class OrderSeeder implements CommandLineRunner {
                 tempProducts.add(Product.of("상품 " + i, 5_000L + (i * 100), 100L));
             }
             products = productRepository.saveAll(tempProducts);
-            System.out.println("상품 더미 100건 생성 완료");
+            log.debug("상품 더미 100건 생성 완료");
         }
 
         if (users.isEmpty()) {
@@ -54,7 +54,7 @@ public class OrderSeeder implements CommandLineRunner {
                 tempUsers.add(User.of("사용자" + i, 100_000L));
             }
             users = userRepository.saveAll(tempUsers);
-            System.out.println("사용자 더미 100명 생성 완료");
+            log.debug("사용자 더미 100명 생성 완료");
         }
 
         Random random = new Random();
@@ -110,10 +110,10 @@ public class OrderSeeder implements CommandLineRunner {
             orderProductRepository.saveAll(orderProductList);
 
             if (i % 10_000 == 0) {
-                System.out.println(i + "건 생성 완료");
+                log.debug(i + "건 생성 완료");
             }
         }
 
-        System.out.println("주문 10만건 더미 생성 완료");
+        log.debug("주문 10만건 더미 생성 완료");
     }
 }

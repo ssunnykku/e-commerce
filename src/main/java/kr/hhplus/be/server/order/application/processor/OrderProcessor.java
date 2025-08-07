@@ -30,11 +30,12 @@ public class OrderProcessor {
 
     private final OrderDataPublisher orderDataPublisher;
 
+    @Transactional
     public OrderResponse order(OrderRequest request) {
         // 1. 상품 재고 조회 (product)
         Map<Long, Integer> quantitiesOfProducts = productService.getQuantitiesOfProducts(request.orderItems());
 
-        List<Product> productList = productService.findProductsAll(quantitiesOfProducts.keySet());
+        List<Product> productList = productService.findProductsAllWithLock(quantitiesOfProducts.keySet());
 
         // 상품 재고 품절 여부 검증
         Map<Product, Integer> productsWithQuantities = productService.findAndValidateProducts(quantitiesOfProducts, productList);
@@ -56,11 +57,9 @@ public class OrderProcessor {
         long finalPaymentPrice = calculatedPrice;
 
         if (coupon != null) {
-            discountedAmount = calculatedPrice - coupon.finalDiscountPrice(calculatedPrice);
-            finalPaymentPrice = coupon.finalDiscountPrice(calculatedPrice);
-            coupon.use();
-            // 쿠폰 수 차감
-            couponService.decreaseCouponCount(coupon);
+            discountedAmount = coupon.discountPrice(calculatedPrice);
+            // 쿠폰 사용 처리
+            finalPaymentPrice = couponService.applyCouponDiscount(calculatedPrice, coupon);
         }
 
         // 6. 사용자 잔액 차감 (결제)
