@@ -3,7 +3,6 @@ package kr.hhplus.be.server.coupon.application.useCase.Integration;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
-import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -43,7 +42,7 @@ class CreateCouponUseCaseTest {
     @DisplayName("사용자에게 쿠폰을 발급한다.")
     void 쿠폰_생성() {
         //given
-        CouponRequest request = CouponRequest.of(Coupon.of(user.getUserId(), couponType.getId()));
+        CouponRequest request = CouponRequest.of(user.getUserId(), couponType.getId());
         //when
         CouponResponse response = createCouponUseCase.execute(request);
         //then

@@ -47,27 +47,27 @@ class CreateCouponUnitTest {
     void 쿠폰발급_성공() {
         // given
         Long userId = 1L;
-        Long couponTypeId = 100L;
+        Long couponTypeId = 101L;
         CouponRequest request = CouponRequest.of(userId, couponTypeId);
+        LocalDate expiredAt = LocalDate.now().plusDays(30);
 
         CouponType couponType = mock(CouponType.class);
         Coupon coupon = mock(Coupon.class);
-        when(couponType.getId()).thenReturn(couponTypeId);
-
-        LocalDate expiredAt = LocalDate.now().plusDays(30);
 
         when(couponTypeRepository.findByIdLock(couponTypeId)).thenReturn(Optional.of(couponType));
         when(userRepository.findById(userId)).thenReturn(mock(User.class));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.empty());
+        when(couponType.getId()).thenReturn(couponTypeId);
         when(couponType.calculateExpireDate()).thenReturn(expiredAt);
         when(couponType.issueTo(userId)).thenReturn(coupon);
+        when(couponType.getCouponName()).thenReturn("10% 할인 쿠폰");
+
 
         when(coupon.getId()).thenReturn(1L);
         when(coupon.getCouponTypeId()).thenReturn(couponTypeId);
         when(coupon.getDiscountRate()).thenReturn(10);
         when(coupon.getUsed()).thenReturn(false);
         when(coupon.getExpiresAt()).thenReturn(expiredAt);
-        when(couponType.getCouponName()).thenReturn("10% 할인 쿠폰");
 
         when(couponRepository.save(coupon)).thenReturn(coupon);
 
@@ -81,9 +81,9 @@ class CreateCouponUnitTest {
         assertThat(response.discountRate()).isEqualTo(10);
         assertThat(response.isUsed()).isFalse();
 
-        verify(couponTypeRepository).findByIdLock(couponTypeId);
         verify(userRepository).findById(userId);
         verify(couponRepository).findByUserIdAndCouponTypeId(userId, couponTypeId);
+        verify(couponTypeRepository).findByIdLock(couponTypeId);
         verify(couponType).calculateExpireDate();
         verify(couponType).issueTo(userId);
         verify(couponRepository).save(coupon);
@@ -106,16 +106,31 @@ class CreateCouponUnitTest {
 
     @Test
     void 이미_쿠폰이_발급되어있으면_InvalidRequestException_발생() {
-        Long userId = 1L;
-        Long couponTypeId = 100L;
+        Long userId = 2L;
+        Long couponTypeId = 202L;
 
         Coupon existingCoupon = mock(Coupon.class);
+        CouponType couponType = mock(CouponType.class);
+        LocalDate expiredAt = LocalDate.now().plusDays(30);
+
+        when(couponType.getId()).thenReturn(couponTypeId);
+        when(couponType.calculateExpireDate()).thenReturn(expiredAt);
+        when(existingCoupon.getId()).thenReturn(13L);
+        when(existingCoupon.getCouponTypeId()).thenReturn(couponTypeId);
+        when(existingCoupon.getDiscountRate()).thenReturn(10);
+        when(existingCoupon.getUsed()).thenReturn(false);
+       // when(existingCoupon.getExpiresAt()).thenReturn(expiredAt);
+
+        when(couponType.issueTo(userId)).thenReturn(existingCoupon);
+        when(couponType.getCouponName()).thenReturn("10% 할인 쿠폰");
+
+
 
         when(couponTypeRepository.findByIdLock(couponTypeId)).thenReturn(Optional.of(mock(CouponType.class)));
         when(userRepository.findById(userId)).thenReturn(mock(User.class));
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId)).thenReturn(Optional.of(existingCoupon));
 
-        CouponRequest request = CouponRequest.of(Coupon.of(userId, couponTypeId));
+        CouponRequest request = CouponRequest.of(userId, couponTypeId);
 
         assertThatThrownBy(() -> createCouponUseCase.execute(request))
                 .isInstanceOf(InvalidRequestException.class)

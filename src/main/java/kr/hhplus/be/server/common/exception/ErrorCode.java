@@ -13,7 +13,7 @@ public enum ErrorCode {
     INVALID_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 유형의 코드입니다."),
     INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "잔액이 부족합니다."),
 
-    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "적용 가능한 쿠폰이 없습니다."),
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "쿠폰을 찾을 수 없습니다."),
     COUPON_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 쿠폰이 존재하지 않습니다."),
 
     COUPON_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "쿠폰 재고가 없습니다."),
