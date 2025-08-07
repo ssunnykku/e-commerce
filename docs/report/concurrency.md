@@ -169,5 +169,4 @@ public void recordHistory(Long userId, Long amount) { ... }
 - ✅ **선착순 쿠폰 발급**
   - [CreateCouponUseCaseTest](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L70)
 
-```
 
