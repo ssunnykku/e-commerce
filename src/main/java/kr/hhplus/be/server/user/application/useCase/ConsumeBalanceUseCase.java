@@ -1,27 +1,26 @@
 package kr.hhplus.be.server.user.application.useCase;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.UserNotFoundException;
+import kr.hhplus.be.server.common.exception.BaseException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ConsumeBalanceUseCase {
     private final UserRepository userRepository;
 
+    @Transactional(rollbackFor = BaseException.class)
     public UserResponse execute(UserRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-       user.use(request.getAmount());
-        return UserResponse.builder()
-                .userId(request.getUserId())
-                .name(user.getName())
-                .balance(user.getBalance())
-                .build();
+       user.use(request.amount());
+        return UserResponse.from(user);
     }
 }

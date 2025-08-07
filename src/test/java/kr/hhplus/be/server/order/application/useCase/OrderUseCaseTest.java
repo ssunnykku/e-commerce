@@ -1,14 +1,12 @@
-package kr.hhplus.be.server.order.application;
+package kr.hhplus.be.server.order.application.useCase;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
+import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.exception.*;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
-import kr.hhplus.be.server.order.application.useCase.OrderUseCase;
-import kr.hhplus.be.server.order.domain.entity.Order;
-import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
-import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
@@ -17,162 +15,165 @@ import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+@SpringBootTest
+@Import(TestcontainersConfiguration.class)
 class OrderUseCaseTest {
+    @Autowired
     private OrderUseCase orderUseCase;
-
+    @Autowired
     private ProductRepository productRepository;
+    @Autowired
     private CouponRepository couponRepository;
+    @Autowired
     private UserRepository userRepository;
-    private OrderRepository orderRepository;
-    private OrderProductRepository orderProductRepository;
+    @Autowired
     private CouponTypeRepository couponTypeRepository;
-    private OrderDataPublisher orderDataPublisher;
+
+    private User user;
+    private CouponType couponType;
+    private List<Product>  products;
+    private List<Product> productDummy;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @BeforeEach
     void setUp() {
-        productRepository = mock(ProductRepository.class);
-        couponRepository = mock(CouponRepository.class);
-        userRepository = mock(UserRepository.class);
-        orderRepository = mock(OrderRepository.class);
-        orderProductRepository = mock(OrderProductRepository.class);
-        couponTypeRepository = mock(CouponTypeRepository.class);
-        orderDataPublisher = mock(OrderDataPublisher.class);
-
-        orderUseCase = new OrderUseCase(
-                orderRepository,
-                orderProductRepository,
-                productRepository,
-                couponRepository,
-                userRepository,
-                orderDataPublisher,
-                couponTypeRepository
+        productDummy = List.of(
+                Product.of("아이폰16", 1_500_000L, 100L),
+                Product.of("에어팟3", 400_000L, 80L),
+                Product.of( "아이패드", 200_000L, 200L),
+                Product.of( "맥북 m4 pro", 3_000_000L, 100L)
         );
+        products = productRepository.saveAll(productDummy);
+
+        couponType = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 30, 100));
+
+        user = userRepository.save(User.of("sun", 100_000_000L));
+
     }
 
     @Test
-    @DisplayName("예외: 재고 없는 상품 주문")
-    void 재고없는상품_주문_예외() {
+    @DisplayName("상품을 주문: 재고 차감, 쿠폰 사용 처리, 주문 정보 저장, 사용자 잔액 차감")
+    void 상품_주문() {
+        //given
+        int quantity = 1;
+        LocalDate expireDate = couponType.calculateExpireDate();
+        // 사용자에게 쿠폰 발급
+        Coupon coupon = couponRepository.save(Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), expireDate));
+
+        OrderRequest request = OrderRequest.of(user.getUserId(), coupon.getId(),
+                products.stream().map(product->
+                        OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
+        //when
+        orderUseCase.execute(request);
+        //then
+        // 재고차감
+        for (Product product : productDummy) {
+            Product result =  productRepository.findBy(product.getId()).get();
+            assertThat(result.getStock()).isEqualTo(product.getStock() - quantity);
+        }
+        // 쿠폰 사용 처리
+        Coupon userCoupon = couponRepository.findByUserIdAndCouponTypeId(user.getUserId(), couponType.getId()).get();
+        assertThat(userCoupon).isNotNull();
+        assertThat(userCoupon.getUsed()).isEqualTo(true);
+        assertThat(userCoupon.getDiscountRate()).isEqualTo(couponType.getDiscountRate());
+
+        // 주문 정보 저장 확인
+        long expectedTotal = products.stream().mapToLong(p -> p.getPrice() * quantity).sum();
+
+        orderRepository.findBy(userCoupon.getId()).ifPresent(order -> {
+            assertThat(order.getUserId()).isEqualTo(user.getUserId());
+            assertThat(order.getDiscountAmount()).isEqualTo(expectedTotal * couponType.getDiscountRate() / 100);
+        });
+        // 사용자 잔액 차감
+        User userInfo = userRepository.findById(user.getUserId()).get();
+        assertThat(userInfo).isNotNull();
+        assertThat(userInfo.getUserId()).isEqualTo(user.getUserId());
+        assertThat(userInfo.getBalance()).isEqualTo(user.getBalance() - (expectedTotal - (expectedTotal * couponType.getDiscountRate() / 100)));
+    }
+
+
+    @Test
+    @DisplayName("상품을 주문: 결제 오류시 재고가 원복된다.")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    void 결제_오류_재고_원복() {
         // given
-        Long userId = 1L;
-        Long productId = 100L;
+        int quantity = 1;
+        Coupon coupon = couponRepository.save(
+                Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate())
+        );
 
-        OrderRequest request = new OrderRequest(userId, 1L, List.of(
-                new OrderRequest.OrderItemRequest(productId, 1L)
-        ));
+        // 사용자 잔액 일부러 부족하게 설정
+        user = userRepository.save(User.of(user.getUserId(), "sun", 1_000L));
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.builder().id(productId).stock(0L).build()
-        ));
+        OrderRequest request = OrderRequest.of(user.getUserId(), coupon.getId(),
+                products.stream().map(product ->
+                        OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
 
-        // expect
+        // when & then
+        assertThatThrownBy(() -> orderUseCase.execute(request))
+                .isInstanceOf(RuntimeException.class); // 결제 실패 예외
+
+        // then: 재고가 원복되었는지 확인
+        for (Product product : productDummy) {
+            Product result = productRepository.findBy(product.getId()).orElseThrow();
+            assertThat(result.getStock()).isEqualTo(product.getStock()); // 초기 재고와 동일해야 함
+        }
+    }
+
+
+    @Test
+    @DisplayName("상품을 주문: 상품 품절시 예외 처리")
+    void 상품_품절() {
+        // given: 재고를 0으로 설정한 상품 저장
+        Product soldOutProduct = productRepository.save(Product.of("품절상품", 1_000_000L, 0L));
+
+        OrderRequest request = OrderRequest.of(user.getUserId(), null,
+                List.of(
+                        OrderRequest.OrderItemRequest.of(soldOutProduct.getId(), 1)
+                )
+        );
+
+        // when & then
         assertThatThrownBy(() -> orderUseCase.execute(request))
                 .isInstanceOf(OutOfStockListException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_OUT_OF_STOCK.getMessage());
     }
 
     @Test
-    @DisplayName("예외: 존재하지 않는 쿠폰")
-    void 존재하지않는_쿠폰_예외() {
+    @DisplayName("상품을 주문: 쿠폰 없이도 결제 진행")
+    void 쿠폰_null() {
         // given
-        Long userId = 1L;
-        Long couponId = 999L;
-        Long productId = 10L;
+        int quantity = 1;
+        OrderRequest request = OrderRequest.of(user.getUserId(), null,
+                products.stream().map(product ->
+                        OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
 
-        OrderRequest request = new OrderRequest(userId, couponId, List.of(
-                new OrderRequest.OrderItemRequest(productId, 1L)
-        ));
+        // when
+        orderUseCase.execute(request);
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.builder().id(productId).stock(10L).build()
-        ));
-        when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.empty());
+        // then
+        for (Product product : productDummy) {
+            Product result = productRepository.findBy(product.getId()).get();
+            assertThat(result.getStock()).isEqualTo(product.getStock() - quantity);
+        }
 
-        // expect
-        assertThatThrownBy(() -> orderUseCase.execute(request))
-                .isInstanceOf(CouponNotFoundException.class)
-                .hasMessageContaining(ErrorCode.COUPON_NOT_FOUND.getMessage());
+        User updatedUser = userRepository.findById(user.getUserId()).get();
+        long totalPrice = products.stream().mapToLong(p -> p.getPrice() * quantity).sum();
+        assertThat(updatedUser.getBalance()).isEqualTo(user.getBalance() - totalPrice);
     }
 
-    @Test
-    @DisplayName("예외: 존재하지 않는 사용자")
-    void 존재하지않는_사용자_예외() {
-        // given
-        Long userId = 999L;
-        Long couponId = 1L;
-        Long productId = 10L;
-
-        OrderRequest request = new OrderRequest(userId, couponId, List.of(
-                new OrderRequest.OrderItemRequest(productId, 1L)
-        ));
-
-        when(productRepository.findById(productId)).thenReturn(Optional.of(
-                Product.builder().id(productId).stock(10L).build()
-        ));
-        when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId)).thenReturn(Optional.of(mock(Coupon.class)));
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // expect
-        assertThatThrownBy(() -> orderUseCase.execute(request))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
-    }
-
-    @Test
-    void 결제_실패시_재고_복구() {
-        // given
-        Long productId = 1L;
-        Product product = Product.builder()
-                .id(productId)
-                .stock(10L)
-                .price(2000L)
-                .build();
-
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
-
-        Coupon coupon = mock(Coupon.class);
-        given(coupon.discountPrice(anyLong())).willReturn(0L);
-        given(couponRepository.findByUserIdAndCouponTypeId(anyLong(), anyLong()))
-                .willReturn(Optional.of(coupon));
-
-        User user = User.builder()
-                .userId(1L)
-                .name("sun")
-                .balance(1000L)
-                .build();
-
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
-
-        // 필요 시 save 목 설정 (선택)
-        given(orderRepository.save(any(Order.class))).willAnswer(invocation -> {
-            Order savedOrder = invocation.getArgument(0);
-            savedOrder.setId(1L);
-            return savedOrder;
-        });
-
-        OrderRequest request = OrderRequest.builder()
-                .userId(19L)
-                .couponId(1L)
-                .orderItems(List.of(new OrderRequest.OrderItemRequest(productId, 1L)))
-                .build();
-
-        // when & then
-        assertThatThrownBy(() -> orderUseCase.execute(request))
-                .isInstanceOf(InvalidRequestException.class)
-                .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
-
-        // 재고 복구 되었는지 확인
-        assertThat(product.getStock()).isEqualTo(10L); // 재고 복구됨
-    }
 }

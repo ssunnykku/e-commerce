@@ -6,6 +6,7 @@ import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,7 +21,17 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public void save(User user) {
-         userJpaRepository.save(user);
+    public User save(User user) {
+         return userJpaRepository.save(user);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userJpaRepository.findAll();
+    }
+
+    @Override
+    public List<User> saveAll(List<User> users) {
+        return userJpaRepository.saveAll(users);
     }
 }

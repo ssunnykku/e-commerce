@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.domain.entity;
 
-import kr.hhplus.be.server.exception.ErrorCode;
-import kr.hhplus.be.server.exception.OutOfStockException;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.OutOfStockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,18 +12,13 @@ class ProductTest {
     Product product;
     @BeforeEach
     void setup() {
-        product = Product.builder()
-                .id(1L)
-                .name("스마트폰A")
-                .price(500000L)
-                .stock(50L)
-                .build();
+        product =  Product.of(1L, "스마트폰 A",500000L,50L);
     }
 
     @Test
     void 재고보다_요청_상품수가_많으면_예외처리() {
         // given
-        Long quantity = 100L;
+        Integer quantity = 100;
 
         // then
         assertThatThrownBy(() -> product.decreaseStock(quantity))
@@ -33,7 +28,7 @@ class ProductTest {
 
     @Test
     void 상품_재고_차감() {
-        Long quantity = 21L;
+        Integer quantity = 21;
 
         // given
         Long resultQuantity = product.getStock() - quantity;
