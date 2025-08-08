@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -143,7 +144,64 @@ class OrderUseCaseTest {
         User result = userRepository.findById(user.getUserId());
         assertThat(result.getBalance()).isEqualTo(0);
 
-        assertThat(successCount.get()).isEqualTo(2);  // 1건 성공
+        assertThat(successCount.get()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("재고 차감 중 트랜잭션 충돌로 인해 재고가 음수가 되는 문제")
+    void 상품_동시성_테스트2() throws InterruptedException {
+        // given
+        int userCount = 20;
+        ExecutorService executorService = Executors.newFixedThreadPool(5); // 스레드 풀 생성
+        CountDownLatch latch = new CountDownLatch(userCount); // CountDownLatch 생성
+
+        Product product = productRepository.save(Product.of("과자", 500L, 20L));
+
+        AtomicInteger successCount = new AtomicInteger();
+        AtomicInteger failCount = new AtomicInteger();
+
+        List<User> users = new ArrayList<>();
+
+        for (int i = 0; i < userCount; i++) {
+            User user = User.of(String.valueOf(i), 100_000L);
+            User saveUser = userRepository.save(user);
+            users.add(saveUser);
+        }
+
+        List<OrderRequest.OrderItemRequest> orderItemList = List.of(
+                OrderRequest.OrderItemRequest.of(product.getId(), 2)
+        );
+
+        // when
+        for (int i = 0; i < userCount; i++) {
+            OrderRequest request = OrderRequest.of(
+                    users.get(i).getUserId(),
+                    null,
+                    orderItemList
+            );
+
+            executorService.submit(() -> {
+                try {
+                    orderUseCase.execute(request);
+                    successCount.incrementAndGet(); // 성공
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    failCount.incrementAndGet(); // 실패
+                } finally {
+                    latch.countDown();
+
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        Product result = productRepository.findBy(product.getId());
+        assertThat(result.getStock()).isEqualTo(0);
+
+        assertThat(successCount.get()).isEqualTo(10);  // 1건만 성공
+        assertThat(failCount.get()).isEqualTo(10);    /// 2건 실패
     }
 
 }
