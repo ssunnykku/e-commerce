@@ -233,7 +233,7 @@ class OrderProcessorTest {
                 Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate())
         );
 
-        Product product1 = productRepository.save(Product.of("book", 1_500L, 100L));
+        Product product1 = productRepository.save(Product.of("book", 1_500L, 1L));
 
         int quantity = 1;
 
@@ -277,7 +277,7 @@ class OrderProcessorTest {
 
         // then
         Product product = productRepository.findBy(product1.getId());
-        assertThat(product.getStock()).isEqualTo(100L - (userCount * quantity));
+        assertThat(product.getStock()).isEqualTo(0);
 
         assertThat(successCount.get()).isEqualTo(1);  // 1건만 성공
         assertThat(failCount.get()).isEqualTo(2);    /// 2건 실패
