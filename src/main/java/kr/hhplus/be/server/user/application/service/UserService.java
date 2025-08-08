@@ -15,6 +15,11 @@ public class UserService {
     public User charge(Long userId, Long amount) {
         User user = userRepository.findById(userId);
         user.increaseBalance(amount);
+        return userRepository.save(user);
+    }
+
+    public User getUser(Long userId){
+        User user = userRepository.findById(userId);
         return user;
     }
 }

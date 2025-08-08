@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserOrderService {
     private final UserRepository userRepository;
 
     public User findUser(Long userId) {

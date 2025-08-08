@@ -8,7 +8,7 @@ import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.application.service.CouponService;
 import kr.hhplus.be.server.order.application.service.OrderService;
 import kr.hhplus.be.server.order.application.service.ProductService;
-import kr.hhplus.be.server.order.application.service.UserService;
+import kr.hhplus.be.server.order.application.service.UserOrderService;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.product.domain.entity.Product;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class OrderProcessor {
     private final ProductService productService;
     private final CouponService couponService;
-    private final UserService userService;
+    private final UserOrderService userOrderService;
     private final OrderService orderService;
 
     private final OrderDataPublisher orderDataPublisher;
@@ -46,7 +46,7 @@ public class OrderProcessor {
         Coupon coupon = couponService.findCoupon(request.userId(), request.couponTypeId());
 
         // 3. 사용자 조회
-        User user = userService.findUser(request.userId());
+        User user = userOrderService.findUser(request.userId());
 
         // 4. 재고 차감, 상품 가격 계산
         long calculatedPrice = productService.decreaseStockAndCalculatePrice(productsWithQuantities);
@@ -62,7 +62,7 @@ public class OrderProcessor {
         }
 
         // 6. 사용자 잔액 차감 (결제)
-        userService.pay(user, finalPaymentPrice);
+        userOrderService.pay(user, finalPaymentPrice);
 
         // 7. 주문 저장  (Order, OrderProduct)
         Order order = orderService.saveOrder(coupon, user, finalPaymentPrice, discountedAmount);

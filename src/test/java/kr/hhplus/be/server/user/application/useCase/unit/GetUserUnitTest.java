@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.user.application.useCase.unit;
 
 import kr.hhplus.be.server.user.application.dto.UserResponse;
+import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.user.application.useCase.GetUserUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;
-import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 class GetUserUnitTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private GetUserUseCase getUserUseCase;
@@ -32,13 +32,13 @@ class GetUserUnitTest {
 
         User mockUser = User.of(userId, userName, userBalance);
 
-        when(userRepository.findById(userId)).thenReturn(mockUser);
+        when(userService.getUser(userId)).thenReturn(mockUser);
 
         // When
         UserResponse result = getUserUseCase.execute(userId);
 
         // Then
-        verify(userRepository).findById(userId);
+        verify(userService).getUser(userId);
 
         assertThat(result).isNotNull();
         assertThat(result.userId()).isEqualTo(userId);

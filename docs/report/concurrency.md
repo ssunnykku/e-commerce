@@ -64,11 +64,6 @@ private Long version; // User 엔티티 내부
 public UserResponse execute(...) {
     ...
 }
-
-@Recover
-public UserResponse recover(...) {
-    throw new ConflictException(...);
-}
 ```
 - [UserBalanceHistoryService.java](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/main/java/kr/hhplus/be/server/user/application/service/UserBalanceHistoryService.java)
 ```java

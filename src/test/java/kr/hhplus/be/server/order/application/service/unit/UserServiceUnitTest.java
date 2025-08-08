@@ -2,7 +2,7 @@ package kr.hhplus.be.server.order.application.service.unit;
 
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.InvalidRequestException;
-import kr.hhplus.be.server.order.application.service.UserService;
+import kr.hhplus.be.server.order.application.service.UserOrderService;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,7 @@ class UserServiceUnitTest {
     @Mock
     private UserRepository userRepository;
     @InjectMocks
-    private UserService userService;
+    private UserOrderService userOrderService;
 
 
     @Test
@@ -31,7 +31,7 @@ class UserServiceUnitTest {
         User user = User.of("sun", 1_000_000L);
         // when
         when(userRepository.findById(userId)).thenReturn(user);
-        User result = userService.findUser(userId);
+        User result = userOrderService.findUser(userId);
 
         // then
         verify(userRepository, times(1)).findById(userId);
@@ -47,7 +47,7 @@ class UserServiceUnitTest {
         User user = User.of("sun", 1_000_000L);
 
         // when & then
-        assertThatThrownBy(() -> userService.pay(user, 2_000_000L))
+        assertThatThrownBy(() -> userOrderService.pay(user, 2_000_000L))
                 .isInstanceOf(InvalidRequestException.class)
                 .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
 
@@ -56,12 +56,11 @@ class UserServiceUnitTest {
     }
 
     @Test
-    @DisplayName("")
     void 결제_처리_성공() {
         // given
         User user = User.of("sun", 3_000_000L);
         // when
-        userService.pay(user, 2_000_000L);
+        userOrderService.pay(user, 2_000_000L);
         // then
         assertThat(user.getBalance()).isEqualTo(1_000_000L);
     }

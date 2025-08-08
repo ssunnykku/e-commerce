@@ -1,8 +1,6 @@
 package kr.hhplus.be.server.user.application.useCase;
 
 import jakarta.persistence.OptimisticLockException;
-import kr.hhplus.be.server.common.exception.ConflictException;
-import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.application.service.UserBalanceHistoryService;
@@ -12,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +33,4 @@ public class ChargeUseCase {
         return UserResponse.from(user);
 
     }
-
-    @Recover
-    public UserResponse recover(OptimisticLockException e, UserRequest request) {
-        log.error("재시도 실패 후 복구 메서드 호출: {}", e.getMessage());
-        throw new ConflictException(ErrorCode.CONFLICT);
-    }
-
-
 }
