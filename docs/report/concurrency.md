@@ -44,6 +44,7 @@
 - 단일 사용자 자원에 대한 접근이므로 충돌 빈도가 낮음
 - 재시도 비용이 크지 않으며, 사용자 경험에 큰 영향을 주지 않음
 - 비관적 락 사용 시 오히려 락 경합으로 인해 성능 저하 및 데드락 위험 증가
+- 주의할 점 : 충돌 가능성이 낮은 환경에서는 낙관적 락이 효율적이지만, 병렬 요청이 지속되는 경우 재시도 비용이 커질 수 있어 모니터링 등 대응이 필요
 
 #### ✅ 주요 코드
 - [User.java](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/main/java/kr/hhplus/be/server/user/domain/entity/User.java)
@@ -112,6 +113,14 @@ Optional<Product> findByIdWithPessimisticLock(@Param("id") Long id);
 - 쿠폰 발급 시 해당 쿠폰 타입에 대해 FOR UPDATE 락을 획득
 - 수량 확인 → 차감 → 발급까지 트랜잭션 내에서 처리
 - 쿠폰 사용 시에도 락을 걸어 중복 사용 방지
+- userId와 couponTypeId에 DB 유니크 제약을 설정함으로써, 중복 발급 방지를 보장
+```java
+@Table(name = "coupons",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "coupon_type_id"})
+        }
+)
+```
 
 #### ✅ 선택 이유
 - 한정된 쿠폰의 수량으음

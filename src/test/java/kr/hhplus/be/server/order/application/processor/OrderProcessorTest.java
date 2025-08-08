@@ -86,9 +86,11 @@ class OrderProcessorTest {
 
         List<Product> products2 = productRepository.saveAll(productDummy2);
 
+        CouponType couponType2 = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 30, 100));
+
         int quantity = 1;
         Coupon coupon = couponRepository.save(
-                Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate())
+                Coupon.of(user.getUserId(), couponType2.getId(), couponType2.getDiscountRate(), couponType2.calculateExpireDate())
         );
 
         // 사용자 잔액 부족하게 설정
