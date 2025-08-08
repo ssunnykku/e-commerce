@@ -167,15 +167,16 @@ public void recordHistory(Long userId, Long amount) { ... }
 
 ## 6. 동시성 테스트
 - ✅ **상품 재고 차감**
-  - 사례 1: 재고가 1개 남은 상품에 대해 3명이 동시에 주문 [상품 동시성 테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/processor/OrderProcessorTest.java#L227)
+  - 사례 1: 재고가 1개 남은 상품에 대해 3명이 동시에 주문 - [상품 동시성 테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/processor/OrderProcessorTest.java#L227)
+  - 사례 2: 재고 차감 중 트랜잭션 충돌로 인해 재고가 음수가 되는 문제 발생 - [상품 동시성 테스트 2](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/useCase/OrderUseCaseTest.java#L152)
 - ✅ **유저 포인트 충전 및 사용**
-  - 사례 1: 동시에 포인트 충전 요청 (각 1000원) [사용자 동시성 테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/user/application/useCase/integration/ChargeUseCaseTest.java#L81)
-  - 사례 2: 잔액 1000원, 두 요청이 거의 동시에 각각 500원 차감  [사용자 동시성 테스트 2](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/useCase/OrderUseCaseTest.java#L100)
+  - 사례 1: 동시에 포인트 충전 요청 (각 1000원) - [사용자 동시성 테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/user/application/useCase/integration/ChargeUseCaseTest.java#L81)
+  - 사례 2: 잔액 1000원, 두 요청이 거의 동시에 각각 500원 차감 - [사용자 동시성 테스트 2](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/useCase/OrderUseCaseTest.java#L100)
 - ✅ **선착순 쿠폰 발급**
-  - 사례 1: 쿠폰 수량이 3개인데 5명이 동시에 요청  [쿠폰 동시성 테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L70)
-  - 사례 2: 쿠폰 수량 3개, 3명 동시에 요청 [쿠폰 동시성 테스트 2](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L120)
-  - 사례 3: 한 사용자가 중복 요청을 보내 중복 발급 [쿠폰 동시성 테스트 3](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L164)
-  - 사례 4: 발급된 쿠폰을 동시에 사용하는 경우 (중복 사용)  [쿠폰 동시성 테스트 4](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/useCase/OrderUseCaseTest.java#L44)
+  - 사례 1: 쿠폰 수량이 3개인데 5명이 동시에 요청 - [쿠폰 동시성 테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L70)
+  - 사례 2: 쿠폰 수량 3개, 3명 동시에 요청 - [쿠폰 동시성 테스트 2](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L120)
+  - 사례 3: 한 사용자가 중복 요청을 보내 중복 발급 - [쿠폰 동시성 테스트 3](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L164)
+  - 사례 4: 발급된 쿠폰을 동시에 사용하는 경우 (중복 사용) - [쿠폰 동시성 테스트 4](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/useCase/OrderUseCaseTest.java#L44)
 
 
 
