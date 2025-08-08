@@ -78,7 +78,7 @@ class ChargeUseCaseTest {
 
     @Test
     @DisplayName("동시성: 동시 충전")
-    void 동시성_테스트() throws InterruptedException {
+    void 사용자_동시성_테스트1() throws InterruptedException {
         // given
         User sun = userRepository.save(User.of("sun1", 0L));
 

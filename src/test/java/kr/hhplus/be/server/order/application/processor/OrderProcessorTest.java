@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -225,8 +226,8 @@ class OrderProcessorTest {
 
 
     @Test
-    @DisplayName("동시성: 동시에 재고 차감(20명의 사용자)")
-    void 동시성_테스트() throws InterruptedException {
+    @DisplayName("동시성: 동시에 재고 차감(재고 1개, 3명의 사용자)")
+    void 상품_동시성_테스트() throws InterruptedException {
         // given
         Coupon coupon = couponRepository.save(
                 Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate())
@@ -236,9 +237,12 @@ class OrderProcessorTest {
 
         int quantity = 1;
 
-        int userCount = 20;
+        int userCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(10); // 스레드 풀 생성
         CountDownLatch latch = new CountDownLatch(userCount); // CountDownLatch 생성
+
+        AtomicInteger successCount = new AtomicInteger();
+        AtomicInteger failCount = new AtomicInteger();
 
         List<User> users = new ArrayList<>();
 
@@ -258,8 +262,10 @@ class OrderProcessorTest {
             executorService.submit(() -> {
                 try {
                     orderProcessor.order(request);
+                    successCount.incrementAndGet(); // 성공
                 } catch (Exception e) {
                     log.error(e.getMessage());
+                    failCount.incrementAndGet(); // 실패
                 } finally {
                     latch.countDown();
 
@@ -273,6 +279,8 @@ class OrderProcessorTest {
         Product product = productRepository.findBy(product1.getId());
         assertThat(product.getStock()).isEqualTo(100L - (userCount * quantity));
 
+        assertThat(successCount.get()).isEqualTo(1);  // 1건만 성공
+        assertThat(failCount.get()).isEqualTo(2);    /// 2건 실패
     }
 
 }
