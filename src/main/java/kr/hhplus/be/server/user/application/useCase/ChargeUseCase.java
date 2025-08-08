@@ -1,39 +1,36 @@
 package kr.hhplus.be.server.user.application.useCase;
 
-import kr.hhplus.be.server.common.exception.ErrorCode;
-import kr.hhplus.be.server.common.exception.UserNotFoundException;
-import kr.hhplus.be.server.user.application.dto.UserResponse;
+import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
-import kr.hhplus.be.server.user.domain.entity.BalanceType;
+import kr.hhplus.be.server.user.application.dto.UserResponse;
+import kr.hhplus.be.server.user.application.service.UserBalanceHistoryService;
+import kr.hhplus.be.server.user.application.service.UserService;
 import kr.hhplus.be.server.user.domain.entity.User;
-import kr.hhplus.be.server.user.domain.entity.UserBalanceHistory;
-import kr.hhplus.be.server.user.infra.reposistory.port.BalanceHistoryRepository;
-import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChargeUseCase {
-    private final UserRepository userRepository;
-    private final BalanceHistoryRepository userBalanceHistoryRepository;
+    private final UserBalanceHistoryService userBalanceHistoryService;
+    private final UserService userService;
 
+    @Retryable(
+            value = {OptimisticLockException.class, OptimisticLockingFailureException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     @Transactional
     public UserResponse execute(UserRequest request) {
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(()-> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-
-        user.increaseBalance(request.amount());
-
-        recordHistory(request.userId(), request.amount());
-
+        User user = userService.charge(request.userId(), request.amount());
+        userBalanceHistoryService.recordHistory(request.userId(), request.amount());
         return UserResponse.from(user);
-    }
 
-    public UserBalanceHistory recordHistory(Long userId, Long amount) {
-        UserBalanceHistory history = UserBalanceHistory.of(userId, amount, BalanceType.CHARGE.getCode());
-       return userBalanceHistoryRepository.save(history);
     }
-
 }

@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    public List<Product> findProductsAll(Set<Long> productIds) {
-        return productRepository.findAllById(productIds);
+    public List<Product> findProductsAllWithLock(Set<Long> productIds) {
+        return productRepository.findAllByIdLock(productIds);
     }
 
     public Map<Long, Integer> getQuantitiesOfProducts(List<OrderRequest.OrderItemRequest> orderItems) {

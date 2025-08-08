@@ -11,5 +11,8 @@ public record UserRequest(
         @NotNull
         long amount) {
 
+        public static UserRequest of(Long userId, long amount) {
+                return new UserRequest(userId, amount);
+        }
 }
 

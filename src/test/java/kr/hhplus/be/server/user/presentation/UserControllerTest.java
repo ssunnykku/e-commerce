@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
-import kr.hhplus.be.server.user.application.useCase.ConsumeBalanceUseCase;
 import kr.hhplus.be.server.user.application.useCase.GetUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +30,6 @@ public class UserControllerTest {
 
     @Mock
     private GetUserUseCase getUserUseCase;
-
-    @Mock
-    private ConsumeBalanceUseCase consumeBalanceUseCase;
 
     @InjectMocks
     private UserController userController;
@@ -80,20 +76,4 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.balance").value(15000L));
     }
 
-    @Test
-    void consume() throws Exception {
-        UserRequest request = new UserRequest(1L, 5000L);
-        UserResponse response = new UserResponse(1L, "testUser", 10000L);
-
-        when(consumeBalanceUseCase.execute(any(UserRequest.class))).thenReturn(response);
-
-        mockMvc.perform(post("/balance/use")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(1L))
-                .andExpect(jsonPath("$.name").value("testUser"))
-                .andExpect(jsonPath("$.balance").value(10000L));
-    }
 }

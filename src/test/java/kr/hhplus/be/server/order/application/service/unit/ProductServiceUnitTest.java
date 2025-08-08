@@ -30,7 +30,7 @@ class ProductServiceUnitTest {
 
     @InjectMocks
     private ProductService productService;
-    // findProductsAll 제품 조회
+
     @Test
     @DisplayName("productId 리스트로 제품 조회")
     void 상품_조회() {
@@ -42,11 +42,11 @@ class ProductServiceUnitTest {
                 Product.of(3L, "바나나킥", 2_000L, 50L),
                 Product.of(4L, "빈츠", 5_000L, 200L)
         );
-        when(productRepository.findAllById(productIds)).thenReturn(productList);
+        when(productRepository.findAllByIdLock(productIds)).thenReturn(productList);
         // when
-        List<Product> result = productService.findProductsAll(productIds);
+        List<Product> result = productService.findProductsAllWithLock(productIds);
         // then
-        verify(productRepository, times(1)).findAllById(productIds);
+        verify(productRepository, times(1)).findAllByIdLock(productIds);
 
         assertThat(result.size()).isEqualTo(productList.size());
         assertThat(result.get(0).getName()).isEqualTo(productList.get(0).getName());
@@ -97,9 +97,7 @@ class ProductServiceUnitTest {
         assertThat(result).hasSize(productList.size());
         assertThat(result.get(productList.get(0))).isEqualTo(5);
         assertThat(result.get(productList.get(1))).isEqualTo(3);
-      //  assertThat(result.get(productList.get(2))).isEqualTo(2);
-        Product firstKey = result.keySet().iterator().next();
-        assertThat(firstKey.getName()).isEqualTo(productList.get(0).getName());
+        assertThat(result.get(productList.get(2))).isEqualTo(2);
 
     }
 

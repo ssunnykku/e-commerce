@@ -6,6 +6,7 @@ import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static kr.hhplus.be.server.TestcontainersConfiguration.MYSQL_CONTAINER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@Slf4j
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 class ChargeUseCaseTest {
@@ -47,11 +54,11 @@ class ChargeUseCaseTest {
         UserRequest request = new UserRequest(user.getUserId(), chargeAmount);
         // when
         chargeUseCase.execute(request);
-        Optional<User> result = userRepository.findById(request.userId());
+        User result = userRepository.findById(request.userId());
         // then
-        assertThat(result.get().getName()).isEqualTo(user.getName());
-        assertThat(result.get().getBalance()).isEqualTo(balance + chargeAmount);
-        assertThat(result.get().getUserId()).isEqualTo(user.getUserId());
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.getBalance()).isEqualTo(balance + chargeAmount);
+        assertThat(result.getUserId()).isEqualTo(user.getUserId());
     }
 
     @Test
@@ -68,4 +75,39 @@ class ChargeUseCaseTest {
                 .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
 
     }
+
+    @Test
+    @DisplayName("동시성: 동시 충전")
+    void 사용자_동시성_테스트1() throws InterruptedException {
+        // given
+        User sun = userRepository.save(User.of("sun1", 0L));
+
+        int countCharge = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(2); // 스레드 풀 생성
+        CountDownLatch latch = new CountDownLatch(countCharge); // CountDownLatch 생성
+        List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
+
+        // when
+        for (int i = 0; i < countCharge; i++) {
+            executorService.submit(() -> {
+                try {
+                    chargeUseCase.execute(UserRequest.of(sun.getUserId(), 1000L));
+                } catch (Exception e) {
+                    exceptions.add(e);
+                    log.error("충전 실패: {}", e.getMessage());
+                } finally {
+                    latch.countDown();
+
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        User result = userRepository.findById(sun.getUserId());
+        assertThat(result.getBalance()).isEqualTo(2000L);
+    }
+
+
 }
