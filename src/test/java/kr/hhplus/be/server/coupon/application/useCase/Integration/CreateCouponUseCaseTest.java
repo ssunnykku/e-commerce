@@ -4,7 +4,6 @@ import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
@@ -37,10 +36,8 @@ class CreateCouponUseCaseTest {
     @Autowired
     private UserRepository userRepository;
 
-    User user;
-    CouponType couponType;
-    @Autowired
-    CouponRepository couponRepository;
+    private User user;
+    private CouponType couponType;
 
     @BeforeEach
     void setUp() {

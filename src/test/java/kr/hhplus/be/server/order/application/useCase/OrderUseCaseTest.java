@@ -42,7 +42,7 @@ class OrderUseCaseTest {
     private ProductRepository productRepository;
     @Test
     @DisplayName("발급된 쿠폰을 동시에 사용하는 경우(중복사용)")
-    void 쿠폰_동시성_테스트4() throws Exception {
+    void 쿠폰_사용_동시성_테스트1() throws Exception {
         // given
         CouponType couponType = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 3));
         int tryCount = 3;

@@ -101,7 +101,7 @@ public void recordHistory(...) { ... }
 
 ---
 
-### 🎫 3. 선착순 쿠폰 발급 및 사용
+### 🎫 3. 선착순 쿠폰 발급
 
 #### ✅ 문제
 - 제한된 수량의 쿠폰을 여러 사용자가 동시에 발급받으려 할 경우 Race Condition 발생
@@ -111,10 +111,8 @@ public void recordHistory(...) { ... }
 - 사례 4: 발급된 쿠폰을 동시에 사용하는 경우 → 쿠폰 상태가 중복으로 변경되어 중복 사용 가능성 발생
 
 #### ✅ 해결 전략: **비관적 락 (Pessimistic Lock)**
-- 쿠폰 발급 시 해당 쿠폰 타입에 대해 FOR UPDATE 락을 획득
-- 수량 확인 → 차감 → 발급까지 트랜잭션 내에서 처리
-- 쿠폰 사용 시에도 락을 걸어 중복 사용 방지
-- userId와 couponTypeId에 DB 유니크 제약을 설정함으로써, 중복 발급 방지를 보장
+- `@Version` 필드를 활용하여 엔티티의 버전 충돌을 감지
+
 ```java
 @Table(name = "coupons",
         uniqueConstraints = {
@@ -124,7 +122,7 @@ public void recordHistory(...) { ... }
 ```
 
 #### ✅ 선택 이유
-- 한정된 쿠폰의 수량으음
+- 한정된 쿠폰의 수량으로 충돌이 잦을 수 있음
 - 실패 시 빠르게 사용자에게 안내하여 불필요한 재시도 방지
 - 낙관적 락의 재시도는 리소스 낭비 및 사용자 경험 저하로 이어질 수 있음
 - 락을 통해 중복 발급 방지, 초과 발급 방지, 중복 사용 방지 가능
@@ -135,6 +133,24 @@ public void recordHistory(...) { ... }
 @Lock(LockModeType.PESSIMISTIC_WRITE)
 @Query("SELECT c FROM CouponType c WHERE c.id = :id")
 Optional<CouponType> findByIdWithPessimisticLock(@Param("id") Long id);
+```
+
+
+### 🎫 3. 선착순 쿠폰 사용
+
+#### ✅ 문제
+- 한명의 사용자가 다른 환경에서 동일한 쿠폰을 사용하려고 할 경우 충돌 발생 가능
+- 사례 1: 발급된 쿠폰을 동시에 사용하는 경우 → 쿠폰 상태가 중복으로 변경되어 중복 사용 가능성 발생
+
+#### ✅ 해결 전략: **낙관적 락 (Optimistic Lock)**
+- `@Version` 필드를 활용하여 엔티티의 버전 충돌을 감지
+
+#### ✅ 선택 이유
+- 단일 사용자 자원에 대한 접근이므로 충돌 빈도가 낮음
+
+#### ✅ 주요 코드
+```java
+
 ```
 ---
 
@@ -176,7 +192,8 @@ public void recordHistory(Long userId, Long amount) { ... }
   - 사례 1: 쿠폰 수량이 3개인데 5명이 동시에 요청 - [쿠폰 동시성 테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L70)
   - 사례 2: 쿠폰 수량 3개, 3명 동시에 요청 - [쿠폰 동시성 테스트 2](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L120)
   - 사례 3: 한 사용자가 중복 요청을 보내 중복 발급 - [쿠폰 동시성 테스트 3](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/coupon/application/useCase/Integration/CreateCouponUseCaseTest.java#L164)
-  - 사례 4: 발급된 쿠폰을 동시에 사용하는 경우 (중복 사용) - [쿠폰 동시성 테스트 4](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/useCase/OrderUseCaseTest.java#L44)
+- ✅ **선착순 쿠폰 사용**
+  - 사례 1: 발급된 쿠폰을 동시에 사용하는 경우 (중복 사용) - [쿠폰_사용_동시성_테스트 1](https://github.com/ssunnykku/e-commerce/blob/STEP9/src/test/java/kr/hhplus/be/server/order/application/useCase/OrderUseCaseTest.java#L44)
 
 
 

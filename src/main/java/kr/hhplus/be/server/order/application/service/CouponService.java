@@ -11,18 +11,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponService {
     private final CouponRepository couponRepository;
 
-    // 사용자 쿠폰 조회
-    @Transactional(readOnly = true)
+    @Transactional
     public Coupon findCoupon(Long userId, Long couponId) {
         return couponRepository.findByUserIdAndCouponTypeId(userId, couponId);
     }
+
+    @Transactional
     public long applyCouponDiscount(long price, Coupon coupon) {
         if (coupon == null) {
             return price;
         }
-        long discounted = coupon.finalDiscountPrice(price);
         coupon.use();
-        couponRepository.save(coupon);
-        return discounted;
+
+        return coupon.finalDiscountPrice(price);
     }
 }
