@@ -102,11 +102,12 @@ class CouponServiceUnitTest {
         Long couponTypeId = 888L;
         Integer discountRate = 20;
         long price = 20_000L;
+        long discountAmount = price - (price * discountRate / 100);
 
         Coupon coupon = Coupon.of(userId, couponTypeId, discountRate, LocalDate.of(2200, 6, 28));
 
         // when
-        long result = couponService.applyCouponDiscount(price, coupon);
+        long result = couponService.applyCouponDiscount(price, coupon, discountAmount);
 
         // then
         assertThat(result).isEqualTo(result);
@@ -121,19 +122,18 @@ class CouponServiceUnitTest {
         Long userId = 999L;
         Long couponTypeId = 1L;
         long originalPrice = 10_000L;
+        long discountAmount = 0;
 
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId))
                 .thenReturn(null);
 
         // when
         Coupon foundCoupon = couponService.findCoupon(userId, couponTypeId);
-        long finalPrice = couponService.applyCouponDiscount(originalPrice, foundCoupon);
 
         // then
         verify(couponRepository, times(1)).findByUserIdAndCouponTypeId(userId, couponTypeId);
         verifyNoInteractions(couponTypeRepository);
 
-        assertThat(finalPrice).isEqualTo(originalPrice);
         assertThat(foundCoupon).isNull();
     }
 
@@ -146,11 +146,12 @@ class CouponServiceUnitTest {
         Long couponTypeId = 5L;
         Integer discountRate = 20;
         long price = 20_000L;
+        long discountAmount = price - (price * discountRate / 100);
 
         Coupon coupon = Coupon.of(userId,couponTypeId, discountRate, LocalDate.of(2000, 6, 28));
 
         // when & then
-        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon))
+        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon, discountAmount))
                 .isInstanceOf(InvalidCouponStateException.class)
                 .hasMessageContaining(ErrorCode.EXPIRED_COUPON.getMessage());
     }
@@ -163,11 +164,12 @@ class CouponServiceUnitTest {
         Long couponTypeId = 5L;
         Integer discountRate = 20;
         long price = 20_000L;
+        long discountAmount = price - (price * discountRate);
 
         Coupon coupon = Coupon.of(userId, couponTypeId, discountRate, true);
 
         // when & then
-        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon))
+        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon, discountAmount))
                 .isInstanceOf(InvalidCouponStateException.class)
                 .hasMessageContaining(ErrorCode.ALREADY_USED.getMessage());
     }

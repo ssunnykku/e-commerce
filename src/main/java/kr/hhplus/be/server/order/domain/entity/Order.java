@@ -7,7 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Entity
 @Table(name = "orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,7 +26,7 @@ public class Order {
     private Long couponId;
 
     @Column(name = "total_amount", nullable = false)
-    private Long totalAmount;
+    private Long totalAmount; // 상품 주문 총 금액
 
     @CreatedDate
     @Column(name = "order_date", nullable = false)
@@ -37,6 +37,10 @@ public class Order {
 
     @Column(name = "discount_amount")
     private Long discountAmount;
+
+    public void updateStatus(String status) {
+        this.status = status;
+    }
 
     public static Order of(Long userId, Long couponId, Long totalAmount, String status, long discountAmount) {
         return Order.builder()
@@ -66,7 +70,5 @@ public class Order {
                 .discountAmount(0L)
                 .build();
     }
-
-
 
 }

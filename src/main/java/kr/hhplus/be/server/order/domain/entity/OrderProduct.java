@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.order.domain.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.product.domain.entity.Product;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,10 @@ public class OrderProduct {
 
     @Column(name = "status")
     private String status;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false, foreignKey =  @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Product product;
 
     public static OrderProduct of(Long productId, Long orderId, Integer quantity, LocalDateTime orderDate, String status) {
         return OrderProduct.builder()

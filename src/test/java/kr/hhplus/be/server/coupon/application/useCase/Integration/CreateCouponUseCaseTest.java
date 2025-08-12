@@ -154,8 +154,6 @@ class CreateCouponUseCaseTest {
 
     }
 
-
-
     @Test
     @DisplayName("한 사용자가 중복 요청을 보내 중복 발급")
     void 쿠폰_동시성_테스트3() throws Exception {

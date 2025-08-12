@@ -76,10 +76,6 @@ public class Coupon {
         return 0L;
     }
 
-    public long finalDiscountPrice(long totalPrice) {
-        return totalPrice - discountPrice(totalPrice);
-    }
-
     public static Coupon of(Long userId, Long couponTypeId){
         return Coupon.builder()
                 .userId(userId)

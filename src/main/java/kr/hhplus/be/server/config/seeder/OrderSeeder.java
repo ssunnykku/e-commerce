@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.config.test.seeder;
+package kr.hhplus.be.server.config.seeder;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.order.domain.entity.Order;

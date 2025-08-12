@@ -5,7 +5,6 @@ import kr.hhplus.be.server.common.exception.NotFoundException;
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
 import kr.hhplus.be.server.product.application.useCase.GetProductUseCase;
 import kr.hhplus.be.server.product.domain.entity.Product;
-import kr.hhplus.be.server.product.infra.repository.ProductJpaRepository;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,8 +25,6 @@ class GetProductUnitTest {
     @InjectMocks
     private GetProductUseCase getProductUseCase;
 
-    @Mock
-    private ProductJpaRepository productJpaRepository;
 
     @Test
     @DisplayName("상품 ID로 조회 성공")

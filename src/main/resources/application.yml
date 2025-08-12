@@ -26,6 +26,7 @@ spring:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
+
 ---
 spring.config.activate.on-profile: local, test
 

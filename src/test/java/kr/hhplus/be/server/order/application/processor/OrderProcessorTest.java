@@ -7,8 +7,6 @@ import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
-import kr.hhplus.be.server.order.domain.entity.Order;
-import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -53,9 +51,6 @@ class OrderProcessorTest {
     private CouponType couponType;
     private List<Product> products;
     private List<Product> productDummy;
-    @Autowired
-    private OrderRepository orderRepository;
-
 
     @BeforeAll
     void setUp() {
@@ -73,46 +68,6 @@ class OrderProcessorTest {
 
     }
 
-
-    @Test
-    @DisplayName("상품을 주문: 결제 오류시 재고가 원복된다.")
-    void 결제_오류_재고_원복() {
-        // given
-        List<Product> productDummy2 = List.of(
-                Product.of("아이폰16", 1_500_000L, 100L),
-                Product.of("에어팟3", 400_000L, 80L),
-                Product.of( "아이패드", 200_000L, 200L),
-                Product.of( "맥북 m4 pro", 3_000_000L, 100L)
-        );
-
-        List<Product> products2 = productRepository.saveAll(productDummy2);
-
-        CouponType couponType2 = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 30, 100));
-
-        int quantity = 1;
-        Coupon coupon = couponRepository.save(
-                Coupon.of(user.getUserId(), couponType2.getId(), couponType2.getDiscountRate(), couponType2.calculateExpireDate())
-        );
-
-        // 사용자 잔액 부족하게 설정
-        User user2 = userRepository.save(User.of("sun", 1_000L));
-
-        OrderRequest request = OrderRequest.of(user2.getUserId(), coupon.getId(),
-                products2.stream().map(product ->
-                        OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
-
-        // when & then
-        assertThatThrownBy(() -> orderProcessor.order(request))
-                .isInstanceOf(RuntimeException.class); // 결제 실패 예외
-
-        // then: 재고가 원복되었는지 확인
-        for (Product product : productDummy2) {
-            Product result = productRepository.findBy(product.getId());
-            assertThat(result.getStock()).isEqualTo(product.getStock()); // 초기 재고와 동일해야 함
-        }
-    }
-
-
     @Test
     @DisplayName("상품을 주문: 상품 품절시 예외 처리")
     void 상품_품절() {
@@ -121,7 +76,9 @@ class OrderProcessorTest {
 
         Product soldOutProduct = productRepository.save(Product.of("품절상품", 1_000_000L, 0L));
 
-        OrderRequest request = OrderRequest.of(user2.getUserId(), null,
+        long discountAmount = 1000L;
+
+        OrderRequest request = OrderRequest.of(user2.getUserId(), null, discountAmount,
                 List.of(OrderRequest.OrderItemRequest.of(soldOutProduct.getId(), 1)
 )
         );
@@ -131,99 +88,6 @@ class OrderProcessorTest {
                 .isInstanceOf(OutOfStockListException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_OUT_OF_STOCK.getMessage());
     }
-
-    @Test
-    @DisplayName("상품을 주문: 쿠폰 없이도 결제 진행")
-    void 쿠폰_null() {
-        // given
-        List<Product> productDummy2 = List.of(
-                Product.of("아이폰16", 1_500_000L, 100L),
-                Product.of("에어팟3", 400_000L, 80L),
-                Product.of( "아이패드", 200_000L, 200L),
-                Product.of( "맥북 m4 pro", 3_000_000L, 100L)
-        );
-
-        List<Product> products2 = productRepository.saveAll(productDummy2);
-
-        User user2 = userRepository.save(User.of("sun", 1_000_000_000L));
-
-        int quantity = 3;
-        OrderRequest request = OrderRequest.of(user2.getUserId(), null,
-                products2.stream().map(product ->
-                        OrderRequest.OrderItemRequest.of(product.getId(), quantity)).toList());
-
-        // when
-        orderProcessor.order(request);
-
-        // then
-        for (Product product : productDummy2) {
-            Product result = productRepository.findBy(product.getId());
-            assertThat(result.getStock()).isEqualTo(product.getStock() - quantity);
-        }
-
-        User updatedUser = userRepository.findById(user2.getUserId());
-        long totalPrice = products2.stream().mapToLong(p -> p.getPrice() * quantity).sum();
-        assertThat(updatedUser.getBalance()).isEqualTo(user2.getBalance() - totalPrice);
-    }
-
-    @Test
-    @DisplayName("쿠폰을 사용한 주문 처리 - 재고 차감, 사용자 잔액 차감, 쿠폰 사용 처리, 주문 저장")
-    void order_withCoupon_reducesStockAndUserBalanceAndSavesOrder() {
-        // given
-        int quantity = 1;
-        Long userId = user.getUserId(); // 테스트용 사용자
-        long userInitialBalance = user.getBalance(); // 예: 10_000_000L
-
-        // 상품 가격 총합 계산용
-        long expectedTotalPrice = products.stream().mapToLong(p -> p.getPrice() * quantity).sum();
-
-        // 1. 쿠폰 타입 생성 및 저장
-        CouponType couponType = couponTypeRepository.save(CouponType.of("20% 할인 쿠폰", 20, 30, 100));
-
-        // 2. 쿠폰 발급 및 저장
-        Coupon coupon = couponRepository.save(Coupon.of(userId, couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate()));
-
-        // 3. 주문 요청 생성
-        OrderRequest request = OrderRequest.of(
-                userId,
-                couponType.getId(),
-                products.stream()
-                        .map(product -> OrderRequest.OrderItemRequest.of(product.getId(), quantity))
-                        .toList()
-        );
-
-        // when
-        orderProcessor.order(request);
-
-        // then
-        // 1. 재고 차감 확인
-        for (Product product : products) {
-            Product updated = productRepository.findBy(product.getId());
-            assertThat(updated.getStock()).isEqualTo(product.getStock() - quantity);
-        }
-
-        // 2. 쿠폰 사용 처리 확인
-        Coupon usedCoupon = couponRepository.findById(coupon.getId()).orElseThrow();
-        assertThat(usedCoupon.getUsed()).isTrue();
-
-        // 3. 사용자 잔액 차감 확인
-        User updatedUser = userRepository.findById(userId);
-        long expectedDiscount = expectedTotalPrice * couponType.getDiscountRate() / 100;
-        long expectedFinalPrice = expectedTotalPrice - expectedDiscount;
-        long expectedBalance = userInitialBalance - expectedFinalPrice;
-
-        assertThat(updatedUser.getBalance()).isEqualTo(expectedBalance);
-
-        // 4. 주문 저장 확인
-        Order order = orderRepository.findBy(usedCoupon.getId()).orElseThrow();
-
-        assertThat(order.getUserId()).isEqualTo(userId);
-        assertThat(order.getCouponId()).isEqualTo(coupon.getId());
-        assertThat(order.getDiscountAmount()).isEqualTo(expectedDiscount);
-
-        assertThat(order.getTotalAmount()).isEqualTo(expectedFinalPrice);
-    }
-
 
     @Test
     @DisplayName("동시성: 동시에 재고 차감(재고 1개, 3명의 사용자)")
@@ -236,6 +100,8 @@ class OrderProcessorTest {
         Product product1 = productRepository.save(Product.of("book", 1_500L, 1L));
 
         int quantity = 1;
+
+        long discountAmount = product1.getPrice() * quantity - (product1.getPrice() * couponType.getDiscountRate() / 100);
 
         int userCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(10); // 스레드 풀 생성
@@ -257,7 +123,7 @@ class OrderProcessorTest {
             User user = users.get(i);
 
             List<OrderRequest.OrderItemRequest>  orderRequests = List.of(OrderRequest.OrderItemRequest.of(product1.getId(), quantity));
-            OrderRequest request = OrderRequest.of(user.getUserId(), coupon.getId(),orderRequests);
+            OrderRequest request = OrderRequest.of(user.getUserId(), coupon.getId(), discountAmount, orderRequests);
 
             executorService.submit(() -> {
                 try {

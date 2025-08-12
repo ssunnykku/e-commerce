@@ -5,7 +5,6 @@ import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.OrderRequest.OrderItemRequest;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.application.useCase.OrderUseCase;
-import kr.hhplus.be.server.order.domain.entity.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -53,17 +52,17 @@ class OrderControllerTest {
         @DisplayName("정상 주문 시 200 OK 반환")
         void placeOrderSuccess() throws Exception {
             // given
+            long discountAmount = 1000L;
+            long userId = 1L;
+
             OrderRequest request = OrderRequest.of(
-                    1L,
+                    userId,
                     100L,
-                    List.of(OrderItemRequest.of(10L, 2))
+                    discountAmount,
+                    List.of(OrderItemRequest.of(10L,2))
             );
 
-            OrderResponse response = new OrderResponse(
-                    1234L,
-                    OrderStatus.ORDERED.getCode(),
-                    null
-            );
+            OrderResponse response = new OrderResponse(1234L, userId);
 
             Mockito.when(orderUseCase.execute(any(OrderRequest.class))).thenReturn(response);
 
@@ -72,8 +71,7 @@ class OrderControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.orderId").value(1234L))
-                    .andExpect(jsonPath("$.status").value(OrderStatus.ORDERED.getCode()));
+                    .andExpect(jsonPath("$.orderId").value(1234L));
         }
 
         @Test
