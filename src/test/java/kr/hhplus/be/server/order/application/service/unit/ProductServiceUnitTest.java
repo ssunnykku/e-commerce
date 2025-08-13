@@ -44,7 +44,7 @@ class ProductServiceUnitTest {
         );
         when(productRepository.findAllByIdLock(productIds)).thenReturn(productList);
         // when
-        List<Product> result = productService.findProductsAllWithLock(productIds);
+        List<Product> result = productService.findProductsAll(productIds);
         // then
         verify(productRepository, times(1)).findAllByIdLock(productIds);
 

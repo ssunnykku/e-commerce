@@ -33,7 +33,7 @@ public class OrderProcessor {
         // 1. 상품 재고 조회 (product)
         Map<Long, Integer> quantitiesOfProducts = productService.getQuantitiesOfProducts(request.orderItems());
 
-        List<Product> productList = productService.findProductsAllWithLock(quantitiesOfProducts.keySet());
+        List<Product> productList = productService.findProductsAll(quantitiesOfProducts.keySet());
 
         // 상품 재고 품절 여부 검증
         Map<Product, Integer> productsWithQuantities = productService.findAndValidateProducts(quantitiesOfProducts, productList);
@@ -44,13 +44,10 @@ public class OrderProcessor {
         // 2. 쿠폰 조회
         Coupon coupon = couponService.findCoupon(request.userId(), request.couponTypeId());
 
-        // 3. 사용자 조회
-        // User user = userOrderService.findUser(request.userId());
-
-        // 4. 재고 차감, 상품 가격 계산
+        // 3. 재고 차감, 상품 가격 계산
         long calculatedPrice = productService.decreaseStockAndCalculatePrice(productsWithQuantities);
 
-        // 5. 할인 적용된 금액
+        // 4. 할인 적용된 금액
         long finalPaymentPrice = calculatedPrice;
 
         if (coupon != null) {
@@ -58,15 +55,11 @@ public class OrderProcessor {
             finalPaymentPrice = couponService.applyCouponDiscount(calculatedPrice, coupon, request.discountAmount());
         }
 
-        // 6. 사용자 잔액 차감 (결제)
-        // userOrderService.pay(user, finalPaymentPrice);
-        // userOrderService.recordHistory(user.getUserId(), finalPaymentPrice) ;
-
-        // 7. 주문 저장  (Order, OrderProduct)
+        // 5. 주문 저장  (Order, OrderProduct)
         Order order = orderService.saveOrder(coupon, request.userId(), finalPaymentPrice, request.discountAmount());
         orderService.saveOrderProducts(request, order); // 주문 상품 저장
 
-        // 8. 주문 정보 외부 발행
+        // 6. 주문 정보 외부 발행
         publishOrderInfo(order, coupon);
 
         return PaymentTarget.from(order.getId(), order.getUserId(), finalPaymentPrice);

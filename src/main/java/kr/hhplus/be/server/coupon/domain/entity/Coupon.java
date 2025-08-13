@@ -28,9 +28,6 @@ public class Coupon {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Version
-    private Long version;
-
     @Column(name = "coupon_type_id", nullable = false)
     private Long couponTypeId;
 

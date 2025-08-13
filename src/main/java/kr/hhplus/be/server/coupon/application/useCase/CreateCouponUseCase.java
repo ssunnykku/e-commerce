@@ -41,7 +41,7 @@ public class CreateCouponUseCase {
     }
 
     private CouponType findCouponType(Long couponTypeId) {
-        return couponTypeRepository.findByIdLock(couponTypeId);
+        return couponTypeRepository.findById(couponTypeId);
     }
 
     private void checkUserHasNoCoupon(Long userId, Long couponTypeId) {
