@@ -26,7 +26,6 @@ spring:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-
 ---
 spring.config.activate.on-profile: local, test
 
@@ -35,6 +34,14 @@ spring:
     url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
     username: application
     password: application
+
+  redisson:
+    address: redis://localhost:6379
+
+  data:
+    redis:
+      port: 6379
+      host: localhost
 
 springdoc:
   api-docs:
