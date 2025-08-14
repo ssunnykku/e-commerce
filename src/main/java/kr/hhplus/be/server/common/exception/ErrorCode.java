@@ -29,6 +29,9 @@ public enum ErrorCode {
     NOT_NULL(HttpStatus.BAD_REQUEST, "입력 객체는 null이 될 수 없습니다."),
 
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
+
+    LOCK_INTERRUPT(HttpStatus.INTERNAL_SERVER_ERROR, "락 획득 중 인터럽트 발생"),
+
     ;
 
     private final HttpStatus status;

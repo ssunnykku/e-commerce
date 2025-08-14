@@ -23,7 +23,6 @@ public class DistributedLockAop {
     private static final String REDISSON_LOCK_PREFIX = "LOCK:";
 
     private final RedissonClient redissonClient;
-    private final AopForTransaction aopForTransaction;
 
     @Around("@annotation(DistributedLock)")
     public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
