@@ -2,7 +2,7 @@ package kr.hhplus.be.server.order.application.service.unit;
 
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.InvalidRequestException;
-import kr.hhplus.be.server.order.application.service.UserOrderService;
+import kr.hhplus.be.server.order.application.service.PaymentService;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -12,17 +12,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceUnitTest {
+public class PaymentServiceUnitTest {
+
     @Mock
     private UserRepository userRepository;
     @InjectMocks
-    private UserOrderService userOrderService;
-
+    private PaymentService paymentService;
 
     @Test
     void 사용자_조회() {
@@ -31,7 +31,7 @@ class UserServiceUnitTest {
         User user = User.of("sun", 1_000_000L);
         // when
         when(userRepository.findById(userId)).thenReturn(user);
-        User result = userOrderService.findUser(userId);
+        User result = paymentService.findUser(userId);
 
         // then
         verify(userRepository, times(1)).findById(userId);
@@ -47,7 +47,7 @@ class UserServiceUnitTest {
         User user = User.of("sun", 1_000_000L);
 
         // when & then
-        assertThatThrownBy(() -> userOrderService.pay(user, 2_000_000L))
+        assertThatThrownBy(() -> paymentService.pay(user, 2_000_000L))
                 .isInstanceOf(InvalidRequestException.class)
                 .hasMessageContaining(ErrorCode.INSUFFICIENT_BALANCE.getMessage());
 
@@ -60,9 +60,10 @@ class UserServiceUnitTest {
         // given
         User user = User.of("sun", 3_000_000L);
         // when
-        userOrderService.pay(user, 2_000_000L);
+        paymentService.pay(user, 2_000_000L);
         // then
         assertThat(user.getBalance()).isEqualTo(1_000_000L);
     }
+
 
 }
