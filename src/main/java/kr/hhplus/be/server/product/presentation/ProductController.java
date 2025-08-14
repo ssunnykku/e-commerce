@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.product.presentation;
 
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
+import kr.hhplus.be.server.product.application.dto.TopSellingProductDto;
 import kr.hhplus.be.server.product.application.useCase.GetProductListUseCase;
 import kr.hhplus.be.server.product.application.useCase.GetProductUseCase;
+import kr.hhplus.be.server.product.application.useCase.GetTopSellingProductsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.List;
 public class ProductController {
     private final GetProductUseCase getProductUseCase;
     private final GetProductListUseCase getProductListUseCase;
+    private final GetTopSellingProductsUseCase getTopSellingProductsUseCase;
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponse>> getProduct() {
@@ -29,4 +32,11 @@ public class ProductController {
         ProductResponse response = getProductUseCase.execute(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping("/products/top-selling")
+    public ResponseEntity<List<TopSellingProductDto>> getTopSellingProducts() {
+        List<TopSellingProductDto> list = getTopSellingProductsUseCase.execute();
+        return ResponseEntity.status(HttpStatus.OK).body(list);
+    }
+
 }

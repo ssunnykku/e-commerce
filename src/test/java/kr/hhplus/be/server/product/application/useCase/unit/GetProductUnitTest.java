@@ -1,28 +1,30 @@
 package kr.hhplus.be.server.product.application.useCase.unit;
 
+import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.NotFoundException;
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
 import kr.hhplus.be.server.product.application.useCase.GetProductUseCase;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
+@ExtendWith(MockitoExtension.class)
 class GetProductUnitTest {
+    @Mock
     private ProductRepository productRepository;
+
+    @InjectMocks
     private GetProductUseCase getProductUseCase;
 
-    @BeforeEach
-    void setUp() {
-        productRepository = mock(ProductRepository.class);
-        getProductUseCase = new GetProductUseCase(productRepository);
-    }
 
     @Test
     @DisplayName("상품 ID로 조회 성공")
@@ -31,7 +33,7 @@ class GetProductUnitTest {
         Long productId = 1L;
         Product product =  Product.of(productId, "테스트 상품",1000L,10L);
 
-        when(productRepository.findBy(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findBy(productId)).thenReturn(product);
 
         // when
         ProductResponse response = getProductUseCase.execute(productId);
@@ -48,7 +50,7 @@ class GetProductUnitTest {
     void execute_notFound() {
         // given
         Long productId = 999L;
-        when(productRepository.findBy(productId)).thenReturn(Optional.empty());
+        when(productRepository.findBy(productId)).thenThrow(new NotFoundException(ErrorCode.NOT_FOUND_ENTITY));
 
         // when & then
         assertThatThrownBy(() -> getProductUseCase.execute(productId))

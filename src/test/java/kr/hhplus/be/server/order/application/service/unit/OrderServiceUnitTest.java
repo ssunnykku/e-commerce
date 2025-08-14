@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,14 +50,13 @@ class OrderServiceUnitTest {
 
         User user = User.of(data.userId, "sun", 2_000_000L);
 
-        when(orderRepository.save(order))
-                .thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         // when
-        Order result = orderService.saveOrder(data.coupon, user, data.totalAmount, discountAmount);
+        Order result = orderService.saveOrder(data.coupon, user.getUserId(), data.totalAmount, discountAmount);
 
         // then
-        verify(orderRepository).save(order);
+        verify(orderRepository).save(any(Order.class));
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(order.getId());

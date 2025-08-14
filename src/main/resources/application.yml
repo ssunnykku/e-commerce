@@ -14,12 +14,18 @@ spring:
   jpa:
     open-in-view: false
     generate-ddl: false
-    show-sql: false
+    show-sql: true
     hibernate:
-      ddl-auto: create
+      format_sql: true
+      ddl-auto: update
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
 
 ---
 spring.config.activate.on-profile: local, test
@@ -32,7 +38,7 @@ spring:
 
 springdoc:
   api-docs:
-    path: /v1/api-docs
+    path: /v1
   swagger-ui:
     path: /swagger-ui.html
-  packages-to-scan: kr.hhplus.be.server.mock.controller
+  packages-to-scan: kr.hhplus.be.server

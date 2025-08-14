@@ -1,95 +1,25 @@
 package kr.hhplus.be.server.order.application.useCase;
 
-import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.order.application.dto.OrderInfo;
+import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
-import kr.hhplus.be.server.order.application.service.CouponService;
-import kr.hhplus.be.server.order.application.service.OrderService;
-import kr.hhplus.be.server.order.application.service.ProductService;
-import kr.hhplus.be.server.order.application.service.UserService;
-import kr.hhplus.be.server.order.domain.entity.Order;
-import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
-import kr.hhplus.be.server.product.domain.entity.Product;
-import kr.hhplus.be.server.user.domain.entity.User;
+import kr.hhplus.be.server.order.application.dto.PaymentTarget;
+import kr.hhplus.be.server.order.application.processor.OrderProcessor;
+import kr.hhplus.be.server.order.application.processor.PaymentProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class OrderUseCase {
-    private final ProductService productService;
-    private final CouponService couponService;
-    private final UserService userService;
-    private final OrderService orderService;
-
-    private final OrderDataPublisher orderDataPublisher;
+    private final OrderProcessor orderProcessor;
+    private final PaymentProcessor paymentProcessor;
 
     @Transactional
     public OrderResponse execute(OrderRequest request) {
-        // 1. 상품 재고 조회 (product)
-        Map<Long, Integer> quantitiesOfProducts = productService.getQuantitiesOfProducts(request.orderItems());
-
-        List<Product> productList = productService.findProductsAll(quantitiesOfProducts.keySet());
-        // 상품 재고 품절 여부 검증
-        Map<Product, Integer> productsWithQuantities = productService.findAndValidateProducts(quantitiesOfProducts, productList);
-        // 품절 상품 -> 예외 발생
-        List<Long> outOfStockProduct = productService.findOutOfStockProduct(productList);
-
-        // 재고 복구를 위한 productList
-        //List<Product> products = new ArrayList<>(productsWithQuantities.keySet());
-
-        // 2. 쿠폰 조회
-        Coupon coupon = couponService.findCoupon(request.userId(), request.couponId());
-
-        // 3. 사용자 조회
-        User user = userService.findUser(request.userId());
-
-        // 4. 재고 차감, 상품 가격 계산
-        long calculatedPrice = productService.decreaseStockAndCalculatePrice(productsWithQuantities);
-
-        // 5. 쿠폰 할인 적용된 최종 결제 금액
-      //  long finalPaymentPrice = couponService.applyCouponDiscount(calculatedPrice, coupon);
-        // 5. 할인 적용된 금액
-        long discountedAmount = 0L;
-        long finalPaymentPrice = calculatedPrice;
-
-        if (coupon != null) {
-            discountedAmount = calculatedPrice - coupon.finalDiscountPrice(calculatedPrice);
-            finalPaymentPrice = coupon.finalDiscountPrice(calculatedPrice);
-            coupon.use();
-            // 쿠폰 수 차감
-            couponService.decreaseCouponCount(coupon);
-        }
-
-        // 6. 사용자 잔액 차감 (결제)
-        userService.pay(user, finalPaymentPrice);
-
-        // 7. 주문 저장  (Order, OrderProduct)
-        Order order = orderService.saveOrder(coupon, user, finalPaymentPrice, discountedAmount);
-        orderService.saveOrderProducts(request, order); // 주문 상품 저장
-
-        // 8. 주문 정보 외부 발행
-        publishOrderInfo(order, coupon);
-
-        return OrderResponse.from(order);
-
-    }
-
-    private void publishOrderInfo(Order order, Coupon coupon) {
-        OrderInfo orderInfo = null;
-        if (coupon == null) {
-            orderInfo = OrderInfo.from(order);
-        } else {
-            orderInfo = OrderInfo.from(order, coupon);
-        }
-
-        orderDataPublisher.publish(orderInfo);
-    }
-
+        PaymentTarget paymentTarget = orderProcessor.order(request);
+        paymentProcessor.pay(paymentTarget.orderId(), paymentTarget.userId(), paymentTarget.finalPaymentPrice());
+      return OrderResponse.from(paymentTarget.orderId(), paymentTarget.userId());
+    };
 
 }

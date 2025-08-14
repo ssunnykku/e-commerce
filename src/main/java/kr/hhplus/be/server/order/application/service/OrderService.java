@@ -7,7 +7,6 @@ import kr.hhplus.be.server.order.domain.entity.OrderProduct;
 import kr.hhplus.be.server.order.domain.entity.OrderStatus;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
-import kr.hhplus.be.server.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +19,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
 
-    public Order saveOrder(Coupon coupon, User user, long totalAmount, long discountedAmount) {
-        Long couponId = null;
-        if(coupon != null) {
-            couponId = coupon.getId();
-        }
+    public Order saveOrder(Coupon coupon, Long userId, long totalAmount, long discountedAmount) {
+       if(coupon == null) {
         return orderRepository.save(Order.of(
-                user.getUserId(), couponId, totalAmount, OrderStatus.ORDERED.getCode(), discountedAmount));
+                 userId, totalAmount, OrderStatus.ORDERED.getCode(), discountedAmount));
+
+       }
+
+       return orderRepository.save(Order.of(
+               userId, coupon.getId(), totalAmount, OrderStatus.ORDERED.getCode(), discountedAmount));
+
     }
 
     public void saveOrderProducts(OrderRequest request, Order order) {
@@ -39,5 +41,10 @@ public class OrderService {
         orderProductRepository.saveAll(orderProductList);
     }
 
+    public void updateOrderStatus(Long orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId);
+        order.updateStatus(status.getCode());
+        orderRepository.save(order);
+    }
 
 }

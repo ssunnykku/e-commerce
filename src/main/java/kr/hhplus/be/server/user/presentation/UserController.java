@@ -1,11 +1,10 @@
 package kr.hhplus.be.server.user.presentation;
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
-import kr.hhplus.be.server.user.application.useCase.ConsumeBalanceUseCase;
-import kr.hhplus.be.server.user.application.useCase.GetUserUseCase;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
+import kr.hhplus.be.server.user.application.useCase.ChargeUseCase;
+import kr.hhplus.be.server.user.application.useCase.GetUserUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final ChargeUseCase chargeUseCase;
     private final GetUserUseCase getUserUseCase;
-    private final ConsumeBalanceUseCase consumeBalanceUseCase;
 
 
     @PostMapping("/charge")
@@ -33,9 +31,4 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    @PostMapping("/use")
-    public ResponseEntity<UserResponse> consume(@RequestBody @Valid UserRequest request) {
-        UserResponse result = consumeBalanceUseCase.execute(request);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
 }

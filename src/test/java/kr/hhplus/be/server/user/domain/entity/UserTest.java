@@ -15,7 +15,7 @@ class UserTest {
     @Test
     @DisplayName("충전 금액을 입력하면 기존 잔액에 입력값이 더해진다.")
     void 금액_충전() {
-        User user = new User(1L, "sun", 10000L);
+        User user = User.of(1L, "sun", 10000L);
 
         user.increaseBalance(5000L);
         assertThat(user.getBalance()).isEqualTo(15000L);
@@ -25,7 +25,7 @@ class UserTest {
     @Test
     @DisplayName("잔액보다 큰 금액 사용을 시도할 경우 예외 발생")
     void 잔액_부족() {
-        User user = new User(1L, "sun", 10000L);
+        User user = User.of(1L, "sun", 10000L);
 
         assertThatThrownBy(()->user.use(60000L))
                 .isInstanceOf(InvalidRequestException.class)
@@ -38,7 +38,7 @@ class UserTest {
         long balance = 10000L;
         long amount = 6000L;
         // given
-        User user = new User(1L, "sun", balance);
+        User user = User.of(1L, "sun", balance);
 
         // when
         user.use(amount);

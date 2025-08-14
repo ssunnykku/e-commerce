@@ -62,15 +62,40 @@ public class CouponType {
 
     public Coupon issueTo(Long userId) {
         this.checkStock();
+        this.decreaseCoupon();
         return Coupon.of(userId, this.id, this.calculateExpireDate(), false, this.discountRate);
     }
 
     public void decreaseCoupon() {
-        this.checkStock();
+        if (this.remainingQuantity <= 0) {
+            throw new OutOfStockException(ErrorCode.COUPON_OUT_OF_STOCK);
+        }
         this.remainingQuantity -= 1;
     }
 
-    public static CouponType of(String couponName, Integer discountRate, Integer validDays, Integer quantity) {
+    // for test
+    public static CouponType of(Long id,
+                                String couponName,
+                                Integer discountRate,
+                                Integer validDays,
+                                Integer quantity,
+                                LocalDate createdAt) {
+        return CouponType.builder()
+                .id(id)
+                .couponName(couponName)
+                .discountRate(discountRate)
+                .validDays(validDays)
+                .quantity(quantity)
+                .remainingQuantity(quantity)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    public static CouponType of(
+                                String couponName,
+                                Integer discountRate,
+                                Integer validDays,
+                                Integer quantity) {
         return CouponType.builder()
                 .couponName(couponName)
                 .discountRate(discountRate)

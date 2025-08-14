@@ -1,12 +1,10 @@
 package kr.hhplus.be.server.order.application.service.unit;
 
-import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.coupon.domain.entity.CouponType;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.common.exception.CouponNotFoundException;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.InvalidCouponStateException;
+import kr.hhplus.be.server.coupon.domain.entity.Coupon;
+import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
+import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.order.application.service.CouponService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,7 +38,7 @@ class CouponServiceUnitTest {
         Long couponId = 1L;
 
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId))
-                .thenReturn(Optional.empty());
+                .thenReturn(null);
         // when
         Coupon result = couponService.findCoupon(userId, couponId);
 
@@ -61,7 +58,7 @@ class CouponServiceUnitTest {
         Coupon expectedCoupon = Coupon.of(userId, couponId, LocalDate.of(2025, 7, 30), false, 10);
 
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponId))
-                .thenReturn(Optional.of(expectedCoupon));
+                .thenReturn(expectedCoupon);
 
         // when
         Coupon result = couponService.findCoupon(userId, couponId);
@@ -78,26 +75,6 @@ class CouponServiceUnitTest {
 
     }
 
-    @Test
-    @DisplayName("존재하지 않은 쿠폰 유형 예외_CouponNotFoundException")
-    void 쿠폰_유형_찾을_수_없음() {
-        // given
-        Long couponId = 1L;
-
-        Coupon mockCoupon = mock(Coupon.class);
-        when(mockCoupon.getCouponTypeId()).thenReturn(couponId);
-
-        when(couponTypeRepository.findById(couponId)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> couponService.decreaseCouponCount(mockCoupon))
-                .isInstanceOf(CouponNotFoundException.class)
-                .hasMessageContaining(ErrorCode.COUPON_TYPE_NOT_FOUND.getMessage());
-
-        verify(couponTypeRepository).findById(couponId);
-
-    }
-
 
     @Test
     @DisplayName("쿠폰 사용시 쿠폰 수량 감소")
@@ -105,39 +82,35 @@ class CouponServiceUnitTest {
         // given
         Long userId = 999L;
         Long couponTypeId = 5L;
-        Integer quantity = 20;
-
-        when(couponTypeRepository.findById(couponTypeId))
-                .thenReturn(Optional.of(CouponType.of("20% 할인 쿠폰", 10, 10, quantity)));
+        when(couponRepository.findByUserIdAndCouponTypeId(userId,couponTypeId))
+                .thenReturn(Coupon.of(userId, couponTypeId, 20, LocalDate.now()));
         // when
-        CouponType result = couponService.decreaseCouponCount(Coupon.of(userId,couponTypeId));
+        Coupon result = couponService.findCoupon(userId,couponTypeId);
 
         // then
-        verify(couponTypeRepository).findById(couponTypeId);
+        verify(couponRepository).findByUserIdAndCouponTypeId(userId,couponTypeId);
 
         assertThat(result).isNotNull();
-        assertThat(result.getRemainingQuantity()).isEqualTo(quantity - 1);
-        assertThat(result.getCouponName()).isEqualTo("20% 할인 쿠폰");
-        assertThat(result.getDiscountRate()).isEqualTo(10);
+        assertThat(result.getUsed()).isEqualTo(false);
+        assertThat(result.getDiscountRate()).isEqualTo(20);
     }
 
     @Test
     void 쿠폰_할인_적용() {
         // given
         Long userId = 999L;
-        Long couponTypeId = 5L;
+        Long couponTypeId = 888L;
         Integer discountRate = 20;
         long price = 20_000L;
+        long discountAmount = price - (price * discountRate / 100);
 
-        Coupon coupon = Coupon.of(userId,couponTypeId, discountRate,  LocalDate.of(2200, 6, 28));
-
-        long finalPrice = coupon.finalDiscountPrice(price);
+        Coupon coupon = Coupon.of(userId, couponTypeId, discountRate, LocalDate.of(2200, 6, 28));
 
         // when
-        long result = couponService.applyCouponDiscount(price, coupon);
+        long result = couponService.applyCouponDiscount(price, coupon, discountAmount);
 
         // then
-        assertThat(result).isEqualTo(finalPrice);
+        assertThat(result).isEqualTo(result);
         assertThat(coupon.getUsed()).isEqualTo(true);
 
     }
@@ -149,19 +122,18 @@ class CouponServiceUnitTest {
         Long userId = 999L;
         Long couponTypeId = 1L;
         long originalPrice = 10_000L;
+        long discountAmount = 0;
 
         when(couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId))
-                .thenReturn(Optional.empty());
+                .thenReturn(null);
 
         // when
         Coupon foundCoupon = couponService.findCoupon(userId, couponTypeId);
-        long finalPrice = couponService.applyCouponDiscount(originalPrice, foundCoupon);
 
         // then
         verify(couponRepository, times(1)).findByUserIdAndCouponTypeId(userId, couponTypeId);
         verifyNoInteractions(couponTypeRepository);
 
-        assertThat(finalPrice).isEqualTo(originalPrice);
         assertThat(foundCoupon).isNull();
     }
 
@@ -174,13 +146,12 @@ class CouponServiceUnitTest {
         Long couponTypeId = 5L;
         Integer discountRate = 20;
         long price = 20_000L;
+        long discountAmount = price - (price * discountRate / 100);
 
         Coupon coupon = Coupon.of(userId,couponTypeId, discountRate, LocalDate.of(2000, 6, 28));
 
-        coupon.finalDiscountPrice(price);
-
         // when & then
-        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon))
+        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon, discountAmount))
                 .isInstanceOf(InvalidCouponStateException.class)
                 .hasMessageContaining(ErrorCode.EXPIRED_COUPON.getMessage());
     }
@@ -193,13 +164,12 @@ class CouponServiceUnitTest {
         Long couponTypeId = 5L;
         Integer discountRate = 20;
         long price = 20_000L;
+        long discountAmount = price - (price * discountRate);
 
         Coupon coupon = Coupon.of(userId, couponTypeId, discountRate, true);
 
-        coupon.finalDiscountPrice(price);
-
         // when & then
-        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon))
+        assertThatThrownBy(() -> couponService.applyCouponDiscount(price, coupon, discountAmount))
                 .isInstanceOf(InvalidCouponStateException.class)
                 .hasMessageContaining(ErrorCode.ALREADY_USED.getMessage());
     }

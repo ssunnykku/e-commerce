@@ -55,6 +55,14 @@ dependencies {
 	// docker
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
+	implementation("org.springframework.retry:spring-retry:1.3.3")
+	implementation("org.springframework:spring-aspects:5.3.22")
+
+	// queryDSL
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api:3.1.0")
+	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+	annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+
 }
 
 tasks.withType<Test> {

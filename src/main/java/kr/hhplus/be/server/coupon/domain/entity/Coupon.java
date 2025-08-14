@@ -10,7 +10,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "coupons")
+@Table(name = "coupons",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "coupon_type_id"})
+        }
+)
 @Data
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,6 +27,9 @@ public class Coupon {
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @Version
+    private Long version;
 
     @Column(name = "coupon_type_id", nullable = false)
     private Long couponTypeId;
@@ -67,10 +74,6 @@ public class Coupon {
             return totalPrice *  this.discountRate / 100;
         }
         return 0L;
-    }
-
-    public long finalDiscountPrice(long totalPrice) {
-        return totalPrice - discountPrice(totalPrice);
     }
 
     public static Coupon of(Long userId, Long couponTypeId){
