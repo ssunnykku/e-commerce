@@ -12,7 +12,6 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -32,7 +31,7 @@ public class ChargeUseCase {
 
         boolean locked = false;
         try {
-            locked = lock.tryLockAsync(5, LESS_TIME, TimeUnit.SECONDS).get();
+            locked = lock.tryLock(5, LESS_TIME, TimeUnit.SECONDS);
 
             if (!locked) {
                 throw new RuntimeException("다른 프로세스에서 이미 처리 중입니다.");
@@ -41,8 +40,6 @@ public class ChargeUseCase {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("락 획득 중 인터럽트 발생", e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException("락 획득 중 예외 발생", e);
         } finally {
             if (locked) {
                 lock.unlock();

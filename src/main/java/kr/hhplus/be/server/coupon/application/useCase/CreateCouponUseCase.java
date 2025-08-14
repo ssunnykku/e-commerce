@@ -8,7 +8,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -27,7 +26,7 @@ public class CreateCouponUseCase {
 
         boolean locked = false;
         try {
-            locked = lock.tryLockAsync(WAIT_TIME, LESS_TIME, TimeUnit.SECONDS).get();
+            locked = lock.tryLock(WAIT_TIME, LESS_TIME, TimeUnit.SECONDS);
 
             if (!locked) {
                 throw new RuntimeException("다른 프로세스에서 이미 처리 중입니다.");
@@ -36,9 +35,7 @@ public class CreateCouponUseCase {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("락 획득 중 인터럽트 발생", e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException("락 획득 중 예외 발생", e);
-        } finally {
+        }  finally {
             if (locked) {
                 lock.unlock();
             }
