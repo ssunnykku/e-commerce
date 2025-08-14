@@ -7,9 +7,9 @@ spring:
     name: HangHaePlusDataSource
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      maximum-pool-size: 3
+      maximum-pool-size: 16
       connection-timeout: 10000
-      max-lifetime: 60000
+      max-lifetime: 1800000
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false
@@ -25,6 +25,20 @@ spring:
     level:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+
+logging:
+  level:
+    org:
+      springframework:
+        cache: DEBUG
+      data:
+        redis: DEBUG
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql: TRACE
 
 ---
 spring.config.activate.on-profile: local, test
