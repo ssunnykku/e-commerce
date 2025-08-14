@@ -5,7 +5,7 @@ import kr.hhplus.be.server.common.exception.OutOfStockException;
 import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.common.exception.ProductNotFoundException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
-import kr.hhplus.be.server.order.application.service.ProductService;
+import kr.hhplus.be.server.order.application.service.ProductStockService;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -24,12 +24,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceUnitTest {
+class ProductStockServiceUnitTest {
     @Mock
     private ProductRepository productRepository;
 
     @InjectMocks
-    private ProductService productService;
+    private ProductStockService productStockService;
 
     @Test
     @DisplayName("productId 리스트로 제품 조회")
@@ -42,11 +42,11 @@ class ProductServiceUnitTest {
                 Product.of(3L, "바나나킥", 2_000L, 50L),
                 Product.of(4L, "빈츠", 5_000L, 200L)
         );
-        when(productRepository.findAllByIdLock(productIds)).thenReturn(productList);
+        when(productRepository.findAllById(productIds)).thenReturn(productList);
         // when
-        List<Product> result = productService.findProductsAll(productIds);
+        List<Product> result = productStockService.findProductsAll(productIds);
         // then
-        verify(productRepository, times(1)).findAllByIdLock(productIds);
+        verify(productRepository, times(1)).findAllById(productIds);
 
         assertThat(result.size()).isEqualTo(productList.size());
         assertThat(result.get(0).getName()).isEqualTo(productList.get(0).getName());
@@ -64,7 +64,7 @@ class ProductServiceUnitTest {
                 OrderRequest.OrderItemRequest.of(12L, 50),
                 OrderRequest.OrderItemRequest.of(13L, 30));
 
-        assertThat(productService.getQuantitiesOfProducts(orderItems)).isEqualTo(Map.of(11L, 150, 12L, 50, 13L, 30));
+        assertThat(productStockService.getQuantitiesOfProducts(orderItems)).isEqualTo(Map.of(11L, 150, 12L, 50, 13L, 30));
     }
 
     @Test
@@ -77,11 +77,12 @@ class ProductServiceUnitTest {
                 Product.of(13L, "바나나킥", 2_000L, 30L));
 
         // when & then
-        assertThatThrownBy(() -> productService.findAndValidateProducts(requestedQuantities, productList))
+        assertThatThrownBy(() -> productStockService.findAndValidateProducts(requestedQuantities, productList))
                 .isInstanceOf(ProductNotFoundException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage(), List.of(12));
     }
-    @Test
+
+        @Test
     void 존재하는_상품_리스트_반환() {
         // given
         Map<Long, Integer> requestedQuantities = Map.of(11L, 5, 12L, 3, 13L, 2);
@@ -91,7 +92,7 @@ class ProductServiceUnitTest {
                 Product.of(13L, "바나나킥", 2_000L, 30L));
 
         // when
-        Map<Product, Integer> result = productService.findAndValidateProducts(requestedQuantities, productList);
+        Map<Product, Integer> result = productStockService.findAndValidateProducts(requestedQuantities, productList);
         // then
         assertThat(result).isNotNull();
         assertThat(result).hasSize(productList.size());
@@ -111,7 +112,7 @@ class ProductServiceUnitTest {
         );
 
         // when & then
-        assertThatThrownBy(() -> productService.findOutOfStockProduct(productList))
+        assertThatThrownBy(() -> productStockService.findOutOfStockProduct(productList))
                 .isInstanceOf(OutOfStockListException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_OUT_OF_STOCK.getMessage(), List.of(1L));
     }
@@ -127,7 +128,7 @@ class ProductServiceUnitTest {
                 Product.of(13L, "바나나킥", 2_000L, 30L), 30);
 
         // when & then
-        assertThatThrownBy(() -> productService.decreaseStockAndCalculatePrice(productsWithQuantities))
+        assertThatThrownBy(() -> productStockService.decreaseStockAndCalculatePrice(productsWithQuantities))
                 .isInstanceOf(OutOfStockException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_OUT_OF_STOCK.getMessage(), List.of(1L));
 
@@ -146,7 +147,7 @@ class ProductServiceUnitTest {
         );
 
         // when
-        long totalPrice = productService.decreaseStockAndCalculatePrice(productsWithQuantities);
+        long totalPrice = productStockService.decreaseStockAndCalculatePrice(productsWithQuantities);
 
         // then
         long expectedTotal = productsWithQuantities.entrySet().stream()
