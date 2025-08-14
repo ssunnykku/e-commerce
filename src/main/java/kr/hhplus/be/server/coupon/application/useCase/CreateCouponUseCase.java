@@ -1,56 +1,50 @@
 package kr.hhplus.be.server.coupon.application.useCase;
 
-import kr.hhplus.be.server.common.exception.BaseException;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
-import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.coupon.domain.entity.CouponType;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
-import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
+import kr.hhplus.be.server.coupon.application.service.CreateCouponService;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class CreateCouponUseCase {
-    private final CouponTypeRepository couponTypeRepository;
-    private final CouponRepository couponRepository;
-    private final UserRepository userRepository;
+    private final RedissonClient redissonClient;
+    private final CreateCouponService createCouponService;
 
-    @Transactional(rollbackFor = BaseException.class)
+    private static final String LOCK_PREFIX = "lock:couponType:";
+    private static final long LESS_TIME = 30L;
+    private static final long WAIT_TIME = 5L;
+
     public CouponResponse execute(CouponRequest request) {
-        // 1. 쿠폰 재고 조회
-        userRepository.findById(request.userId());
-        CouponType couponType = findCouponType(request.couponTypeId());
+        String lockKey = LOCK_PREFIX + request.couponTypeId();
+        RLock lock = redissonClient.getLock(lockKey);
 
-        // 2. 쿠폰 발급 대상 여부 확인 (중복 발급 불가)
-        checkUserHasNoCoupon(request.userId(), request.couponTypeId());
+        boolean locked = false;
+        try {
+            locked = lock.tryLockAsync(WAIT_TIME, LESS_TIME, TimeUnit.SECONDS).get();
 
-        LocalDate expiresAt = couponType.calculateExpireDate();
-
-        // 3. 쿠폰 발급 처리
-        Coupon coupon = issueCouponToUser(couponType, request.userId());
-        coupon.setExpiresAt(expiresAt);
-        Coupon savedCoupon = couponRepository.save(coupon);
-
-        return CouponResponse.from(savedCoupon, couponType);
+            if (!locked) {
+                throw new RuntimeException("다른 프로세스에서 이미 처리 중입니다.");
+            }
+            return createCouponService.executeInTransaction(request);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("락 획득 중 인터럽트 발생", e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("락 획득 중 예외 발생", e);
+        } finally {
+            if (locked) {
+                lock.unlock();
+            }
+        }
     }
 
-    private CouponType findCouponType(Long couponTypeId) {
-        return couponTypeRepository.findById(couponTypeId);
-    }
-
-    private void checkUserHasNoCoupon(Long userId, Long couponTypeId) {
-        couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId);
-    }
-
-    private Coupon issueCouponToUser(CouponType couponType, Long userId) {
-        return couponType.issueTo(userId);
-    }
 
 }
 
