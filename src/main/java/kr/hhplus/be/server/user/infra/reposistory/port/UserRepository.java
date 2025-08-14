@@ -9,5 +9,4 @@ public interface UserRepository {
     User save(User user);
     List<User> findAll();
     List<User> saveAll(List<User> users);
-    User findByIdRock(Long userId);
 }
