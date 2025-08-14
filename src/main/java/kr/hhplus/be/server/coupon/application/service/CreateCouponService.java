@@ -20,18 +20,6 @@ public class CreateCouponService {
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
 
-    private CouponType findCouponType(Long couponTypeId) {
-        return couponTypeRepository.findById(couponTypeId);
-    }
-
-    private void checkUserHasNoCoupon(Long userId, Long couponTypeId) {
-        couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId);
-    }
-
-    private Coupon issueCouponToUser(CouponType couponType, Long userId) {
-        return couponType.issueTo(userId);
-    }
-
     @Transactional
     public CouponResponse executeInTransaction(CouponRequest request) {
         // 1. 쿠폰 재고 조회
@@ -50,4 +38,17 @@ public class CreateCouponService {
 
         return CouponResponse.from(savedCoupon, couponType);
     }
+
+    private CouponType findCouponType(Long couponTypeId) {
+        return couponTypeRepository.findById(couponTypeId);
+    }
+
+    private void checkUserHasNoCoupon(Long userId, Long couponTypeId) {
+        couponRepository.findByUserIdAndCouponTypeId(userId, couponTypeId);
+    }
+
+    private Coupon issueCouponToUser(CouponType couponType, Long userId) {
+        return couponType.issueTo(userId);
+    }
+
 }
