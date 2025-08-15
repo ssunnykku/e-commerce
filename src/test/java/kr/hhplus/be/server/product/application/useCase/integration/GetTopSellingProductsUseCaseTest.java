@@ -40,8 +40,8 @@ class GetTopSellingProductsUseCaseTest {
     @BeforeEach
     void setUp() {
         // 캐시 초기화
-        if (cacheManager.getCache("topSellingProducts") != null) {
-            cacheManager.getCache("topSellingProducts").clear();
+        if (cacheManager.getCache("CACHE:topSellingProducts") != null) {
+            cacheManager.getCache("CACHE:topSellingProducts").clear();
         }
     }
 
@@ -53,7 +53,7 @@ class GetTopSellingProductsUseCaseTest {
         assertThat(firstResult).isNotNull();
 
         // 캐시 저장
-        List<TopSellingProductDto> cachedResult = cacheManager.getCache("topSellingProducts")
+        List<TopSellingProductDto> cachedResult = cacheManager.getCache("CACHE:topSellingProducts")
                 .get("last3Days", List.class);
         assertThat(cachedResult).isNotNull();
         assertThat(cachedResult.size()).isEqualTo(firstResult.size());
@@ -68,11 +68,11 @@ class GetTopSellingProductsUseCaseTest {
     void evictTopSellingProductsCache_shouldClearCache() {
         // 캐시 저장
         getTopSellingProductsUseCase.execute();
-        assertThat(cacheManager.getCache("topSellingProducts").get("last3Days")).isNotNull();
+        assertThat(cacheManager.getCache("CACHE:topSellingProducts").get("last3Days")).isNotNull();
 
         // 캐시 삭제
         getTopSellingProductsUseCase.evictTopSellingProductsCache();
-        assertThat(cacheManager.getCache("topSellingProducts").get("last3Days")).isNull();
+        assertThat(cacheManager.getCache("CACHE:topSellingProducts").get("last3Days")).isNull();
     }
 
     @Test
