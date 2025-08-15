@@ -23,7 +23,7 @@ public class GetTopSellingProductsUseCase {
     private static final String CACHE_KEY = "last3Days";
 
     @Transactional(readOnly = true)
-    @Cacheable(value = CACHE_NAME, key = "'" + CACHE_KEY + "'") // 작은따옴표를 여기서만 사용
+    @Cacheable(value = CACHE_NAME, key = "'" + CACHE_KEY + "'")
     public List<TopSellingProductDto> execute() {
 
         log.info("Executing GetTopSellingProductsUseCase.execute() - Fetching from DB...");
