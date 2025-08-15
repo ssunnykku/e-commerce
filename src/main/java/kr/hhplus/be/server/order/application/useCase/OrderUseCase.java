@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.order.application.useCase;
 
-import kr.hhplus.be.server.common.exception.BaseException;
 import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.RedissonConflictException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.OrderResponse;
 import kr.hhplus.be.server.order.application.dto.PaymentTarget;
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static kr.hhplus.be.server.common.exception.ErrorCode.LOCK_CONFLICT;
 
 @Slf4j
 @Service
@@ -56,7 +58,7 @@ public class OrderUseCase {
             boolean locked = multiLock.tryLock(5, 30, TimeUnit.SECONDS);
             if (!locked) {
                 log.warn(">>>>>>>>> 락 획득 실패");
-                throw new RuntimeException("다른 프로세스에서 이미 처리 중입니다.");
+                throw new RedissonConflictException(LOCK_CONFLICT);
             }
 
             log.info(">>>>>>>>> 락 획득 성공");
@@ -78,7 +80,7 @@ public class OrderUseCase {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error(">>>>>>>>> 락 획득 중 인터럽트 발생", e);
-            throw new BaseException(ErrorCode.LOCK_INTERRUPT);
+            throw new RedissonConflictException(ErrorCode.LOCK_INTERRUPT);
         } finally {
             // 4 락 해제
             if (multiLock != null && multiLock.isHeldByCurrentThread()) {

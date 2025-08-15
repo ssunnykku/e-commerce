@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.common.aop;
 
+import kr.hhplus.be.server.common.exception.RedissonConflictException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -11,6 +12,9 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+
+import static kr.hhplus.be.server.common.exception.ErrorCode.LOCK_CONFLICT;
+import static kr.hhplus.be.server.common.exception.ErrorCode.LOCK_INTERRUPT;
 
 /**
  * @DistributedLock 선언 시 수행되는 Aop class
@@ -43,7 +47,7 @@ public class DistributedLockAop {
             boolean locked = rLock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.timeUnit());
             if (!locked) {
                 log.warn(">>>>>>>>> 락 획득 실패: method={}, key={}", method.getName(), key);
-                throw new RuntimeException("다른 프로세스에서 이미 처리 중입니다.");
+                throw new RedissonConflictException(LOCK_CONFLICT);
             }
             log.info(">>>>>>>>> 락 획득 성공: method={}, key={}", method.getName(), key);
 
@@ -51,7 +55,7 @@ public class DistributedLockAop {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error(">>>>>>>>> 락 획득 중 인터럽트 발생: method={}, key={}", method.getName(), key, e);
-            throw new RuntimeException("락 획득 중 인터럽트 발생", e);
+            throw new RedissonConflictException(LOCK_INTERRUPT);
          } finally {
             try {
                 rLock.unlock();
