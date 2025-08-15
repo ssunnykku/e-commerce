@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
-class GetTopSellingProductsUseCaseIntegrationTest {
+class GetTopSellingProductsUseCaseTest {
 
     @Autowired
     private GetTopSellingProductsUseCase getTopSellingProductsUseCase;
