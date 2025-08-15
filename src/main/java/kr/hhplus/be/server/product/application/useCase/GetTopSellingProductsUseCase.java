@@ -19,7 +19,7 @@ import java.util.List;
 public class GetTopSellingProductsUseCase {
     private final OrderProductQRepository orderProductQRepository;
 
-    private static final String CACHE_NAME = "topSellingProducts";
+    private static final String CACHE_NAME = "CACHE:topSellingProducts";
     private static final String CACHE_KEY = "last3Days";
 
     @Transactional(readOnly = true)
