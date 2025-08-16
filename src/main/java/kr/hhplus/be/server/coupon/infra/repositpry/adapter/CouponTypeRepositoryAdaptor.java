@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.coupon.infra.repositpry.adapter;
 
-import kr.hhplus.be.server.common.exception.CouponNotFoundException;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
@@ -18,12 +17,6 @@ public class CouponTypeRepositoryAdaptor implements CouponTypeRepository {
     public CouponType findById(Long id) {
         return jpaRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    @Override
-    public CouponType findByIdLock(Long couponId) {
-        return jpaRepository.findByIdWithPessimisticLock(couponId)
-                .orElseThrow(() -> new CouponNotFoundException(ErrorCode.COUPON_NOT_FOUND));
     }
 
     @Override

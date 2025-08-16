@@ -17,16 +17,27 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class ProductStockService {
     private final ProductRepository productRepository;
 
-    public List<Product> findProductsAllWithLock(Set<Long> productIds) {
-        return productRepository.findAllByIdLock(productIds);
+    public Long decreaseStockAndCalculatePrice(OrderRequest request) {
+        // 1. 상품 재고 조회 (product)
+        Map<Long, Integer> quantitiesOfProducts = getQuantitiesOfProducts(request.orderItems());
+
+        List<Product> productList = findProductsAll(quantitiesOfProducts.keySet());
+
+        // 상품 재고 품절 여부 검증
+        Map<Product, Integer> productsWithQuantities = findAndValidateProducts(quantitiesOfProducts, productList);
+
+        // 품절 상품 -> 예외 발생
+        List<Long> outOfStockProduct = findOutOfStockProduct(productList);
+
+        // 3. 재고 차감, 상품 가격 계산
+        return decreaseStockAndCalculatePrice(productsWithQuantities);
     }
 
-    public Map<Long, Integer> getQuantitiesOfProducts(List<OrderRequest.OrderItemRequest> orderItems) {
-        return orderItems.stream()
-                .collect(Collectors.toMap(OrderRequest.OrderItemRequest::productId, OrderRequest.OrderItemRequest::quantity));
+    public List<Product> findProductsAll(Set<Long> productIds) {
+        return productRepository.findAllById(productIds);
     }
 
     public Map<Product, Integer> findAndValidateProducts(Map<Long, Integer> requestedQuantities, List<Product> productList) {
@@ -42,6 +53,11 @@ public class ProductService {
 
         return productList.stream()
                 .collect(Collectors.toMap(product -> product, product -> requestedQuantities.get(product.getId())));
+    }
+
+    public Map<Long, Integer> getQuantitiesOfProducts(List<OrderRequest.OrderItemRequest> orderItems) {
+        return orderItems.stream()
+                .collect(Collectors.toMap(OrderRequest.OrderItemRequest::productId, OrderRequest.OrderItemRequest::quantity));
     }
 
     public List<Long> findOutOfStockProduct(List<Product> productList) {
@@ -72,4 +88,5 @@ public class ProductService {
         }
         return totalPrice;
     }
+
 }

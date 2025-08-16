@@ -43,6 +43,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
+	testImplementation("org.testcontainers:testcontainers:1.19.0")
 
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
@@ -62,6 +63,13 @@ dependencies {
 	annotationProcessor("jakarta.persistence:jakarta.persistence-api:3.1.0")
 	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
 	annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+	implementation("org.glassfish:jakarta.el:4.0.2")
+	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+	testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+	implementation("org.redisson:redisson-spring-boot-starter:3.37.0")
 
 }
 

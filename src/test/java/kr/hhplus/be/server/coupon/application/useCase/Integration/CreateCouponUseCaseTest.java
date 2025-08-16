@@ -8,7 +8,6 @@ import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
 import kr.hhplus.be.server.user.domain.entity.User;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,21 +35,15 @@ class CreateCouponUseCaseTest {
     @Autowired
     private UserRepository userRepository;
 
-    private User user;
-    private CouponType couponType;
-
-    @BeforeEach
-    void setUp() {
-        user = User.of("sun", 20000L);
-        userRepository.save(user);
-
-        couponType = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 100));
-    }
-
     @Test
     @DisplayName("사용자에게 쿠폰을 발급한다.")
     void 쿠폰_생성() {
         //given
+        User user = User.of("sun", 20000L);
+        userRepository.save(user);
+
+        CouponType couponType = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 100));
+
         CouponRequest request = CouponRequest.of(user.getUserId(), couponType.getId());
         //when
         CouponResponse response = createCouponUseCase.execute(request);
@@ -197,5 +190,48 @@ class CreateCouponUseCaseTest {
         assertThat(failCount.get()).isEqualTo(4);    /// 4건 실패
 
     }
+
+    @Test
+    @DisplayName("동시성: 쿠폰 발급 100명 테스트)")
+    void 쿠폰_동시성_테스트4() throws Exception {
+        // given
+        CouponType couponType2 = couponTypeRepository.save(CouponType.of("10% 할인 쿠폰", 10, 20, 100));
+
+        int userCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(10); // 스레드 풀 생성
+        CountDownLatch latch = new CountDownLatch(userCount); // CountDownLatch 생성
+
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < userCount; i++) {
+            User user = User.of(String.valueOf(i), 20000L);
+            User saveUser = userRepository.save(user);
+            users.add(saveUser);
+        }
+
+        // when
+        for (int i = 0; i < userCount; i++) {
+            User user2 = users.get(i);
+
+            executorService.submit(() -> {
+                try {
+                    createCouponUseCase.execute(CouponRequest.of(user2.getUserId(), couponType2.getId()));
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                } finally {
+                    latch.countDown();
+
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        CouponType a = couponTypeRepository.findById(couponType2.getId());
+        assertThat(a).isNotNull();
+        assertThat(a.getRemainingQuantity()).isZero();
+
+    }
+
 
 }

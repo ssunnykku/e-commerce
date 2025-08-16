@@ -27,7 +27,7 @@ public class GetProductListUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        productRepository.deleteAll();  // <-- 이 줄이 중요함
+        productRepository.deleteAll();
 
         products = List.of(Product.of("아이패드", 900_000L, 100L),
                 Product.of("에어팟", 300_000L, 100L),

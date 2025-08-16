@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static kr.hhplus.be.server.TestcontainersConfiguration.MYSQL_CONTAINER;
+import static kr.hhplus.be.server.TestcontainersConfiguration.REDIS_CONTAINER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -46,6 +47,12 @@ class ChargeUseCaseTest {
     void contextLoads() {
         assertThat(MYSQL_CONTAINER.isRunning()).isTrue();
     }
+
+    @Test
+    void contextLoads2() {
+        assertThat(REDIS_CONTAINER.isRunning()).isTrue();
+    }
+
     @Test
     void 사용자의_잔액을_충전한다() {
         // given

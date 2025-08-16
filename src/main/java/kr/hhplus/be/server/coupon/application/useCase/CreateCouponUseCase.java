@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.coupon.application.useCase;
 
-import kr.hhplus.be.server.common.exception.BaseException;
+import kr.hhplus.be.server.common.aop.DistributedLock;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
@@ -11,18 +11,34 @@ import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
 public class CreateCouponUseCase {
+    private final TransactionTemplate transactionTemplate;
+
     private final CouponTypeRepository couponTypeRepository;
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
 
-    @Transactional(rollbackFor = BaseException.class)
+    @DistributedLock(domain = "couponType", key = "#request.couponTypeId")
     public CouponResponse execute(CouponRequest request) {
+        return transactionTemplate.execute(status -> {
+            try {
+                return executeInTransaction(request);
+            } catch (Exception e) {
+                // 예외 발생 시 트랜잭션 롤백
+                status.setRollbackOnly();
+                throw e;
+            }
+        });
+    }
+
+    @Transactional
+    public CouponResponse executeInTransaction(CouponRequest request) {
         // 1. 쿠폰 재고 조회
         userRepository.findById(request.userId());
         CouponType couponType = findCouponType(request.couponTypeId());
@@ -41,7 +57,7 @@ public class CreateCouponUseCase {
     }
 
     private CouponType findCouponType(Long couponTypeId) {
-        return couponTypeRepository.findByIdLock(couponTypeId);
+        return couponTypeRepository.findById(couponTypeId);
     }
 
     private void checkUserHasNoCoupon(Long userId, Long couponTypeId) {
@@ -51,6 +67,7 @@ public class CreateCouponUseCase {
     private Coupon issueCouponToUser(CouponType couponType, Long userId) {
         return couponType.issueTo(userId);
     }
+
 
 }
 
