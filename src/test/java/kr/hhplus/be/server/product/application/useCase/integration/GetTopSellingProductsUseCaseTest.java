@@ -2,7 +2,7 @@ package kr.hhplus.be.server.product.application.useCase.integration;
 
 import jakarta.persistence.EntityManager;
 import kr.hhplus.be.server.order.domain.entity.OrderProduct;
-import kr.hhplus.be.server.product.application.dto.TopSellingProductDto;
+import kr.hhplus.be.server.product.application.dto.TopSellingProduct;
 import kr.hhplus.be.server.product.application.useCase.GetTopSellingProductsUseCase;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.adapter.OrderProductQRepositoryImpl;
@@ -49,17 +49,17 @@ class GetTopSellingProductsUseCaseTest {
     @Transactional
     void execute_shouldFetchFromDb_andCacheResults() {
         // 첫 호출: DB에서 조회
-        List<TopSellingProductDto> firstResult = getTopSellingProductsUseCase.execute();
+        List<TopSellingProduct> firstResult = getTopSellingProductsUseCase.execute();
         assertThat(firstResult).isNotNull();
 
         // 캐시 저장
-        List<TopSellingProductDto> cachedResult = cacheManager.getCache("CACHE:topSellingProducts")
+        List<TopSellingProduct> cachedResult = cacheManager.getCache("CACHE:topSellingProducts")
                 .get("last3Days", List.class);
         assertThat(cachedResult).isNotNull();
         assertThat(cachedResult.size()).isEqualTo(firstResult.size());
 
         // 캐시에서 조회 (DB 쿼리 실행 안됨)
-        List<TopSellingProductDto> secondResult = getTopSellingProductsUseCase.execute();
+        List<TopSellingProduct> secondResult = getTopSellingProductsUseCase.execute();
         assertThat(secondResult).isEqualTo(firstResult);
     }
 
@@ -111,7 +111,7 @@ class GetTopSellingProductsUseCaseTest {
         em.persist(OrderProduct.of(product1.getId(), order2.getId(), 5, LocalDateTime.now().minusDays(2), "1"));
         em.persist(OrderProduct.of(product2.getId(), order2.getId(), 3, LocalDateTime.now().minusDays(2), "1"));
 
-        List<TopSellingProductDto> topProducts = getTopSellingProductsUseCase.execute();
+        List<TopSellingProduct> topProducts = getTopSellingProductsUseCase.execute();
 
         assertThat(topProducts).hasSize(5);
 

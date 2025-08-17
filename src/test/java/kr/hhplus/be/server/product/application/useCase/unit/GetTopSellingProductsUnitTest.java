@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.application.useCase.unit;
 
-import kr.hhplus.be.server.product.application.dto.TopSellingProductDto;
+import kr.hhplus.be.server.product.application.dto.TopSellingProduct;
 import kr.hhplus.be.server.product.application.useCase.GetTopSellingProductsUseCase;
 import kr.hhplus.be.server.product.infra.repository.port.OrderProductQRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -40,12 +40,12 @@ class GetTopSellingProductsUnitTest {
     @DisplayName("최근 3일간 가장 많이 팔린 상위 5개 상품 정보 조회")
     void 상품_통계_조회() {
         // given
-        List<TopSellingProductDto> productList = List.of(
-                TopSellingProductDto.of(5L, "아이폰16 pro", 1_500_000L, 100L, 150),
-                TopSellingProductDto.of(7L, "갤럭시 플립", 1_000_000L, 100L, 90),
-                TopSellingProductDto.of(13L, "아이패드", 1_200_000L, 100L, 80),
-                TopSellingProductDto.of(2L, "맥북14 에어", 2_500_000L, 100L, 75),
-                TopSellingProductDto.of(19L, "맥북14 pro", 3_500_000L, 100L, 20));
+        List<TopSellingProduct> productList = List.of(
+                TopSellingProduct.of(5L, "아이폰16 pro", 1_500_000L, 100L, 150),
+                TopSellingProduct.of(7L, "갤럭시 플립", 1_000_000L, 100L, 90),
+                TopSellingProduct.of(13L, "아이패드", 1_200_000L, 100L, 80),
+                TopSellingProduct.of(2L, "맥북14 에어", 2_500_000L, 100L, 75),
+                TopSellingProduct.of(19L, "맥북14 pro", 3_500_000L, 100L, 20));
 
         String redisKey = "CACHE:topSellingProducts::last3Days";
 
@@ -55,7 +55,7 @@ class GetTopSellingProductsUnitTest {
         when(orderProductQRepository.findTop5SellingProductsLast3Days()).thenReturn(productList);
 
         // when
-        List<TopSellingProductDto> productResponse = getTopSellingProducts.execute();
+        List<TopSellingProduct> productResponse = getTopSellingProducts.execute();
 
         // then
         assertThat(productResponse.size()).isEqualTo(productList.size());

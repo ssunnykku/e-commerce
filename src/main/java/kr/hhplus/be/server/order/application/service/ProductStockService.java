@@ -4,6 +4,7 @@ import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.common.exception.ProductNotFoundException;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
+import kr.hhplus.be.server.order.infra.repository.port.OrderRedisRepository;
 import kr.hhplus.be.server.product.domain.entity.Product;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductStockService {
     private final ProductRepository productRepository;
+    private final OrderRedisRepository orderRedisRepository;
 
     public Long decreaseStockAndCalculatePrice(OrderRequest request) {
         // 1. 상품 재고 조회 (product)
@@ -31,6 +33,8 @@ public class ProductStockService {
 
         // 품절 상품 -> 예외 발생
         List<Long> outOfStockProduct = findOutOfStockProduct(productList);
+
+        updateProductScore(productsWithQuantities);
 
         // 3. 재고 차감, 상품 가격 계산
         return decreaseStockAndCalculatePrice(productsWithQuantities);
@@ -67,6 +71,7 @@ public class ProductStockService {
             if (!product.hasStock()) {
                 outOfStockProductIds.add(product.getId());
             }
+
         }
 
         if (!outOfStockProductIds.isEmpty()) {
@@ -87,6 +92,16 @@ public class ProductStockService {
 
         }
         return totalPrice;
+    }
+
+    public void updateProductScore(Map<Product, Integer> productsWithQuantities) {
+        for (Map.Entry<Product, Integer> entry : productsWithQuantities.entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+
+            orderRedisRepository.increaseScore("topSellingProducts", product.getId(), quantity);
+        }
+
     }
 
 }

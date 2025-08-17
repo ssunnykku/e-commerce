@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.presentation;
 
 import kr.hhplus.be.server.product.application.dto.ProductResponse;
-import kr.hhplus.be.server.product.application.dto.TopSellingProductDto;
+import kr.hhplus.be.server.product.application.dto.TopSellingProduct;
 import kr.hhplus.be.server.product.application.useCase.GetProductListUseCase;
 import kr.hhplus.be.server.product.application.useCase.GetProductUseCase;
 import kr.hhplus.be.server.product.application.useCase.GetTopSellingProductsUseCase;
@@ -34,8 +34,8 @@ public class ProductController {
     }
 
     @GetMapping("/products/top-selling")
-    public ResponseEntity<List<TopSellingProductDto>> getTopSellingProducts() {
-        List<TopSellingProductDto> list = getTopSellingProductsUseCase.execute();
+    public ResponseEntity<List<TopSellingProduct>> getTopSellingProducts() {
+        List<TopSellingProduct> list = getTopSellingProductsUseCase.execute();
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 
