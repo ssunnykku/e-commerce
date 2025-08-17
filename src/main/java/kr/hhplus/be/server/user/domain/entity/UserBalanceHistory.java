@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.user.domain.entity;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.user.application.dto.UserRequest;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

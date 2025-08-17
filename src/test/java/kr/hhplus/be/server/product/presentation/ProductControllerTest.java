@@ -101,14 +101,14 @@ class ProductControllerTest {
         void getProductDetailsNotFound() throws Exception {
             // given
             given(getProductUseCase.execute(anyLong()))
-                    .willThrow(new OutOfStockListException(ErrorCode.PRODUCT_OUT_OF_STOCK, List.of(1L)));
+                    .willThrow(new OutOfStockListException(ErrorCode.NOT_FOUND_ENTITY, List.of(1L)));
 
             // when & then
-            mockMvc.perform(get("/products/{id}", 999L)
+            mockMvc.perform(get("/products/{id}", 99999L)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().is(ErrorCode.PRODUCT_OUT_OF_STOCK.getStatus().value()))
-                    .andExpect(jsonPath("$.code").value(String.valueOf(ErrorCode.PRODUCT_OUT_OF_STOCK.getStatus().value())))
-                    .andExpect(jsonPath("$.message").value(ErrorCode.PRODUCT_OUT_OF_STOCK.getMessage()));
+                    .andExpect(status().is(ErrorCode.NOT_FOUND_ENTITY.getStatus().value()))
+                    .andExpect(jsonPath("$.code").value(String.valueOf(ErrorCode.NOT_FOUND_ENTITY.getStatus().value())))
+                    .andExpect(jsonPath("$.message").value(ErrorCode.NOT_FOUND_ENTITY.getMessage()));
         }
     }
 }

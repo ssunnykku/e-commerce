@@ -1,5 +1,8 @@
 package kr.hhplus.be.server.order.application.useCase;
 
+import kr.hhplus.be.server.TestcontainersConfiguration;
+import kr.hhplus.be.server.common.exception.ErrorCode;
+import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
@@ -19,7 +22,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +70,27 @@ class OrderUseCaseTest {
 
         user = userRepository.save(User.of("sun", 100_000_000L));
 
+    }
+
+    @Test
+    @DisplayName("상품을 주문: 상품 품절시 예외 처리")
+    void 상품_품절() {
+        // given: 재고를 0으로 설정한 상품 저장
+        User user2 = userRepository.save(User.of("sun", 1_000L));
+
+        Product soldOutProduct = productRepository.save(Product.of("품절상품", 1_000_000L, 0L));
+
+        long discountAmount = 1000L;
+
+        OrderRequest request = OrderRequest.of(user2.getUserId(), null, discountAmount,
+                List.of(OrderRequest.OrderItemRequest.of(soldOutProduct.getId(), 1)
+                )
+        );
+
+        // when & then
+        assertThatThrownBy(() -> orderUseCase.execute(request))
+                .isInstanceOf(OutOfStockListException.class)
+                .hasMessageContaining(ErrorCode.PRODUCT_OUT_OF_STOCK.getMessage());
     }
 
     @Test
@@ -316,8 +339,7 @@ class OrderUseCaseTest {
 
         // then
         User result = userRepository.findById(user.getUserId());
-        assertThat(result.getBalance()).isEqualTo(0);
-
+        assertThat(result.getBalance()).isEqualTo(0L);
         assertThat(successCount.get()).isEqualTo(2);
     }
 
@@ -378,5 +400,68 @@ class OrderUseCaseTest {
         assertThat(successCount.get()).isEqualTo(10);  // 1건만 성공
         assertThat(failCount.get()).isEqualTo(10);    /// 2건 실패
     }
+
+    @Test
+    @DisplayName("동시성: 동시에 재고 차감(재고 1개, 3명의 사용자)")
+    void 상품_동시성_테스트() throws InterruptedException {
+        // given
+        Coupon coupon = couponRepository.save(
+                Coupon.of(user.getUserId(), couponType.getId(), couponType.getDiscountRate(), couponType.calculateExpireDate())
+        );
+
+        Product product1 = productRepository.save(Product.of("book", 1_500L, 1L));
+
+        int quantity = 1;
+        long discountAmount = product1.getPrice() * quantity - (product1.getPrice() * couponType.getDiscountRate() / 100);
+
+        int userCount = 3;
+        ExecutorService executorService = Executors.newFixedThreadPool(10); // 스레드 풀
+        CountDownLatch startLatch = new CountDownLatch(1); // 동시에 시작용
+        CountDownLatch latch = new CountDownLatch(userCount); // 완료 대기용
+
+        AtomicInteger successCount = new AtomicInteger();
+        AtomicInteger failCount = new AtomicInteger();
+
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < userCount; i++) {
+            User user = User.of(String.valueOf(i), 100_000_000L);
+            users.add(userRepository.save(user));
+        }
+
+        // when
+        for (int i = 0; i < userCount; i++) {
+            User user = users.get(i);
+            List<OrderRequest.OrderItemRequest> orderRequests = List.of(
+                    OrderRequest.OrderItemRequest.of(product1.getId(), quantity)
+            );
+            OrderRequest request = OrderRequest.of(user.getUserId(), coupon.getId(), discountAmount, orderRequests);
+
+            executorService.submit(() -> {
+                try {
+                    startLatch.await(); // 모든 스레드 동시 시작 대기
+                    orderUseCase.execute(request);
+                    log.info("성공임");
+                    successCount.incrementAndGet(); // 성공
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    log.info("실패임");
+                    failCount.incrementAndGet(); // 실패
+                } finally {
+                    latch.countDown(); // 작업 완료 표시
+                }
+            });
+        }
+
+        startLatch.countDown(); // 스레드 동시 시작
+        latch.await(); // 모든 스레드 완료 대기
+
+        // then
+        Product product = productRepository.findBy(product1.getId());
+        assertThat(product.getStock()).isEqualTo(0);
+
+        assertThat(successCount.get()).isEqualTo(1);  // 1건만 성공
+        assertThat(failCount.get()).isEqualTo(2);    // 2건 실패
+    }
+
 
 }
