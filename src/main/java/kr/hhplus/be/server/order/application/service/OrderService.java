@@ -11,7 +11,6 @@ import kr.hhplus.be.server.order.domain.entity.OrderStatus;
 import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
-import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
