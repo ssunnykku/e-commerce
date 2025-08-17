@@ -37,9 +37,4 @@ public class UserRepositoryAdapter implements UserRepository {
         return userJpaRepository.saveAll(users);
     }
 
-    @Override
-    public User findByIdRock(Long userId) {
-        return userJpaRepository.findByIdWithPessimisticLock(userId)
-                .orElseThrow(()-> new UserNotFoundException(ErrorCode.USER_NOT_FOUND));
-    }
 }
