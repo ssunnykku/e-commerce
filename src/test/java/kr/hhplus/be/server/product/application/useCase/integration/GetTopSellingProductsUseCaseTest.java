@@ -71,8 +71,8 @@ class GetTopSellingProductsUseCaseTest {
         assertThat(cacheManager.getCache("CACHE:topSellingProducts").get("last3Days")).isNotNull();
 
         // 캐시 삭제
-        getTopSellingProductsUseCase.evictTopSellingProductsCache();
-        assertThat(cacheManager.getCache("CACHE:topSellingProducts").get("last3Days")).isNull();
+        getTopSellingProductsUseCase.refreshCacheAtMidnight();
+        assertThat(cacheManager.getCache("CACHE:topSellingProducts").get("last3Days")).isNotNull();
     }
 
     @Test
