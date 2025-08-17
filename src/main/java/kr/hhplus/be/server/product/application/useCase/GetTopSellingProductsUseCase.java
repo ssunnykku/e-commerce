@@ -2,9 +2,9 @@ package kr.hhplus.be.server.product.application.useCase;
 
 import kr.hhplus.be.server.product.application.dto.TopSellingProduct;
 import kr.hhplus.be.server.product.infra.repository.port.OrderProductQRepository;
+import kr.hhplus.be.server.product.infra.repository.port.ProductCacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GetTopSellingProductsUseCase {
     private final OrderProductQRepository orderProductQRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final ProductCacheRepository productCacheRepository;
 
     private static final String CACHE_NAME = "CACHE:topSellingProducts";
     private static final String CACHE_KEY = "last3Days";
@@ -28,7 +28,8 @@ public class GetTopSellingProductsUseCase {
     public List<TopSellingProduct> execute() {
         // 캐시 조회
         String redisKey = CACHE_NAME + "::" + CACHE_KEY;
-        List<TopSellingProduct> cached = (List<TopSellingProduct>) redisTemplate.opsForValue().get(redisKey);
+
+        List<TopSellingProduct> cached = productCacheRepository.getTopSellingProducts(redisKey);
 
         if (cached != null) {
             return cached;
@@ -38,7 +39,7 @@ public class GetTopSellingProductsUseCase {
         log.info("Fetching from DB because cache is empty...");
         List<TopSellingProduct> result = orderProductQRepository.findTop5SellingProductsLast3Days();
 
-        redisTemplate.opsForValue().set(redisKey, result, TTL);
+        productCacheRepository.setTopSellingProducts(redisKey, result, TTL);
 
         return result;
     }
@@ -52,7 +53,7 @@ public class GetTopSellingProductsUseCase {
         String redisKey = CACHE_NAME + "::" + CACHE_KEY;
         List<TopSellingProduct> result = orderProductQRepository.findTop5SellingProductsLast3Days();
 
-        redisTemplate.opsForValue().set(redisKey, result, TTL);
+        productCacheRepository.setTopSellingProducts(redisKey, result, TTL);
 
         log.info("Cache refreshed with {} items", result.size());
     }

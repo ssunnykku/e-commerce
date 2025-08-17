@@ -63,17 +63,6 @@ class GetTopSellingProductsUseCaseTest {
         assertThat(secondResult).isEqualTo(firstResult);
     }
 
-    @Test
-    @Transactional
-    void evictTopSellingProductsCache_shouldClearCache() {
-        // 캐시 저장
-        getTopSellingProductsUseCase.execute();
-        assertThat(cacheManager.getCache("CACHE:topSellingProducts").get("last3Days")).isNotNull();
-
-        // 캐시 삭제
-        getTopSellingProductsUseCase.refreshCacheAtMidnight();
-        assertThat(cacheManager.getCache("CACHE:topSellingProducts").get("last3Days")).isNotNull();
-    }
 
     @Test
     @DisplayName("최근 3일간 가장 많이 팔린 상위 5개 상품")

@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class ProductRepositoryAdapter implements ProductRepository {
+public class ProductRepositoryImpl implements ProductRepository {
     private final ProductJpaRepository jpaRepository;
 
     @Override
