@@ -10,6 +10,9 @@ import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
 public class ProductStockService {
     private final ProductRepository productRepository;
     private final OrderRedisRepository orderRedisRepository;
+
+    private static final String CACHE_NAME = "CACHE:ranking:products:";
 
     public Long decreaseStockAndCalculatePrice(OrderRequest request) {
         // 1. 상품 재고 조회 (product)
@@ -98,8 +103,15 @@ public class ProductStockService {
         for (Map.Entry<Product, Integer> entry : productsWithQuantities.entrySet()) {
             Product product = entry.getKey();
             Integer quantity = entry.getValue();
+            String key = CACHE_NAME + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-            orderRedisRepository.increaseScore("topSellingProducts", product.getId(), quantity);
+            boolean existed = orderRedisRepository.keyExists(key);
+            orderRedisRepository.increaseScore(key, product.getId(), quantity);
+
+            if (!existed) {
+             // 당일 데이터는 다음날까지만 유지 (25시간)
+            orderRedisRepository.setExpire(key, Duration.ofHours(25));
+           }
         }
 
     }

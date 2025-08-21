@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class OrderProductQRepositoryImpl implements OrderProductQRepository {
+public class OrderProductQRepositoryAdapter implements OrderProductQRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
