@@ -4,7 +4,7 @@ package kr.hhplus.be.server.coupon.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
-import kr.hhplus.be.server.coupon.application.useCase.CreateCouponUseCase;
+import kr.hhplus.be.server.coupon.application.useCase.IssueCouponToUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,7 +29,7 @@ class CouponControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private CreateCouponUseCase createCouponUseCase;
+    private IssueCouponToUserUseCase issueCouponToUserUseCase;
 
     @InjectMocks
     private CouponController couponController;
@@ -44,7 +44,7 @@ class CouponControllerTest {
     }
 
     @Nested
-    @DisplayName("POST /coupons")
+    @DisplayName("POST /coupons/issue 사용자에게 쿠폰 발급")
     class IssueCoupon {
 
         @Test
@@ -54,11 +54,11 @@ class CouponControllerTest {
             CouponRequest request = new CouponRequest(1L, 10L);
             CouponResponse response = new CouponResponse(1L, 10L, 10L, null, null, false);
 
-            Mockito.when(createCouponUseCase.execute(any(CouponRequest.class)))
+            Mockito.when(issueCouponToUserUseCase.execute(any(CouponRequest.class)))
                     .thenReturn(response);
 
             // when & then
-            mockMvc.perform(post("/coupons")
+            mockMvc.perform(post("/coupons/issue")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -73,7 +73,7 @@ class CouponControllerTest {
             // 누락된 필드
             String invalidJson = "{ 'userId': null, 'couponTypeId': null }";
 
-            mockMvc.perform(post("/coupons")
+            mockMvc.perform(post("/coupons/issue")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(invalidJson))
                     .andExpect(status().isBadRequest());
@@ -84,7 +84,7 @@ class CouponControllerTest {
         void issueCouponInvalidJson() throws Exception {
             String invalidJson = "{ 'userId': 'string', 'couponTypeId': 10 }";
 
-            mockMvc.perform(post("/coupons")
+            mockMvc.perform(post("/coupons/issue")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(invalidJson))
                     .andExpect(status().isBadRequest());

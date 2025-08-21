@@ -1,10 +1,10 @@
-package kr.hhplus.be.server.coupon.infra.repositpry.adapter;
+package kr.hhplus.be.server.coupon.infra.repository.adapter;
 
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
-import kr.hhplus.be.server.coupon.infra.repositpry.CouponTypeJpaRepository;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
+import kr.hhplus.be.server.coupon.infra.repository.CouponTypeJpaRepository;
+import kr.hhplus.be.server.coupon.infra.repository.port.CouponTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
