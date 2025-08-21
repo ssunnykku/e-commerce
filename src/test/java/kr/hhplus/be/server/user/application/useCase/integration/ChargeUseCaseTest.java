@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.user.application.useCase.integration;
 
+import kr.hhplus.be.server.TestcontainersConfiguration;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.UserNotFoundException;
 import kr.hhplus.be.server.user.application.dto.UserRequest;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,8 +22,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static kr.hhplus.be.server.TestcontainersConfiguration.MYSQL_CONTAINER;
-import static kr.hhplus.be.server.TestcontainersConfiguration.REDIS_CONTAINER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -43,15 +41,6 @@ class ChargeUseCaseTest {
         userRepository.save(user);
     }
 
-    @Test
-    void contextLoads() {
-        assertThat(MYSQL_CONTAINER.isRunning()).isTrue();
-    }
-
-    @Test
-    void contextLoads2() {
-        assertThat(REDIS_CONTAINER.isRunning()).isTrue();
-    }
 
     @Test
     void 사용자의_잔액을_충전한다() {

@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.coupon.infra.repositpry.port;
+package kr.hhplus.be.server.coupon.infra.repository.port;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 
@@ -11,4 +11,5 @@ public interface CouponRepository {
     List<Coupon> saveAll(List<Coupon> coupons);
     Optional<Coupon> findById(long couponId);
     List<Coupon> findAll();
+    List<Coupon> findByCouponTypeId(long couponTypeId);
 }

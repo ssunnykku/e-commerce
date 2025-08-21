@@ -1,12 +1,11 @@
 package kr.hhplus.be.server.order.application.useCase;
 
-import kr.hhplus.be.server.TestcontainersConfiguration;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponTypeRepository;
+import kr.hhplus.be.server.coupon.infra.repository.port.CouponRepository;
+import kr.hhplus.be.server.coupon.infra.repository.port.CouponTypeRepository;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
