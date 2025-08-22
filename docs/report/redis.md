@@ -129,8 +129,8 @@ return rankings.stream()
 ### 2.3 쿠폰 발급 흐름 및 복구 전략 (`IssueCouponToUserUseCase`)
 사용자에게 쿠폰을 발급하는 핵심 유즈케이스로, Redis를 활용한 중복 방지 및 재고 관리, 그리고 DB 저장까지 트랜잭션 기반으로 처리
 #### `@DistributedLock`
-- 쿠폰 타입 단위로 락을 걸어 **동시성 제어**.
-- 동일 쿠폰 타입에 대해 여러 사용자가 동시에 요청할 경우, race condition 방지.
+- 쿠폰 타입 단위로 락을 걸어 **동시성 제어**
+- 동일 쿠폰 타입에 대해 여러 사용자가 동시에 요청할 경우, race condition 방지
 
 #### Redis 처리 흐름
 
@@ -138,8 +138,8 @@ return rankings.stream()
    ```java
    Long isIssued = couponRedisRepository.addSet(setKey, userId);
    ```
-    - Redis Set에 사용자 ID를 추가.
-    - 이미 존재하면 `0` 반환 → 중복 발급으로 간주.
+    - Redis Set에 사용자 ID를 추가
+    - 이미 존재하면 `0` 반환 → 중복 발급으로 간주
 
 2. **TTL 설정 (`expiryDate + 30일`)**
    ```java
@@ -147,8 +147,8 @@ return rankings.stream()
        couponRedisRepository.expire(setKey, ttl);
    }
    ```
-    - 쿠폰 유효기간 + 30일 동안 Redis 키 유지.
-    - TTL이 없을 경우에만 설정하여 불필요한 갱신 방지.
+    - 쿠폰 유효기간 + 30일 동안 Redis 키 유지
+    - TTL이 없을 경우에만 설정하여 불필요한 갱신 방지
 
 
 3. **중복일 경우 복구 처리**
@@ -159,16 +159,16 @@ return rankings.stream()
        throw USER_ALREADY_HAS_COUPON;
    }
    ```
-    - Redis Set에서 사용자 ID 제거.
-    - 재고를 다시 1 증가시켜 **정상 상태로 복구**.
+    - Redis Set에서 사용자 ID 제거
+    - 재고를 다시 1 증가시켜 **정상 상태로 복구**
 
 
 4. **재고 차감 (`HINCRBY`)**
    ```java
    Long newStock = couponRedisRepository.incrementHash(hashKey, "stock", -1);
    ```
-    - Redis Hash의 `"stock"` 필드를 -1 감소.
-    - 재고가 음수면 복구 후 예외 발생.
+    - Redis Hash의 `"stock"` 필드를 -1 감소
+    - 재고가 음수면 복구 후 예외 발생
 
 5. **재고 부족 시 복구**
    ```java
@@ -178,7 +178,7 @@ return rankings.stream()
        throw OUT_OF_STOCK;
    }
    ```
-    - 사용자 ID 제거 + 재고 복구.
+    - 사용자 ID 제거 + 재고 복구
     - DB 저장 이전 단계에서 처리되므로 **데이터 일관성 보장**.
 
 6. **DB 저장 및 응답 반환**
@@ -187,7 +187,7 @@ return rankings.stream()
     return CouponResponse.from(...);
     ```
 - Redis 처리 후 DB에 쿠폰 저장.
-- 트랜잭션 내에서 처리되므로 Redis와 DB 간 상태 불일치 방지.
+- 트랜잭션 내에서 처리되므로 Redis와 DB 간 상태 불일치 방지
 
 ### 2.4 CouponTypeCreateUseCase
 ```java
@@ -218,21 +218,25 @@ public CouponTypeResponse execute(CouponTypeRequest req) {
 
 ### 3.1 자료구조 선택 이유
 
-- **Set**: 중복 체크의 O(1) 원자성 보장,  사용자 중복 발급 방지
+- **Set**: 사용자 중복 발급 방지
 - **Hash**: 쿠폰 재고 관리, 만료일, 할인율 저장
 - **ZSet**: 스코어 기반 상품 판매량 랭킹 집계
 
 ### 3.2 TTL & 캐싱 패턴
 - **인기상품 랭킹**(Top N 캐시)
-  - 일별 TTL 25시간, Top N 캐시 1일: 인기 상품을 계산하기 위한 데이터는 빠르게 삭제하여 레디스의 성능 보호??
+  - 일별 TTL 25시간, Top N 캐시 1일: 인기 상품을 계산하기 위한 데이터는 빠르게 삭제하여 메모리 효율 향상
   - - **패턴**: Look-Aside + Cache Warming (스케줄러)
 - **쿠폰**
   - 만료일 + 30일 → Buffer 확보
   - EXPIRE로 Redis 키 만료
 
 ### 3.3 원자성 & 복구
-- `SADD`, `HINCRBY` 등 Redis 원자 연산 활용
-- 예외 발생 시 `SREM`, `HINCRBY stock +1`로 복구
+- 예외 발생 시 `SREM`, `HINCRBY` 등 Redis 원자 연산 활용하여 복구
+  - `SREM order:completed`: 잘못 추가된 상품 ID 제거
+  - `HINCRBY stock:{productId} +quantity`: 차감했던 재고 복구
+  - 정합성 유지, 예외 발생 시 빠르게 상태를 복구
+
+
 
 ---
 
