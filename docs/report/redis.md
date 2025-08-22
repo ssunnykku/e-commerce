@@ -247,8 +247,7 @@ Redis 자료구조는 목적에 맞게 선택해야 유지·운영 편의성이 
 - Cache Warming + Look-Aside 패턴을 통해 실시간성과 일관성을 동시에 확보
 - 동시성 환경에서 Lock + TransactionTemplate + Redis 복구 로직으로 안정적인 쿠폰 발급 구현
   
-
-  초기에는 Redis List 기반 대기열을 고려했지만, 다음 이유로 제외했습니다:
+초기에는 Redis List 기반 대기열을 고려했지만, 다음 이유로 제외했습니다:
 - Redis 자체가 초당 수만 TPS를 처리 가능
 - Set + Hash만으로 충분한 성능 확보
 - 즉시 발급 구조가 더 간결하고 운영 부담이 적음
