@@ -71,6 +71,8 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter:1.19.0")
 	implementation("org.redisson:redisson-spring-boot-starter:3.37.0")
 
+	// Jackson (for JSON serialization)
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 }
 
 tasks.withType<Test> {
