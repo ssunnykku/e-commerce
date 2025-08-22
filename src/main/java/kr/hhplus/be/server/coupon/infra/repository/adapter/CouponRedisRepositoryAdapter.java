@@ -14,7 +14,7 @@ import java.util.Map;
 @Repository
 @RequiredArgsConstructor
 public class CouponRedisRepositoryAdapter implements CouponRedisRepository {
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void removeKey(String key) {
@@ -23,7 +23,7 @@ public class CouponRedisRepositoryAdapter implements CouponRedisRepository {
 
     @Override
     public Long addSet(String key, List<String> values) {
-        return redisTemplate.opsForSet().add(key, values);
+        return redisTemplate.opsForSet().add(key, String.valueOf(values));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class CouponRedisRepositoryAdapter implements CouponRedisRepository {
 
     @Override
     public void putHash(String key, String field, Object value) {
-        log.info("putHash 호출됨: key={}, field={}, value={}", key, field, value);
+        log.debug("putHash 호출됨: key={}, field={}, value={}", key, field, value);
         redisTemplate.opsForHash().put(key, field, String.valueOf(value));
     }
 

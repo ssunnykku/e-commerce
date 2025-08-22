@@ -21,6 +21,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.ArrayList;
@@ -294,11 +296,12 @@ class OrderUseCaseTest {
 
     @Test
     @DisplayName("동시에 500원 차감 (요청 2)")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 사용자_동시성_테스트2() throws Exception {
         // given
         int tryCount = 2;
-        ExecutorService executorService = Executors.newFixedThreadPool(2); // 스레드 풀 생성
-        CountDownLatch latch = new CountDownLatch(tryCount); // CountDownLatch 생성
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(tryCount);
 
         User user = User.of("sun", 1000L);
         User saveUser = userRepository.save(user);
@@ -307,10 +310,10 @@ class OrderUseCaseTest {
 
         AtomicInteger successCount = new AtomicInteger();
         AtomicInteger failCount = new AtomicInteger();
+
         List<OrderRequest.OrderItemRequest> orderItemList = List.of(
                 OrderRequest.OrderItemRequest.of(product.getId(), 1)
         );
-
 
         OrderRequest request = OrderRequest.of(
                 saveUser.getUserId(),
@@ -324,13 +327,12 @@ class OrderUseCaseTest {
             executorService.submit(() -> {
                 try {
                     orderUseCase.execute(request);
-                    successCount.incrementAndGet(); // 성공
+                    successCount.incrementAndGet();
                 } catch (Exception e) {
-                    log.error(e.getMessage());
-                    failCount.incrementAndGet(); // 실패
+                    log.error("예외 발생: {}", e.getMessage());
+                    failCount.incrementAndGet();
                 } finally {
                     latch.countDown();
-
                 }
             });
         }
