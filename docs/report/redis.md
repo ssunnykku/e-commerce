@@ -181,7 +181,7 @@ return rankings.stream()
     - 사용자 ID 제거 + 재고 복구.
     - DB 저장 이전 단계에서 처리되므로 **데이터 일관성 보장**.
 
-6. DB 저장 및 응답 반환
+6. **DB 저장 및 응답 반환**
     ```java
     Coupon savedCoupon = couponRepository.save(coupon);
     return CouponResponse.from(...);
