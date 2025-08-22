@@ -242,7 +242,6 @@ public CouponTypeResponse execute(CouponTypeRequest req) {
 
 ### 4. 회고
 Redis 자료구조는 목적에 맞게 선택해야 유지·운영 편의성이 높다는 것을 알게 되었습니다. 
-특히 병목 지점을 파악하고 Redis의 자료구조를 이용하여 설계한 후 개발하는 과정을 통해 설계의 중요성을 다시 느낄 수 있었습니다.
 
 이번 과제에서 중점을 둔 부분은 다음과 같습니다:
 - Cache Warming + Look-Aside 패턴을 통해 실시간성과 일관성을 동시에 확보
