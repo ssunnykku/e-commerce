@@ -7,6 +7,8 @@ import java.time.Duration;
 import java.util.List;
 
 public interface ProductRedisRepository {
+    void deleteAll();
+    void addToZSet(String key, String member, double score);
     List<TopSellingProduct> getTopSellingProducts(String key);
     void setTopSellingProducts(String key, List<TopSellingProduct> products, Duration ttl);
     // 3일치 합산
