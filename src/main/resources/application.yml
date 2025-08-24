@@ -11,6 +11,14 @@ spring:
       connection-timeout: 10000
       max-lifetime: 1800000
     driver-class-name: com.mysql.cj.jdbc.Driver
+  redisson:
+    address: redis://localhost:6379
+
+  data:
+    redis:
+      port: 6379
+      host: localhost
+
   jpa:
     open-in-view: false
     generate-ddl: false
@@ -25,7 +33,11 @@ spring:
     level:
       org.hibernate.SQL: DEBUG
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-
+  docker:
+    compose:
+      services:
+        - mysql
+        - redis
 
 logging:
   level:
@@ -45,9 +57,13 @@ spring.config.activate.on-profile: local, test
 
 spring:
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
     username: application
     password: application
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQLDialect
 
   redisson:
     address: redis://localhost:6379

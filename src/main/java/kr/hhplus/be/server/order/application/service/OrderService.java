@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.order.application.service;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
+import kr.hhplus.be.server.coupon.infra.repository.port.CouponRepository;
 import kr.hhplus.be.server.order.application.dto.OrderInfo;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.PaymentTarget;
@@ -11,7 +11,6 @@ import kr.hhplus.be.server.order.domain.entity.OrderStatus;
 import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
-import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,4 +89,5 @@ public class OrderService {
 
         orderDataPublisher.publish(orderInfo);
     }
+
 }

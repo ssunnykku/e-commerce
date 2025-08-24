@@ -1,8 +1,8 @@
-package kr.hhplus.be.server.coupon.infra.repositpry.adapter;
+package kr.hhplus.be.server.coupon.infra.repository.adapter;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
-import kr.hhplus.be.server.coupon.infra.repositpry.CouponJpaRepository;
-import kr.hhplus.be.server.coupon.infra.repositpry.port.CouponRepository;
+import kr.hhplus.be.server.coupon.infra.repository.CouponJpaRepository;
+import kr.hhplus.be.server.coupon.infra.repository.port.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -38,5 +38,10 @@ public class CouponRepositoryAdapter implements CouponRepository {
     @Override
     public List<Coupon> findAll() {
         return jpaRepository.findAll();
+    }
+
+    @Override
+    public List<Coupon> findByCouponTypeId(long couponTypeId) {
+        return jpaRepository.findByCouponTypeId(couponTypeId);
     }
 }

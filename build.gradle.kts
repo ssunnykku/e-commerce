@@ -31,15 +31,15 @@ dependencyManagement {
 }
 
 dependencies {
-    // Spring
+	// Spring
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-    // DB
+	// DB
 	runtimeOnly("com.mysql:mysql-connector-j")
 
-    // Test
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+	// Test
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
@@ -71,6 +71,8 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter:1.19.0")
 	implementation("org.redisson:redisson-spring-boot-starter:3.37.0")
 
+	// Jackson (for JSON serialization)
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 }
 
 tasks.withType<Test> {

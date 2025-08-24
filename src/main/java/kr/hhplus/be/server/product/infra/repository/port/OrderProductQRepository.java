@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.product.infra.repository.port;
 
-import kr.hhplus.be.server.product.application.dto.TopSellingProductDto;
+import kr.hhplus.be.server.product.application.dto.TopSellingProduct;
 
 import java.util.List;
 
 public interface OrderProductQRepository {
-    List<TopSellingProductDto> findTop5SellingProductsLast3Days();
+    List<TopSellingProduct> findTop5SellingProductsLast3Days();
 }

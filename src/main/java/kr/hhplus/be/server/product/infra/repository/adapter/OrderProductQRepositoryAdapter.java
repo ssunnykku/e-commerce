@@ -3,7 +3,7 @@ package kr.hhplus.be.server.product.infra.repository.adapter;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.hhplus.be.server.order.domain.entity.QOrderProduct;
-import kr.hhplus.be.server.product.application.dto.TopSellingProductDto;
+import kr.hhplus.be.server.product.application.dto.TopSellingProduct;
 import kr.hhplus.be.server.product.domain.entity.QProduct;
 import kr.hhplus.be.server.product.infra.repository.port.OrderProductQRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,18 +14,18 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class OrderProductQRepositoryImpl implements OrderProductQRepository {
+public class OrderProductQRepositoryAdapter implements OrderProductQRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<TopSellingProductDto> findTop5SellingProductsLast3Days() {
+    public List<TopSellingProduct> findTop5SellingProductsLast3Days() {
         QOrderProduct orderProduct = QOrderProduct.orderProduct;
         QProduct product = QProduct.product;
 
         return queryFactory
                 .select(
                         Projections.constructor(
-                                TopSellingProductDto.class,
+                                TopSellingProduct.class,
                                 orderProduct.productId,
                                 product.name,
                                 product.price,

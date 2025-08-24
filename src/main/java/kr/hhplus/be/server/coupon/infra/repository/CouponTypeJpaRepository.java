@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.coupon.infra.repositpry;
+package kr.hhplus.be.server.coupon.infra.repository;
 
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.user.application.useCase.integration;
 
+import kr.hhplus.be.server.TestcontainersConfiguration;
 import kr.hhplus.be.server.user.application.dto.UserResponse;
 import kr.hhplus.be.server.user.application.useCase.GetUserUseCase;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
