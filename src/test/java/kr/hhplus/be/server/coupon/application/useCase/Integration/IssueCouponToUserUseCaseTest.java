@@ -11,7 +11,6 @@ import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -34,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IssueCouponToUserUseCaseTest {
     @Autowired
     private CouponTypeRepository couponTypeRepository;
