@@ -78,7 +78,6 @@ public class OrderService {
         orderProductRepository.saveAll(orderProductList);
     }
 
-
     private void publishOrderInfo(Order order, Coupon coupon) {
         OrderInfo orderInfo = null;
         if (coupon == null) {
