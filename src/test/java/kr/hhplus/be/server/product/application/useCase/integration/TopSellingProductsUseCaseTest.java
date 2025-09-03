@@ -14,8 +14,6 @@ import org.springframework.context.annotation.Import;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +34,7 @@ class TopSellingProductsUseCaseTest {
     private TopSellingProductsUseCase topSellingProductsUseCase;
 
     private static final String DAILY_RANKING_PREFIX = "CACHE:ranking:products:";
-    private static final String UNION_KEY = DAILY_RANKING_PREFIX + "3days" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    private static final String UNION_KEY = DAILY_RANKING_PREFIX + "3days20250822";
     private static final String TOP_SELLING_KEY = "CACHE:topSellingProducts::last3Days";
 
     @BeforeEach
@@ -77,7 +75,7 @@ class TopSellingProductsUseCaseTest {
         // when
         List<TopSellingProduct> result = topSellingProductsUseCase.execute();
 
-        // then
+        // 검증
         assertThat(result).hasSize(5);
         assertThat(result.get(0).productId()).isNotNull();
         assertThat(result.get(0).totalQuantity()).isEqualTo(50);

@@ -40,7 +40,7 @@ public class CreateCouponTypeUseCase {
         Duration ttl = Duration.between(now, expiryDate.plusMonths(1));
 
         Map<String, Object> values = new HashMap<>();
-        values.put("expiry_date", String.valueOf(expiryDate.toString()));
+        values.put("expiry_date", String.valueOf(expiryDate));
         values.put("discount_rate", String.valueOf(couponType.getDiscountRate()));
         values.put("stock", String.valueOf(couponType.getQuantity()));
 
