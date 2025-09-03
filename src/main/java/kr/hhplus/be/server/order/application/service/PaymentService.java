@@ -10,7 +10,10 @@ import kr.hhplus.be.server.user.infra.reposistory.port.BalanceHistoryRepository;
 import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ public class PaymentService {
         user.use(finalPaymentPrice);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public UserBalanceHistory recordHistory(Long userId, Long amount) {
         UserBalanceHistory history = UserBalanceHistory.of(userId, amount, BalanceType.PURCHASE.getCode());
         return balanceHistoryRepository.save(history);

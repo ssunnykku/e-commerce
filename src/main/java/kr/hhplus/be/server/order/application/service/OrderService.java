@@ -12,8 +12,11 @@ import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
