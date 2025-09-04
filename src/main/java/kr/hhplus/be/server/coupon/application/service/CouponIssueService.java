@@ -18,19 +18,18 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class CouponIssueService {
     private final CouponTypeRepository couponTypeRepository;
-    private final CouponRepository couponRepository;
     private final UserRepository userRepository;
 
-    public Coupon issue(CouponType couponType, Long userId, LocalDate expiresAt) {
+    public Coupon createCouponForUser(Long couponTypeId, Long userId, LocalDate expiresAt) {
+        CouponType couponType = couponTypeRepository.findById(couponTypeId);
         Coupon coupon = couponType.issueTo(userId);
         coupon.of(expiresAt);
-       // Coupon savedCoupon = couponRepository.save(coupon);
         return coupon;
     }
 
-    public CouponType findCouponType(CouponRequest request) {
-        userRepository.findById(request.userId());
-        CouponType couponType = couponTypeRepository.findById(request.couponTypeId());
+    public CouponType findCouponType(Long userId, Long couponTypeId) {
+        userRepository.findById(userId);
+        CouponType couponType = couponTypeRepository.findById(couponTypeId);
         return couponType;
     }
 

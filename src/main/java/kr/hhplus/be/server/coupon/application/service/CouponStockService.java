@@ -29,6 +29,10 @@ public class CouponStockService {
         Long isIssued = couponRedisRepository.addSet(setKey, String.valueOf(userId));
         log.debug("중복 확인: key={}, userId={}, result={}", setKey, userId, isIssued);
 
+        if (isIssued == 0) {
+            throw new InvalidRequestException(ErrorCode.USER_ALREADY_HAS_COUPON);
+        }
+
         LocalDateTime expiryDate = LocalDateTime.now().plusDays(couponType.getValidDays());
         Duration ttl = Duration.between(LocalDateTime.now(), expiryDate.plusDays(30));
 
@@ -38,12 +42,6 @@ public class CouponStockService {
 
         if (!couponRedisRepository.hasTTL(hashKey)) {
             couponRedisRepository.expire(hashKey, ttl);
-        }
-
-        if (isIssued == 0) {
-            couponRedisRepository.removeSet(setKey, String.valueOf(userId));
-            couponRedisRepository.incrementHash(hashKey, "stock", 1L);
-            throw new InvalidRequestException(ErrorCode.USER_ALREADY_HAS_COUPON);
         }
 
         // 재고 차감
