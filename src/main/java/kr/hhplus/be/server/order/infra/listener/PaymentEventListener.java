@@ -1,22 +1,28 @@
 package kr.hhplus.be.server.order.infra.listener;
 
-import kr.hhplus.be.server.order.domain.event.PaymentCompletedEvent;
-import kr.hhplus.be.server.order.infra.client.AlertTalkClientImpl;
+import kr.hhplus.be.server.order.domain.event.OrderCreatedEvent;
+import kr.hhplus.be.server.order.infra.client.AlertTalkClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentEventListener {
 
-    private final AlertTalkClientImpl alertTalkClient;
+    private final AlertTalkClient alertTalkClient;
 
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handle(PaymentCompletedEvent event) {
-        alertTalkClient.sendAlertTalk(event.getUserId(), "결제가 완료되었습니다!");
+    @KafkaListener(
+            topics = "trace-topic",
+            groupId = "alert-talk-sender-group",
+            containerFactory = "kafkaListenerContainerFactory",
+            concurrency = "3"
+
+    )
+    public void handle(OrderCreatedEvent event) {
+        log.info("결제 이벤트 수신: userId={}, orderId={}", event.orderInfo().userId(), event.orderInfo().orderId());
+        alertTalkClient.sendAlertTalk(event.orderInfo(), "결제가 완료되었습니다");
     }
 }

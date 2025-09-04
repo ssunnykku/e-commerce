@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.application.useCase;
 
+import kr.hhplus.be.server.KafkaTestcontainersConfiguration;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
@@ -40,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, KafkaTestcontainersConfiguration.class})
 class OrderUseCaseTest {
     @Autowired
     private OrderUseCase orderUseCase;

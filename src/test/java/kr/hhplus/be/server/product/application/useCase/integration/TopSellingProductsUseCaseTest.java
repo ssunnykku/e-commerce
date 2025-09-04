@@ -46,10 +46,10 @@ class TopSellingProductsUseCaseTest {
         List<Product> products = IntStream.rangeClosed(1, 5)
                 .mapToObj(i -> Product.of("상품 " + i, 1000L * i, 10L * i))
                 .collect(Collectors.toList());
-
         productRepository.saveAll(products);
 
-        // 2. Redis에 랭킹 데이터 삽입 (productId -> score)
+        // 2. Redis 랭킹 데이터 삽입 (get3DaysRankingKey 사용)
+        String unionKey = topSellingProductsUseCase.get3DaysRankingKey();
         Map<Long, Double> productScores = Map.of(
                 products.get(0).getId(), 50.0,
                 products.get(1).getId(), 40.0,
@@ -59,11 +59,11 @@ class TopSellingProductsUseCaseTest {
         );
 
         productScores.forEach((productId, score) ->
-                productRedisRepository.addToZSet(UNION_KEY, String.valueOf(productId), score)
+                productRedisRepository.addToZSet(unionKey, String.valueOf(productId), score)
         );
 
         // 3. TTL 설정
-        productRedisRepository.setExpire(UNION_KEY, Duration.ofHours(25));
+        productRedisRepository.setExpire(unionKey, Duration.ofHours(25));
     }
 
     @Test
