@@ -1,30 +1,20 @@
 package kr.hhplus.be.server.coupon.application.useCase;
 
 import kr.hhplus.be.server.common.aop.DistributedLock;
-import kr.hhplus.be.server.common.exception.ErrorCode;
-import kr.hhplus.be.server.common.exception.InvalidRequestException;
 import kr.hhplus.be.server.coupon.application.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.application.dto.CouponResponse;
 import kr.hhplus.be.server.coupon.application.service.CouponIssueService;
 import kr.hhplus.be.server.coupon.application.service.CouponQueueService;
 import kr.hhplus.be.server.coupon.application.service.CouponStockService;
-import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.entity.CouponType;
-import kr.hhplus.be.server.coupon.infra.repository.port.CouponRedisRepository;
-import kr.hhplus.be.server.coupon.infra.repository.port.CouponRepository;
-import kr.hhplus.be.server.coupon.infra.repository.port.CouponTypeRepository;
-import kr.hhplus.be.server.user.infra.reposistory.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Slf4j
 @Service

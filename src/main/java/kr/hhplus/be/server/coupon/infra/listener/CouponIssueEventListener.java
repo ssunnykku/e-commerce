@@ -21,20 +21,19 @@ public class CouponIssueEventListener {
             topics = "coupon-topic",
             groupId = "coupon-queue-group",
             containerFactory = "kafkaListenerContainerFactory",
-            concurrency = "2"
-
+            concurrency = "3"
     )
     public void handle(CouponIssueEvent event, Acknowledgment ack) {
         try {
         Coupon coupon = couponIssueService.createCouponForUser(event.couponInfo().couponTypeId(),event.couponInfo().userId(), event.couponInfo().expiresAt());
         log.debug("쿠폰 저장 완료: couponId={}, userId={}", coupon.getId(), coupon.getUserId());
-            ack.acknowledge(); // 처리 성공 후 오프셋 커밋
+            ack.acknowledge();
         }catch (DataIntegrityViolationException e) {
             log.warn("중복 쿠폰 요청 무시: {}", event.couponInfo().couponTypeId());
-            ack.acknowledge(); // 중복은 성공 처리 취급 후 커밋 가능
+            ack.acknowledge();
         } catch (Exception e) {
             log.error("쿠폰 처리 실패", e);
-            throw e; // 에러 발생 → 트랜잭션 롤백 및 DLQ 이동
+            throw e;
         }
     }
 }
