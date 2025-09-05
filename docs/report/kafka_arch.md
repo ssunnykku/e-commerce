@@ -1,4 +1,4 @@
-## Kafka 기반 결제 및 쿠폰 발급 시스템 설계 문서
+## Kafka 기반 외부데이터 전송 및 쿠폰 발급 시스템 설계 문서
 
 ### 1. 개요
 
@@ -47,45 +47,7 @@ kafka:
       retries: 3
   consumer:
     auto-offset-reset: earliest
-    enable-auto-commit: false
-    group-id: default-group
-    key-deserializer: StringDeserializer
-    value-deserializer: JsonDeserializer
-    properties:
-      spring.json.trusted.packages: "*"
-      fetch.min.bytes: 50000
-      fetch.max.bytes: 52428800
-      max.poll.records: 1000
-  listener:
-    ack-mode: manual
-    concurrency: 3
-```
-
-* **replicas**: 메시지 안정성을 위해 3개의 브로커에 복제
-* **acks=all & min.insync.replicas=2**: 모든 ISR에 메시지가 기록되어야 전송 성공 처리
-* **idempotence**: 중복 메시지 방지
-* **listener concurrency**: 병렬 소비자 3개
-
----
-
-### 4. Kafka 토픽 설계
-
-```java
-@Bean
-public NewTopic orderPaymentTopic() { ... } // trace-topic
-@Bean
-public NewTopic couponIssueTopic() { ... } // coupon-topic
-@Bean
-public NewTopic dlqTopic() { ... } // DLQ-topic
-```
-
-* **partitions=3**: 병렬 처리와 성능 향상
-* **replicas=3**: 장애 대비 데이터 복제
-* **DLQ-topic**: 처리 실패 시 메시지 저장
-
----
-
-### 5. 결제 이벤트 시퀀스 다이어그램
+    ena송 이벤트 시퀀스 다이어그램
 
 ```mermaid
 sequenceDiagram
