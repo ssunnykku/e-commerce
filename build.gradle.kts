@@ -59,11 +59,6 @@ dependencies {
 	implementation("org.springframework.retry:spring-retry:1.3.3")
 	implementation("org.springframework:spring-aspects:5.3.22")
 
-	// queryDSL
-	annotationProcessor("jakarta.persistence:jakarta.persistence-api:3.1.0")
-	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-	annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
-
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
 	implementation("org.glassfish:jakarta.el:4.0.2")
@@ -72,7 +67,17 @@ dependencies {
 	implementation("org.redisson:redisson-spring-boot-starter:3.37.0")
 
 	// Jackson (for JSON serialization)
-	implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+	implementation("com.fasterxml.jackson.module:jackson-module-scala_2.13:2.18.2")
+
+	// kafka
+	implementation("org.springframework.kafka:spring-kafka")
+	testImplementation("org.springframework.kafka:spring-kafka-test")
+
+	testImplementation("org.testcontainers:kafka:1.19.0")
+	testImplementation("org.springframework.kafka:spring-kafka-test")
+
+
 }
 
 tasks.withType<Test> {

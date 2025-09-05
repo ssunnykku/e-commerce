@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.order.application.service;
 
+import kr.hhplus.be.server.order.domain.vo.OrderInfo;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.domain.entity.OrderStatus;
-import kr.hhplus.be.server.order.infra.publish.PaymentEventPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import kr.hhplus.be.server.user.domain.entity.BalanceType;
 import kr.hhplus.be.server.user.domain.entity.User;
@@ -22,7 +22,6 @@ public class PaymentService {
     private final BalanceHistoryRepository balanceHistoryRepository;
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final PaymentEventPublisher paymentEventPublisher;
 
     @Transactional
     public void pay(Long orderId,Long userId, Long finalPaymentPrice) {
@@ -34,9 +33,8 @@ public class PaymentService {
         // 2. 주문 상태 변경
         updateOrderStatus(orderId, OrderStatus.PAYED);
 
-        // 3. 결제 완료 알림톡 발송
-        paymentEventPublisher.publishPaymentCompleted(user.getUserId(), orderId, finalPaymentPrice);
-
+        // 3. 메세지 발행
+         publishOrderInfo(orderId);
     }
 
     public User findUser(Long userId) {
@@ -58,6 +56,19 @@ public class PaymentService {
         order.updateStatus(status.getCode());
         orderRepository.save(order);
 
+    }
+
+    private void publishOrderInfo(Long orderId) {
+        Order order = orderRepository.findById(orderId);
+        OrderInfo orderInfo = OrderInfo.from(
+                order.getId(),
+                order.getUserId(),
+                order.getTotalAmount(),
+                order.getDiscountAmount(),
+                order.getOrderDate(),
+                order.getCouponId());
+
+        applicationEventPublisher.publishEvent(orderInfo);
     }
 
 }

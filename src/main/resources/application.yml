@@ -13,6 +13,40 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   redisson:
     address: redis://localhost:6379
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true # → Kafka 프로듀서 멱등 모드 활성화
+        min.insync.replicas=2:
+        retries: 3      # 실패 시 재시도
+    admin:
+      auto-create: true
+      fail-fast: false
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      group-id: default-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+        # 성능 및 안정성 관련 설정
+        fetch.min.bytes: 50000           # 최소 50KB 이상일 때 가져옴
+        fetch.max.bytes: 52428800        # 최대 50MB까지 가져옴
+        fetch.max.wait.ms: 500           # 데이터 없을 때 최대 500ms 대기
+        max.poll.records: 1000           # 한 번에 최대 1000건 처리
+        heartbeat.interval.ms: 3000      # 3초마다 브로커에 생존 알림
+        session.timeout.ms: 10000        # 10초 동안 응답 없으면 죽은 것으로 간주
+        request.timeout.ms: 30000        # 네트워크 요청 타임아웃 30초
+        max.poll.interval.ms: 300000     # poll 간 최대 간격 5분
+    listener:
+      ack-mode: manual                 # 수동 커밋
+      concurrency: 3
 
   data:
     redis:
@@ -35,9 +69,13 @@ spring:
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   docker:
     compose:
+      file:
+        - ./docker/docker-compose.yml
+        - ./docker/docker-compose-kafka.yml
       services:
         - mysql
         - redis
+        - kafka
 
 logging:
   level:

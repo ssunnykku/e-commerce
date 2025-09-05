@@ -41,7 +41,7 @@ public class TopSellingProductsUseCase {
         return DAILY_RANKING_PREFIX + date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 
-    String get3DaysRankingKey() {
+    public String get3DaysRankingKey() {
         return DAILY_RANKING_PREFIX + "3days" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 
