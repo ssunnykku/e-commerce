@@ -58,7 +58,7 @@ spring:
     show-sql: true
     hibernate:
       format_sql: true
-      ddl-auto: validate
+      ddl-auto: create-drop
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
