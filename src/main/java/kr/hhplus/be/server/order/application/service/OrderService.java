@@ -2,13 +2,11 @@ package kr.hhplus.be.server.order.application.service;
 
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.infra.repository.port.CouponRepository;
-import kr.hhplus.be.server.order.application.dto.OrderInfo;
 import kr.hhplus.be.server.order.application.dto.OrderRequest;
 import kr.hhplus.be.server.order.application.dto.PaymentTarget;
 import kr.hhplus.be.server.order.domain.entity.Order;
 import kr.hhplus.be.server.order.domain.entity.OrderProduct;
 import kr.hhplus.be.server.order.domain.entity.OrderStatus;
-import kr.hhplus.be.server.order.infra.publish.OrderDataPublisher;
 import kr.hhplus.be.server.order.infra.repository.port.OrderProductRepository;
 import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +23,6 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
 
-    private final OrderDataPublisher orderDataPublisher;
-
     @Transactional
     public PaymentTarget order(OrderRequest request, Long finalPaymentPrice) {
         // 1. 쿠폰 조회
@@ -42,7 +38,7 @@ public class OrderService {
         saveOrderProducts(request, order); // 주문 상품 저장
 
         // 3. 주문 정보 외부 발행
-        publishOrderInfo(order, coupon);
+        // publishOrderInfo(order, coupon);
 
         return PaymentTarget.from(order.getId(), order.getUserId(), finalPaymentPrice);
 
@@ -78,15 +74,6 @@ public class OrderService {
         orderProductRepository.saveAll(orderProductList);
     }
 
-    private void publishOrderInfo(Order order, Coupon coupon) {
-        OrderInfo orderInfo = null;
-        if (coupon == null) {
-            orderInfo = OrderInfo.from(order);
-        } else {
-            orderInfo = OrderInfo.from(order, coupon);
-        }
 
-        orderDataPublisher.publish(orderInfo);
-    }
 
 }

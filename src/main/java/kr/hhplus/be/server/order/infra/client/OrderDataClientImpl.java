@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.order.infra.client;
 
-import kr.hhplus.be.server.order.application.dto.OrderInfo;
+import kr.hhplus.be.server.order.domain.vo.OrderInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
