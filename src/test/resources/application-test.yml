@@ -5,3 +5,13 @@ spring:
       minimum-idle: 5
       idle-timeout: 10000
       connection-timeout: 30000
+  kafka:
+    consumer:
+      group-id: coupon-queue-group
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: kr.hhplus.be.server.order.domain.event.OrderCreatedEvent
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

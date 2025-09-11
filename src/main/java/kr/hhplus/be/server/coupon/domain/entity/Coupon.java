@@ -15,7 +15,7 @@ import java.time.LocalDate;
                 @UniqueConstraint(columnNames = {"user_id", "coupon_type_id"})
         }
 )
-@Data
+@Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder(access = AccessLevel.PROTECTED)
@@ -65,6 +65,7 @@ public class Coupon {
     public boolean isUsed() {
         return this.used == true;
     }
+
 
     public long discountPrice(long totalPrice) {
         if(this.discountRate != null) {
@@ -120,6 +121,12 @@ public class Coupon {
                 .expiresAt(expiresAt)
                 .used(used)
                 .discountRate(discountRate)
+                .build();
+    }
+
+    public static Coupon of(LocalDate expiresAt){
+        return Coupon.builder()
+                .expiresAt(expiresAt)
                 .build();
     }
 

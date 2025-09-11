@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.application.useCase;
 
+import kr.hhplus.be.server.KafkaTestcontainersConfiguration;
 import kr.hhplus.be.server.common.exception.ErrorCode;
 import kr.hhplus.be.server.common.exception.OutOfStockListException;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
@@ -23,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.util.ArrayList;
@@ -37,8 +39,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
 @SpringBootTest
-@Import(TestcontainersConfiguration.class)
+@ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Import({TestcontainersConfiguration.class, KafkaTestcontainersConfiguration.class})
 class OrderUseCaseTest {
     @Autowired
     private OrderUseCase orderUseCase;
