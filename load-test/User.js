@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const TOTAL_USERS = 1000;
+const TOTAL_USERS = 100;
 const BALANCE = 500000;
 
 const users = [];

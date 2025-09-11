@@ -2,21 +2,12 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { SharedArray } from 'k6/data';
 
-// 사용자 데이터
 const users = new SharedArray('users', () => JSON.parse(open('./users.json')));
 
-// TPS 선택
-const TPS_TARGET = __ENV.TPS || '770';
-
-let totalTPS, preAllocatedVUs, maxVUs;
-
-if (TPS_TARGET === '770') {
-    totalTPS = 770; preAllocatedVUs = 500; maxVUs = 1000;
-} else if (TPS_TARGET === '400') {
-    totalTPS = 400; preAllocatedVUs = 200; maxVUs = 600;
-} else {
-    throw new Error("환경변수 TPS는 '770' 또는 '400'이어야 합니다.");
-}
+// TPS 설정
+const totalTPS = 750;
+const preAllocatedVUs = 500;
+const maxVUs = 1000;
 
 export let options = {
     scenarios: {
@@ -31,9 +22,8 @@ export let options = {
     },
 };
 
-// 페이지네이션 설정
 const PRODUCT_PAGE_SIZE = 10;
-const TOTAL_PRODUCTS = 20000;
+const TOTAL_PRODUCTS = 500;
 const TOTAL_PAGES = Math.ceil(TOTAL_PRODUCTS / PRODUCT_PAGE_SIZE);
 
 export default function () {
