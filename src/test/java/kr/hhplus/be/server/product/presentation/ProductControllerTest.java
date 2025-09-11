@@ -55,14 +55,19 @@ class ProductControllerTest {
         @DisplayName("상품 리스트 조회 성공 시 200과 JSON 반환")
         void getProductListSuccess() throws Exception {
             // given
+            int page = 0;
+            int size = 2;
+
             List<ProductResponse> products = List.of(
                     new ProductResponse(1L, "상품A", 1000L, 10L),
                     new ProductResponse(2L, "상품B", 2000L, 20L)
             );
-            given(getProductListUseCase.execute()).willReturn(products);
+            given(getProductListUseCase.execute(page, size)).willReturn(products);
 
             // when & then
             mockMvc.perform(get("/products")
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size))
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
