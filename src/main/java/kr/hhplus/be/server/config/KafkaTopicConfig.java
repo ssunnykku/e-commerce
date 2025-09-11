@@ -12,7 +12,7 @@ public class KafkaTopicConfig {
     public NewTopic orderPaymentTopic() {
         return TopicBuilder.name("trace-topic")
                 .partitions(3)
-                .replicas(3)
+                .replicas(1)
                 .build();
     }
 
@@ -20,7 +20,7 @@ public class KafkaTopicConfig {
     public NewTopic couponIssueTopic() {
         return TopicBuilder.name("coupon-topic")
                 .partitions(3)
-                .replicas(3)
+                .replicas(1)
                 .build();
     }
 
@@ -28,7 +28,7 @@ public class KafkaTopicConfig {
     public NewTopic dlqTopic() {
         return TopicBuilder.name("DLQ-topic")
                 .partitions(3)
-                .replicas(3)
+                .replicas(1)
                 .build();
     }
 
