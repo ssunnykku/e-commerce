@@ -8,6 +8,8 @@ import kr.hhplus.be.server.coupon.infra.repository.port.CouponTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class CouponTypeRepositoryAdaptor implements CouponTypeRepository {
@@ -22,5 +24,15 @@ public class CouponTypeRepositoryAdaptor implements CouponTypeRepository {
     @Override
     public CouponType save(CouponType couponType) {
         return jpaRepository.save(couponType);
+    }
+
+    @Override
+    public List<CouponType> findAll() {
+        return jpaRepository.findAll();
+    }
+
+    @Override
+    public List<CouponType> saveAll(List<CouponType> couponTypes) {
+        return jpaRepository.saveAll(couponTypes);
     }
 }

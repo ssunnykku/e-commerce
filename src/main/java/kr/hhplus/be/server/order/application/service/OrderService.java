@@ -37,9 +37,6 @@ public class OrderService {
         Order order = saveOrder(coupon, request.userId(), finalPaymentPrice, request.discountAmount());
         saveOrderProducts(request, order); // 주문 상품 저장
 
-        // 3. 주문 정보 외부 발행
-        // publishOrderInfo(order, coupon);
-
         return PaymentTarget.from(order.getId(), order.getUserId(), finalPaymentPrice);
 
     }
