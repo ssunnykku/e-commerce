@@ -56,18 +56,13 @@ dependencies {
 	// docker
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
-	implementation("org.springframework.retry:spring-retry:1.3.3")
-	implementation("org.springframework:spring-aspects:5.3.22")
+	implementation("org.springframework.retry:spring-retry")
 
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
-	implementation("org.glassfish:jakarta.el:4.0.2")
-	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
-	testImplementation("org.testcontainers:junit-jupiter:1.19.0")
 	implementation("org.redisson:redisson-spring-boot-starter:3.37.0")
 
 	// Jackson (for JSON serialization)
-	implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
 	implementation("com.fasterxml.jackson.module:jackson-module-scala_2.13:2.18.2")
 
 	// kafka
@@ -75,7 +70,6 @@ dependencies {
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 
 	testImplementation("org.testcontainers:kafka:1.19.0")
-	testImplementation("org.springframework.kafka:spring-kafka-test")
 
 
 }
