@@ -59,7 +59,7 @@ dependencies {
 	implementation("org.springframework.retry:spring-retry")
 
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.redisson:redisson-spring-boot-starter:3.37.0")
 
 	// Jackson (for JSON serialization)
