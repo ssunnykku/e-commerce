@@ -53,10 +53,10 @@ public class ProductStockService {
 
         if (productList.size() != requestedQuantities.size()) {
             // 요청된 상품 ID 중 실제 존재하지 않는 상품이 있을 경우
-            List<Long> foundProductIds = productList.stream().map(Product::getId).collect(Collectors.toList());
+            List<Long> foundProductIds = productList.stream().map(Product::getId).toList();
             List<Long> notFoundProductIds = requestedQuantities.keySet().stream()
                     .filter(id -> !foundProductIds.contains(id))
-                    .collect(Collectors.toList());
+                    .toList();
             throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND, notFoundProductIds);
         }
 

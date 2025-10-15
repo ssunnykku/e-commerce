@@ -137,7 +137,7 @@ public class TopSellingProductsUseCase {
                     return null;
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

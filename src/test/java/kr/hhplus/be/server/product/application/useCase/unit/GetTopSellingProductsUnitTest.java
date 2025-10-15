@@ -47,7 +47,7 @@ class GetTopSellingProductsUnitTest {
                 ZSetOperations.TypedTuple.of((Object)"13", 80.0),
                 ZSetOperations.TypedTuple.of((Object)"2", 75.0),
                 ZSetOperations.TypedTuple.of((Object)"19", 20.0)
-        ).stream().collect(Collectors.toList());
+        ).stream().toList();
 
         // getData() 메서드가 Redis에서 데이터를 가져오는 것을 Mocking
         when(productCacheRepository.reverseRangeWithScores(any(String.class), any(Long.class), any(Long.class)))

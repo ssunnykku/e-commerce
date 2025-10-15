@@ -106,7 +106,7 @@ public class OrderSeeder implements CommandLineRunner {
                             randomOrderDate,
                             op.getStatus()
                     ))
-                    .collect(Collectors.toList());
+                    .toList();
 
             orderProductRepository.saveAll(orderProductList);
 

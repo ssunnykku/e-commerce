@@ -21,7 +21,7 @@ public class GetProductListUseCase {
 
         return productList.stream()
                 .map(product -> ProductResponse.from(product))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ProductResponse> execute() {
@@ -29,7 +29,7 @@ public class GetProductListUseCase {
 
         return productList.stream()
                 .map(product -> ProductResponse.from(product))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }
