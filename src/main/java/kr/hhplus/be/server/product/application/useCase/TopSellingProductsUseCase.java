@@ -6,6 +6,8 @@ import kr.hhplus.be.server.product.infra.repository.port.ProductRedisRepository;
 import kr.hhplus.be.server.product.infra.repository.port.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,10 +28,12 @@ import java.util.stream.Collectors;
 public class TopSellingProductsUseCase {
     private final ProductRedisRepository productRedisRepository;
     private final ProductRepository productRepository;
+    private final RedissonClient redissonClient;
 
     private static final String DAILY_RANKING_PREFIX = "CACHE:ranking:products:";
     private static final String TOP_SELLING_CACHE_NAME = "CACHE:topSellingProducts";
     private static final String TOP_SELLING_CACHE_KEY = "last3Days";
+    private static final String RANKING_SCHEDULER_LOCK_KEY = "LOCK:scheduler:topSellingRanking";
 
     private static final Duration TTL = Duration.ofDays(1); // 비즈니스 규칙: 하루 동안 유효
     private static final int TOP_N_COUNT = 5;
@@ -67,38 +72,55 @@ public class TopSellingProductsUseCase {
 
 
     // 매일 자정에 캐시 갱신
+    // 다중 인스턴스 환경에서 한 인스턴스만 실행하도록 분산 락으로 가드 (락 획득 실패 시 다른 인스턴스가 이미 처리 중이므로 조용히 스킵)
     @Scheduled(cron = "0 0 0 * * *")
     public void generateRanking() {
-        LocalDate today = LocalDate.now();
+        RLock lock = redissonClient.getLock(RANKING_SCHEDULER_LOCK_KEY);
+        boolean locked = false;
+        try {
+            locked = lock.tryLock(0, 5, TimeUnit.MINUTES);
+            if (!locked) {
+                log.info("다른 인스턴스가 랭킹 캐시 갱신을 이미 수행 중이므로 스킵합니다.");
+                return;
+            }
 
-        // 3일간의 키
-        List<String> dailyKeys = List.of(
-                getDailyRankingKey(today.minusDays(2)),
-                getDailyRankingKey(today.minusDays(1)),
-                getDailyRankingKey(today)
-        );
+            LocalDate today = LocalDate.now();
 
-        String unionKey = get3DaysRankingKey();
+            // 3일간의 키
+            List<String> dailyKeys = List.of(
+                    getDailyRankingKey(today.minusDays(2)),
+                    getDailyRankingKey(today.minusDays(1)),
+                    getDailyRankingKey(today)
+            );
 
-        // 집계, get3DaysRankingKey()로 저장
-        productRedisRepository.unionAndStore(
-                dailyKeys.get(0),    // 기준 키
-                dailyKeys.subList(1, dailyKeys.size()), // 나머지 키들
-                unionKey
-        );
+            String unionKey = get3DaysRankingKey();
 
-        // 3일치 합산 데이터는 25시간 유지
-        productRedisRepository.setExpire(unionKey, Duration.ofHours(25));
+            // 집계, get3DaysRankingKey()로 저장
+            productRedisRepository.unionAndStore(
+                    dailyKeys.get(0),    // 기준 키
+                    dailyKeys.subList(1, dailyKeys.size()), // 나머지 키들
+                    unionKey
+            );
 
-        List<TopSellingProduct> result = getData();
+            // 3일치 합산 데이터는 25시간 유지
+            productRedisRepository.setExpire(unionKey, Duration.ofHours(25));
 
-        if (!result.isEmpty()) {
-            productRedisRepository.setTopSellingProducts(getTopSellingKey(), result, TTL);
-            productRedisRepository.setExpire(getTopSellingKey(), Duration.ofDays(3));
+            List<TopSellingProduct> result = getData();
+
+            if (!result.isEmpty()) {
+                productRedisRepository.setTopSellingProducts(getTopSellingKey(), result, TTL);
+                productRedisRepository.setExpire(getTopSellingKey(), Duration.ofDays(3));
+            }
+
+            log.info("Cache refreshed with {} items", result.size());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("랭킹 캐시 갱신 락 획득 중 인터럽트 발생", e);
+        } finally {
+            if (locked && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
-
-        log.info("Cache refreshed with {} items", result.size());
-
     }
 
     private List<TopSellingProduct> getData() {
