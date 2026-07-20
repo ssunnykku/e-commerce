@@ -27,7 +27,7 @@ spring:
       auto-create: true
       fail-fast: false
     consumer:
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
       enable-auto-commit: false
       group-id: default-group
       key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
