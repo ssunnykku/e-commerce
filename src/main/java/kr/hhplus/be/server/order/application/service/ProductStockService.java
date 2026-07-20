@@ -27,7 +27,8 @@ public class ProductStockService {
 
     private static final String CACHE_NAME = "CACHE:ranking:products:";
 
-    public Long decreaseStockAndCalculatePrice(OrderRequest request) {
+    // Redis 랭킹 점수 갱신은 DB 트랜잭션 커밋 이후 별도로 호출한다 (updateProductScore 참고)
+    public StockDecreaseResult decreaseStockAndValidate(OrderRequest request) {
         // 1. 상품 재고 조회 (product)
         Map<Long, Integer> quantitiesOfProducts = getQuantitiesOfProducts(request.orderItems());
 
@@ -37,12 +38,15 @@ public class ProductStockService {
         Map<Product, Integer> productsWithQuantities = findAndValidateProducts(quantitiesOfProducts, productList);
 
         // 품절 상품 -> 예외 발생
-        List<Long> outOfStockProduct = findOutOfStockProduct(productList);
-
-        updateProductScore(productsWithQuantities);
+        findOutOfStockProduct(productList);
 
         // 3. 재고 차감, 상품 가격 계산
-        return decreaseStockAndCalculatePrice(productsWithQuantities);
+        long totalPrice = decreaseStockAndCalculatePrice(productsWithQuantities);
+
+        return new StockDecreaseResult(totalPrice, productsWithQuantities);
+    }
+
+    public record StockDecreaseResult(long totalPrice, Map<Product, Integer> productsWithQuantities) {
     }
 
     public List<Product> findProductsAll(Set<Long> productIds) {
