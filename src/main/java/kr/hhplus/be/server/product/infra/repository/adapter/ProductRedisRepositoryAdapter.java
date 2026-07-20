@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -58,7 +57,7 @@ public class ProductRedisRepositoryAdapter implements ProductRedisRepository {
 
             List<TopSellingProduct> products = rawList.stream()
                     .map(obj -> mapper.convertValue(obj, TopSellingProduct.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
             return products;
         }

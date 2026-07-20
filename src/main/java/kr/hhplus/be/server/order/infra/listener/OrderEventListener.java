@@ -1,8 +1,9 @@
 package kr.hhplus.be.server.order.infra.listener;
 
+import kr.hhplus.be.server.config.KafkaTopics;
+import kr.hhplus.be.server.order.application.service.OrderApiService;
 import kr.hhplus.be.server.order.domain.vo.OrderInfo;
 import kr.hhplus.be.server.order.domain.event.OrderCreatedEvent;
-import kr.hhplus.be.server.order.infra.client.OrderDataClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,11 +15,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderEventListener {
-
-    private final OrderDataClient orderDataClient;
+    private final OrderApiService orderApiService;
 
     @KafkaListener(
-            topics = "trace-topic",
+            topics = KafkaTopics.TRACE_TOPIC,
             groupId = "order-info-sender-group",
             containerFactory = "kafkaListenerContainerFactory",
             concurrency = "3"
@@ -27,7 +27,7 @@ public class OrderEventListener {
         try {
             OrderInfo orderInfo = event.orderInfo();
             log.info("결제 이벤트 수신: orderId={} orderDate={}", orderInfo.orderId(), orderInfo.orderDate());
-            orderDataClient.send(orderInfo);
+            orderApiService.sendOrderInfoAsync(orderInfo);
             ack.acknowledge();
         } catch (DataIntegrityViolationException e) {
             log.warn("중복 주문 정보 요청 무시: {}", event.orderInfo().orderId());

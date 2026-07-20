@@ -14,6 +14,8 @@ import org.redisson.RedissonMultiLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
@@ -66,10 +68,19 @@ public class OrderUseCase {
             // 3 트랜잭션 안에서 재고, 주문, 결제 처리
             return transactionTemplate.execute(status -> {
                 try {
-                    Long totalPrice = productStockService.decreaseStockAndCalculatePrice(request);
-                    PaymentTarget paymentTarget = orderService.order(request, totalPrice);
+                    ProductStockService.StockDecreaseResult stockResult = productStockService.decreaseStockAndValidate(request);
+                    PaymentTarget paymentTarget = orderService.order(request, stockResult.totalPrice());
                     log.debug(paymentTarget.toString());
                     paymentService.pay(paymentTarget.orderId(), paymentTarget.userId(), paymentTarget.finalPaymentPrice());
+
+                    // Redis 랭킹 점수 갱신은 DB 커넥션을 점유하지 않도록 커밋 이후에 수행
+                    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            productStockService.updateProductScore(stockResult.productsWithQuantities());
+                        }
+                    });
+
                     return OrderResponse.from(paymentTarget.orderId(), paymentTarget.userId());
                 } catch (Exception e) {
                     status.setRollbackOnly();

@@ -8,6 +8,7 @@ import kr.hhplus.be.server.order.infra.repository.port.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -29,5 +30,10 @@ public class OrderRepositoryAdapter implements OrderRepository {
     @Override
     public Order save(Order order) {
         return orderJpaRepository.save(order);
+    }
+
+    @Override
+    public List<Order> saveAll(List<Order> orders) {
+        return orderJpaRepository.saveAll(orders);
     }
 }

@@ -20,8 +20,15 @@ public class CouponStockService {
     private final String ISSUED_SET_KEY_PREFIX = "coupon:issued_users:";
     private final String STOCK_HASH_KEY_PREFIX = "coupon:stock:";
 
+    private static final int EXPIRY_EXTENSION_DAYS = 30;
+    private static final long STOCK_DECREMENT = -1L;
+    private static final long STOCK_INCREMENT = 1L;
+    private static final String STOCK_FIELD = "stock";
+
+
     @Transactional
     public void checkAndDecreaseStock(Long userId, CouponType couponType) {
+
         String setKey = ISSUED_SET_KEY_PREFIX + couponType.getId();
         String hashKey = STOCK_HASH_KEY_PREFIX + couponType.getId();
 
@@ -34,7 +41,7 @@ public class CouponStockService {
         }
 
         LocalDateTime expiryDate = LocalDateTime.now().plusDays(couponType.getValidDays());
-        Duration ttl = Duration.between(LocalDateTime.now(), expiryDate.plusDays(30));
+        Duration ttl = Duration.between(LocalDateTime.now(), expiryDate.plusDays(EXPIRY_EXTENSION_DAYS));
 
         if (!couponRedisRepository.hasTTL(setKey)) {
             couponRedisRepository.expire(setKey, ttl);
@@ -45,12 +52,12 @@ public class CouponStockService {
         }
 
         // 재고 차감
-        Long newStock = couponRedisRepository.incrementHash(hashKey, "stock", -1);
+        Long newStock = couponRedisRepository.incrementHash(hashKey, STOCK_FIELD, STOCK_DECREMENT);
         log.debug(">>>>>>>> 재고차감: {}", newStock);
 
         if (newStock == null || newStock < 0) {
             couponRedisRepository.removeSet(setKey, String.valueOf(userId));
-            couponRedisRepository.incrementHash(hashKey, "stock", 1L);
+            couponRedisRepository.incrementHash(hashKey, STOCK_FIELD, STOCK_INCREMENT);
             throw new InvalidRequestException(ErrorCode.PRODUCT_OUT_OF_STOCK);
         }
     }

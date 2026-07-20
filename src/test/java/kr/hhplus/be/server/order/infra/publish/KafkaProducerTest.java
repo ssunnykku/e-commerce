@@ -24,8 +24,6 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 @SpringBootTest
 @ActiveProfiles("test")
 class KafkaProducerTest extends AbstractKafkaTestContainer {
-    @Autowired
-    private OrderDataProducer orderDataProducer;
 
     @MockitoSpyBean
     private AlertTalkClient alertTalkClient;

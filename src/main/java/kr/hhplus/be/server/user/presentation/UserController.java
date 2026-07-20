@@ -17,7 +17,6 @@ public class UserController {
     private final ChargeUseCase chargeUseCase;
     private final GetUserUseCase getUserUseCase;
 
-
     @PostMapping("/charge")
      public ResponseEntity<UserResponse> charge(@RequestBody @Valid UserRequest request) {
         UserResponse result = chargeUseCase.execute(request);

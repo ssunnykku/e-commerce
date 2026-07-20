@@ -45,7 +45,7 @@ class TopSellingProductsUseCaseTest {
         // 1. DB에 테스트용 상품 저장
         List<Product> products = IntStream.rangeClosed(1, 5)
                 .mapToObj(i -> Product.of("상품 " + i, 1000L * i, 10L * i))
-                .collect(Collectors.toList());
+                .toList();
         productRepository.saveAll(products);
 
         // 2. Redis 랭킹 데이터 삽입 (get3DaysRankingKey 사용)
