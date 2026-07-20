@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.coupon.infra.listener;
 
+import kr.hhplus.be.server.config.KafkaTopics;
 import kr.hhplus.be.server.coupon.application.service.CouponIssueService;
 import kr.hhplus.be.server.coupon.domain.entity.Coupon;
 import kr.hhplus.be.server.coupon.domain.event.CouponIssueEvent;
@@ -18,7 +19,7 @@ public class CouponIssueEventListener {
     private final CouponIssueService couponIssueService;
 
     @KafkaListener(
-            topics = "coupon-topic",
+            topics = KafkaTopics.COUPON_TOPIC,
             groupId = "coupon-queue-group",
             containerFactory = "kafkaListenerContainerFactory",
             concurrency = "3"

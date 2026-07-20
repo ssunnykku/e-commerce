@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.infra.listener;
 
+import kr.hhplus.be.server.config.KafkaTopics;
 import kr.hhplus.be.server.order.application.service.OrderApiService;
 import kr.hhplus.be.server.order.domain.vo.OrderInfo;
 import kr.hhplus.be.server.order.domain.event.OrderCreatedEvent;
@@ -17,7 +18,7 @@ public class OrderEventListener {
     private final OrderApiService orderApiService;
 
     @KafkaListener(
-            topics = "trace-topic",
+            topics = KafkaTopics.TRACE_TOPIC,
             groupId = "order-info-sender-group",
             containerFactory = "kafkaListenerContainerFactory",
             concurrency = "3"

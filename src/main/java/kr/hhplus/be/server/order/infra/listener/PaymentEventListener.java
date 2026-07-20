@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.infra.listener;
 
+import kr.hhplus.be.server.config.KafkaTopics;
 import kr.hhplus.be.server.order.domain.event.OrderCreatedEvent;
 import kr.hhplus.be.server.order.infra.client.AlertTalkClient;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class PaymentEventListener {
     private final AlertTalkClient alertTalkClient;
 
     @KafkaListener(
-            topics = "trace-topic",
+            topics = KafkaTopics.TRACE_TOPIC,
             groupId = "alert-talk-sender-group",
             containerFactory = "kafkaListenerContainerFactory",
             concurrency = "3"
